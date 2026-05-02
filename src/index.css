@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Syne:wght@400..800&display=swap');
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", sans-serif;
+
+  --color-brand-navy: #1A1A2E;
+  --color-brand-orange: #E85D04;
+  --color-brand-blue: #0099CC;
+  --color-brand-amber: #F4A261;
+  --color-brand-grey: #F5F5F5;
+  --color-brand-white: #FFFFFF;
+
+  --pattern-grid: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+}
+
+@layer base {
+  body {
+    @apply bg-brand-navy text-white font-sans antialiased selection:bg-brand-orange selection:text-white;
+  }
+}
+
+.bg-grid {
+  background-image: var(--pattern-grid);
+  background-size: 32px 32px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-brand-navy;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+}
