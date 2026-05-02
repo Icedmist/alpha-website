@@ -63,7 +63,7 @@ export default function Home() {
     <div className="pt-20">
       {/* Hero Section */}
       <section id="hero" className="relative pt-28 pb-40 px-6 overflow-hidden">
-        <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-brand-orange/20 blur-[130px] rounded-full opacity-40 animate-pulse" />
+        <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-brand-orange/20 blur-[130px] rounded-full opacity-40" />
         <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] bg-brand-blue/20 blur-[130px] rounded-full opacity-40" />
         
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center relative z-10">
@@ -109,17 +109,24 @@ export default function Home() {
                     <div className="w-32 h-32 bg-brand-orange rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform duration-500 shadow-2xl shadow-brand-orange/40">
                         <Zap className="w-16 h-16 text-white fill-white" />
                     </div>
-                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center animate-bounce">
+                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center shadow-lg">
                         <CheckCircle2 className="w-6 h-6 text-white" />
                     </div>
                 </div>
-                <div className="space-y-6">
-                  <div className="h-5 bg-white/10 rounded-full w-full" />
-                  <div className="h-5 bg-white/10 rounded-full w-2/3" />
-                  <div className="pt-8 flex gap-4">
-                    <div className="h-3 w-12 rounded-full bg-brand-orange" />
-                    <div className="h-3 w-12 rounded-full bg-brand-blue" />
-                    <div className="h-3 w-12 rounded-full bg-brand-amber" />
+                <div className="space-y-8">
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-orange">Verified Skills</p>
+                    <div className="h-1 bg-gradient-to-r from-brand-orange to-transparent w-full rounded-full" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Status</p>
+                      <p className="text-xs font-bold text-white uppercase italic">Active</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Cohort</p>
+                      <p className="text-xs font-bold text-white uppercase italic">Alpha-01</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -142,6 +149,96 @@ export default function Home() {
               <div className="text-brand-orange text-[10px] uppercase tracking-[0.3em] font-black">{stat.label}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Founders / Leadership Section */}
+      <section className="py-40 overflow-hidden bg-brand-navy">
+        <div className="max-w-7xl mx-auto px-6 mb-32">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-brand-orange/20 blur-[100px] rounded-full" />
+              <div className="relative aspect-[4/5] rounded-[64px] overflow-hidden border border-white/10 group shadow-2xl">
+                <img 
+                  src="/assets/ishaq.jpg" 
+                  alt="Ishaq Sulaiman" 
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent opacity-80" />
+                <div className="absolute bottom-0 left-0 p-12">
+                   <p className="text-[10px] font-black uppercase tracking-[0.5em] text-brand-orange mb-2">Founder & Executive Director</p>
+                   <h3 className="font-display font-black text-4xl text-white uppercase italic tracking-tighter">Ishaq Sulaiman</h3>
+                </div>
+              </div>
+            </motion.div>
+            
+            <div className="space-y-12">
+              <div className="space-y-6">
+                <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">The Vision</p>
+                <h2 className="font-display font-black text-5xl md:text-8xl text-white uppercase italic tracking-tighter leading-[0.85]">
+                  Pioneering <br />Digital <br /><span className="text-brand-orange">Verification.</span>
+                </h2>
+              </div>
+              <p className="text-white/50 text-xl leading-relaxed italic font-medium max-w-lg">
+                "We aren't just teaching people how to code or design; we are building the registry that validates 
+                Africa's potential for the global digital economy."
+              </p>
+              <div className="flex gap-4 items-center pt-8">
+                 <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <Zap className="w-6 h-6 text-brand-orange" />
+                 </div>
+                 <p className="text-sm font-black uppercase tracking-widest text-white/40">Established 2025</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 mb-16">
+          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">Board of Directors & Advisors</p>
+          <h2 className="font-display font-black text-5xl md:text-7xl text-white uppercase italic tracking-tighter leading-none">
+            The <span className="text-brand-orange">Leadership.</span>
+          </h2>
+        </div>
+        
+        <div className="relative flex overflow-hidden">
+          <motion.div 
+            animate={{ 
+              x: ["0%", "-50%"] 
+            }}
+            transition={{ 
+              duration: 30, 
+              ease: "linear", 
+              repeat: Infinity 
+            }}
+            className="flex gap-8 whitespace-nowrap"
+          >
+            {[...Array(13)].map((_, i) => (
+              <div key={i} className="w-64 h-80 shrink-0 rounded-[48px] overflow-hidden border border-white/10 relative group">
+                <img 
+                  src={`/assets/founders/f${i + 1}.jpg`} 
+                  alt={`Founder ${i + 1}`} 
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
+              </div>
+            ))}
+            {/* Duplicate for seamless loop */}
+            {[...Array(13)].map((_, i) => (
+              <div key={`dup-${i}`} className="w-64 h-80 shrink-0 rounded-[48px] overflow-hidden border border-white/10 relative group">
+                <img 
+                  src={`/assets/founders/f${i + 1}.jpg`} 
+                  alt={`Founder ${i + 1}`} 
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
 
@@ -192,16 +289,18 @@ export default function Home() {
               We collaborate across sectors to improve workforce readiness and digital capacity.
             </p>
           </div>
-          <div className="flex flex-wrap gap-16 items-center justify-center opacity-20 hover:opacity-100 transition-all duration-700">
+          <div className="flex flex-wrap gap-16 items-center justify-center">
             {[
-                { icon: Building2, label: "GOVERNMENT" },
-                { icon: Users, label: "UNIVERSITIES" },
-                { icon: Code, label: "TECH COMPANIES" },
-                { icon: TrendingUp, label: "BANKS" }
+                { icon: Building2, label: "GOVERNMENT", color: "text-brand-blue", bg: "bg-brand-blue/10" },
+                { icon: Users, label: "UNIVERSITIES", color: "text-brand-orange", bg: "bg-brand-orange/10" },
+                { icon: Code, label: "TECH COMPANIES", color: "text-brand-amber", bg: "bg-brand-amber/10" },
+                { icon: TrendingUp, label: "BANKS", color: "text-emerald-400", bg: "bg-emerald-400/10" }
             ].map((p, i) => (
-                <div key={i} className="flex flex-col items-center gap-4 group cursor-help">
-                    <p.icon className="w-12 h-12 text-white group-hover:text-brand-orange transition-colors" />
-                    <span className="text-[10px] font-black tracking-[0.3em] text-white/50">{p.label}</span>
+                <div key={i} className="flex flex-col items-center gap-6 group cursor-help">
+                    <div className={`w-24 h-24 rounded-3xl ${p.bg} flex items-center justify-center border border-white/5 group-hover:scale-110 transition-all duration-500`}>
+                       <p.icon className={`w-10 h-10 ${p.color} transition-colors`} />
+                    </div>
+                    <span className="text-[10px] font-black tracking-[0.3em] text-white/50 group-hover:text-white transition-colors">{p.label}</span>
                 </div>
             ))}
           </div>

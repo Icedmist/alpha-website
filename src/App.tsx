@@ -54,20 +54,13 @@ function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-brand-navy relative overflow-x-hidden">
       <div className="fixed inset-0 bg-grid pointer-events-none opacity-20" />
       
-      {/* Progress Bar */}
-      <motion.div
-        id="scroll-progress"
-        className="fixed top-0 left-0 right-0 h-1 bg-brand-orange z-50 origin-left"
-        style={{ scaleX }}
-      />
+      {/* Progress Bar removed */}
 
       {/* Navigation */}
       <nav id="navbar" className="fixed top-0 w-full z-40 bg-brand-navy/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between text-white">
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-brand-orange rounded-lg flex items-center justify-center">
-              <Zap className="text-white fill-white w-6 h-6" />
-            </div>
+            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 object-contain" />
             <span className="font-display font-black text-2xl tracking-tighter uppercase italic">ALPHA SPARK</span>
           </Link>
 
@@ -132,9 +125,7 @@ function Layout({ children }: { children: ReactNode }) {
           <div className="grid lg:grid-cols-4 gap-20 mb-32">
             <div className="lg:col-span-2 space-y-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-brand-orange rounded-xl flex items-center justify-center">
-                    <Zap className="text-white fill-white w-7 h-7" />
-                </div>
+                <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-12 h-12 object-contain" />
                 <span className="font-display font-black text-3xl tracking-tighter text-white uppercase italic">alpha spark.</span>
               </div>
               <p className="text-white/30 text-lg max-w-sm leading-relaxed italic">
@@ -155,11 +146,11 @@ function Layout({ children }: { children: ReactNode }) {
 
             <div>
               <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Connect</h4>
-              <ul className="space-y-6 text-white/40 text-sm font-bold uppercase tracking-widest">
-                <li><Link to="/contact" className="hover:text-white transition-colors">Partner With Us</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors">Contact Support</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li className="pt-6 flex gap-8 text-brand-orange">
+              <ul className="space-y-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
+                <li><a href="mailto:hello@alphaspark.tech" className="hover:text-white transition-colors">hello@alphaspark.tech</a></li>
+                <li><a href="tel:09075444148" className="hover:text-white transition-colors">09075444148</a></li>
+                <li className="text-brand-orange">Gombe State, Nigeria</li>
+                <li className="pt-6 flex gap-8">
                   <TrendingUp className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
                   <Target className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
                   <ShieldCheck className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />

@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
-import { useState } from "react";
-import { CheckCircle2, User, BookOpen, MapPin, Briefcase, GraduationCap, ArrowRight } from "lucide-react";
+import React, { useState } from "react";
+import { CheckCircle2, User, BookOpen, MapPin, Briefcase, GraduationCap, ArrowRight, Zap, ShieldCheck } from "lucide-react";
 
 export default function Apply() {
   const [step, setStep] = useState(1);
@@ -26,12 +26,18 @@ export default function Apply() {
   };
 
   const programs = [
-    "AI Fundamentals",
-    "Data Analysis",
-    "Programming",
-    "Cybersecurity Awareness",
-    "Digital Literacy",
-    "Productivity & Automation"
+    "Financial Technology (FinTech)",
+    "Full Stack Web Development",
+    "Graphic Design",
+    "Entrepreneurship & Startups",
+    "Digital Marketing",
+    "AI & Machine Learning",
+    "UI/UX Design",
+    "Data Science & Analytics",
+    "Cybersecurity Strategy",
+    "Product Management",
+    "Mobile App Development",
+    "Blockchain & Web3"
   ];
 
   return (

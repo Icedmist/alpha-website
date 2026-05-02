@@ -92,17 +92,108 @@ export default function About() {
       </section>
 
       {/* Values */}
-      <section className="px-6 py-32 bg-brand-orange">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-12 text-white">
+      <section className="px-6 py-40 bg-brand-navy relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+           <img src="/assets/values_banner.png" alt="Values Backdrop" className="w-full h-full object-cover mix-blend-overlay" />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="mb-24 text-center">
+            <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">Foundation</p>
+            <h2 className="font-display font-black text-5xl md:text-7xl uppercase italic tracking-tighter">Core Values</h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-12">
             {values.map((v, i) => (
-              <div key={i} className="border-t-2 border-white/20 pt-8">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] block mb-4">Value 0{i + 1}</span>
-                <h3 className="font-display font-black text-4xl uppercase italic tracking-tight mb-4">{v.title}</h3>
-                <p className="text-white/80 font-medium italic">{v.desc}</p>
+              <div key={i} className="p-12 rounded-[48px] bg-white/5 border border-white/10 hover:border-brand-orange transition-all group relative">
+                <div className="absolute -top-6 -left-6 w-20 h-20 bg-brand-orange rounded-3xl flex items-center justify-center transform -rotate-12 group-hover:rotate-0 transition-transform shadow-xl shadow-brand-orange/20">
+                   <span className="text-2xl font-display font-black text-white italic">0{i + 1}</span>
+                </div>
+                <div className="pt-8">
+                  <h3 className="font-display font-black text-4xl uppercase italic tracking-tight mb-6 group-hover:text-brand-orange transition-colors">{v.title}</h3>
+                  <p className="text-white/40 text-lg leading-relaxed italic font-medium">{v.desc}</p>
+                </div>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Founder Spotlight */}
+      <section className="px-6 py-40 bg-white/[0.02]">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
+           <div className="relative aspect-square rounded-[64px] overflow-hidden border border-white/10 group">
+              <img 
+                src="/assets/ishaq.jpg" 
+                alt="Ishaq Sulaiman" 
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent opacity-80" />
+           </div>
+           <div className="space-y-12">
+              <div className="space-y-6">
+                <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">Executive Director</p>
+                <h2 className="font-display font-black text-5xl md:text-7xl uppercase italic tracking-tighter leading-none">Ishaq <br />Sulaiman.</h2>
+              </div>
+              <p className="text-xl text-white/50 leading-relaxed italic font-medium">
+                "Our goal is to ensure that every young African has a verifiable digital footprint that the world can trust. 
+                We are building the trust layer for the future of work."
+              </p>
+              <div className="pt-8 flex gap-10">
+                 <div>
+                    <p className="text-3xl font-display font-black text-white italic">2025</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-orange">Established</p>
+                 </div>
+                 <div>
+                    <p className="text-3xl font-display font-black text-white italic">5K+</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-orange">Talent Registry</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
+
+      {/* Leadership Section */}
+      <section className="py-40 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 mb-24 text-center">
+          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">The Advisory Board & Team</p>
+          <h2 className="font-display font-black text-5xl md:text-8xl text-white uppercase italic tracking-tighter leading-none">
+            Our <span className="text-brand-orange">Leadership.</span>
+          </h2>
+        </div>
+        
+        <div className="relative flex overflow-hidden">
+          <motion.div 
+            animate={{ 
+              x: ["0%", "-50%"] 
+            }}
+            transition={{ 
+              duration: 35, 
+              ease: "linear", 
+              repeat: Infinity 
+            }}
+            className="flex gap-10 whitespace-nowrap"
+          >
+            {[...Array(13)].map((_, i) => (
+              <div key={i} className="w-80 h-[450px] shrink-0 rounded-[64px] overflow-hidden border border-white/10 relative group">
+                <img 
+                  src={`/assets/founders/f${i + 1}.jpg`} 
+                  alt={`Founder ${i + 1}`} 
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
+              </div>
+            ))}
+            {/* Duplicate for seamless loop */}
+            {[...Array(13)].map((_, i) => (
+              <div key={`dup-${i}`} className="w-80 h-[450px] shrink-0 rounded-[64px] overflow-hidden border border-white/10 relative group">
+                <img 
+                  src={`/assets/founders/f${i + 1}.jpg`} 
+                  alt={`Founder ${i + 1}`} 
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
+              </div>
+            ))}
+          </motion.div>
         </div>
       </section>
     </div>
