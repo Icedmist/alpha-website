@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Mail, Phone, MapPin, Send, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export default function Contact() {
   const [formState, setFormState] = useState({
@@ -46,7 +46,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white uppercase tracking-widest text-xs mb-2">Email Us</h3>
-                    <p className="text-white/60 font-medium font-mono">hello@alphaspark.ng</p>
+                    <p className="text-white/60 font-medium font-mono">hello@alphaspark.tech</p>
                   </div>
                 </div>
 
@@ -56,7 +56,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white uppercase tracking-widest text-xs mb-2">Call Us</h3>
-                    <p className="text-white/60 font-medium font-mono">+234 (0) 800 ALPHA SPARK</p>
+                    <p className="text-white/60 font-medium font-mono">09075444148</p>
                   </div>
                 </div>
 
@@ -66,7 +66,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white uppercase tracking-widest text-xs mb-2">Headquarters</h3>
-                    <p className="text-white/60 font-medium italic">Lagos, Nigeria. <br />Innovation Hub, Yaba.</p>
+                    <p className="text-white/60 font-medium italic">Gombe State, Nigeria.</p>
                   </div>
                 </div>
               </div>
