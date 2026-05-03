@@ -41,8 +41,8 @@ export default function Apply() {
   ];
 
   return (
-    <div className="pt-32 min-h-screen">
-      <section className="px-6 pb-24">
+    <div className="pt-24 md:pt-32 min-h-screen">
+      <section className="px-6 pb-16 md:pb-24">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16 space-y-6">
@@ -53,10 +53,10 @@ export default function Apply() {
             >
               Academy Enrollment
             </motion.div>
-            <h1 className="font-display font-black text-6xl md:text-8xl uppercase italic leading-none tracking-tighter">
+            <h1 className="font-display font-black text-4xl md:text-6xl lg:text-6xl uppercase italic leading-none tracking-tighter">
               Ignite Your <br /><span className="text-brand-orange">Future.</span>
             </h1>
-            <p className="text-xl text-white/50 leading-relaxed font-medium italic">
+            <p className="text-lg md:text-xl text-white/50 leading-relaxed font-medium italic">
               Apply to join the next cohort of Alpha Spark scholars.
             </p>
           </div>
@@ -82,7 +82,7 @@ export default function Apply() {
           </div>
 
           {/* Form Container */}
-          <div className="bg-white/5 border border-white/10 rounded-[56px] p-12 shadow-2xl relative overflow-hidden">
+          <div className="bg-white/5 border border-white/10 rounded-[32px] md:rounded-[56px] p-6 md:p-12 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5">
                 <Zap className="w-64 h-64 text-white" />
             </div>
@@ -95,14 +95,14 @@ export default function Apply() {
               >
                 <div className="flex items-center gap-4 mb-8">
                     <User className="text-brand-orange w-6 h-6" />
-                    <h2 className="font-display font-bold text-3xl uppercase italic tracking-tight">Personal Info</h2>
+                    <h2 className="font-display font-bold text-2xl md:text-3xl uppercase italic tracking-tight">Personal Info</h2>
                 </div>
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">First Name</label>
                     <input 
                       type="text" 
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange"
                       value={formData.firstName}
                       onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                     />
@@ -111,7 +111,7 @@ export default function Apply() {
                     <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Last Name</label>
                     <input 
                       type="text" 
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange"
                       value={formData.lastName}
                       onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                     />
@@ -121,7 +121,7 @@ export default function Apply() {
                   <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Email Address</label>
                   <input 
                     type="email" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                   />
@@ -131,7 +131,7 @@ export default function Apply() {
                     <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Phone Number</label>
                     <input 
                       type="tel" 
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange"
                       value={formData.phone}
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     />
@@ -142,11 +142,11 @@ export default function Apply() {
                         <input 
                           type="text" 
                           placeholder="City, State"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange pl-12"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange pl-12"
                           value={formData.location}
                           onChange={(e) => setFormData({...formData, location: e.target.value})}
                         />
-                        <MapPin className="absolute left-4 top-4.5 text-white/20 w-5 h-5" />
+                        <MapPin className="absolute left-4 top-3 md:top-4.5 text-white/20 w-5 h-5" />
                     </div>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export default function Apply() {
               >
                 <div className="flex items-center gap-4 mb-8">
                     <BookOpen className="text-brand-orange w-6 h-6" />
-                    <h2 className="font-display font-bold text-3xl uppercase italic tracking-tight">Program & Background</h2>
+                    <h2 className="font-display font-bold text-2xl md:text-3xl uppercase italic tracking-tight">Program & Background</h2>
                 </div>
                 <div className="space-y-4">
                   <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Select Your Learning Track</label>
@@ -177,11 +177,11 @@ export default function Apply() {
                       <button 
                         key={p}
                         onClick={() => setFormData({...formData, program: p})}
-                        className={`p-6 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                        className={`p-4 md:p-6 rounded-2xl border text-left flex items-center justify-between transition-all ${
                           formData.program === p ? "bg-brand-orange border-brand-orange text-white shadow-xl shadow-brand-orange/20" : "bg-white/5 border-white/10 text-white/40 hover:border-white/20"
                         }`}
                       >
-                        <span className="font-bold uppercase tracking-tight text-sm">{p}</span>
+                        <span className="font-bold uppercase tracking-tight text-xs md:text-sm">{p}</span>
                         {formData.program === p && <CheckCircle2 className="w-5 h-5" />}
                       </button>
                     ))}
@@ -190,7 +190,7 @@ export default function Apply() {
 
                 <div className="space-y-4">
                     <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Current Status</label>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         {[
                             { id: "student", label: "Student", icon: GraduationCap },
                             { id: "professional", label: "Professional", icon: Briefcase },
@@ -199,11 +199,11 @@ export default function Apply() {
                             <button
                                 key={s.id}
                                 onClick={() => setFormData({...formData, background: s.id})}
-                                className={`p-6 rounded-2xl border flex flex-col items-center gap-3 transition-all ${
+                                className={`p-4 md:p-6 rounded-2xl border flex sm:flex-col items-center gap-4 sm:gap-3 transition-all ${
                                     formData.background === s.id ? "bg-brand-blue border-brand-blue text-white" : "bg-white/5 border-white/10 text-white/40"
                                 }`}
                             >
-                                <s.icon className="w-8 h-8" />
+                                <s.icon className="w-6 h-6 md:w-8 md:h-8" />
                                 <span className="text-[10px] font-black uppercase tracking-widest">{s.label}</span>
                             </button>
                         ))}
@@ -228,13 +228,13 @@ export default function Apply() {
               >
                 <div className="flex items-center gap-4 mb-8">
                     <Zap className="text-brand-orange w-6 h-6" />
-                    <h2 className="font-display font-bold text-3xl uppercase italic tracking-tight">Motivation</h2>
+                    <h2 className="font-display font-bold text-2xl md:text-3xl uppercase italic tracking-tight">Motivation</h2>
                 </div>
                 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Experience Level</label>
                   <select 
-                    className="w-full bg-brand-navy border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange appearance-none"
+                    className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange appearance-none"
                     value={formData.experience}
                     onChange={(e) => setFormData({...formData, experience: e.target.value})}
                   >
@@ -249,7 +249,7 @@ export default function Apply() {
                   <textarea 
                     rows={6}
                     placeholder="Tell us about your goals and how this program will help you."
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-brand-orange resize-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange resize-none"
                     value={formData.reason}
                     onChange={(e) => setFormData({...formData, reason: e.target.value})}
                   />
@@ -274,8 +274,8 @@ export default function Apply() {
                   <CheckCircle2 className="w-16 h-16 text-white" />
                 </div>
                 <div className="space-y-4">
-                  <h2 className="font-display font-black text-4xl uppercase italic tracking-tight">Application Received!</h2>
-                  <p className="text-white/40 max-w-sm mx-auto italic">
+                  <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight">Application Received!</h2>
+                  <p className="text-white/40 max-w-sm mx-auto italic text-sm md:text-base">
                     Great choice, {formData.firstName}. Our admissions team will review your application and get in touch within 48 hours.
                   </p>
                 </div>
@@ -292,8 +292,8 @@ export default function Apply() {
       </section>
 
       {/* Trust Badges */}
-      <section className="px-6 py-24">
-        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-12 opacity-20">
+      <section className="px-6 py-16 md:py-24">
+        <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-8 md:gap-12 opacity-20">
             <div className="flex items-center gap-2 font-bold uppercase tracking-widest text-[10px]">
                 <ShieldCheck className="w-5 h-5" /> Secured Data
             </div>

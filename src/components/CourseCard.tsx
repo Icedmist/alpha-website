@@ -20,7 +20,7 @@ export default function CourseCard({ course }: { course: Course }) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group relative bg-white/5 border border-white/10 rounded-[48px] overflow-hidden hover:bg-white/10 transition-all duration-500"
+      className="group relative bg-white/5 border border-white/10 rounded-[32px] md:rounded-[40px] lg:rounded-[48px] overflow-hidden hover:bg-white/10 transition-all duration-500"
     >
       {/* Decorative Glow */}
       <div 
@@ -28,7 +28,7 @@ export default function CourseCard({ course }: { course: Course }) {
         style={{ backgroundColor: course.accentColor }}
       />
 
-      <div className="p-8 md:p-12 space-y-12">
+      <div className="p-6 md:p-10 lg:p-12 space-y-12">
         {/* Header */}
         <div className="space-y-4">
           <div className="flex justify-between items-start">
@@ -40,7 +40,7 @@ export default function CourseCard({ course }: { course: Course }) {
             </div>
           </div>
           <div>
-            <h3 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tighter leading-none mb-2">
+            <h3 className="font-display font-black text-2xl md:text-3xl lg:text-4xl uppercase italic tracking-tighter leading-none mb-2">
               {course.title}
             </h3>
             <p className="text-brand-orange font-medium italic text-lg opacity-80">
@@ -50,7 +50,7 @@ export default function CourseCard({ course }: { course: Course }) {
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 py-6 border-y border-white/5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 py-6 border-y border-white/5">
           {[
             { label: "Duration", val: course.duration, icon: Calendar },
             { label: "Hours", val: course.hours, icon: Clock },
@@ -70,7 +70,7 @@ export default function CourseCard({ course }: { course: Course }) {
         </div>
 
         {/* Content Grid */}
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12">
           {/* What You'll Learn */}
           <div className="space-y-6">
             <h4 className="inline-flex px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/50">
@@ -92,7 +92,7 @@ export default function CourseCard({ course }: { course: Course }) {
               <h4 className="inline-flex px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-white/50">
                 Your Outcome
               </h4>
-              <p className="text-lg font-medium italic text-white/80 leading-snug">
+              <p className="text-base md:text-lg font-medium italic text-white/80 leading-snug">
                 "{course.outcome}"
               </p>
             </div>
@@ -141,7 +141,7 @@ export default function CourseCard({ course }: { course: Course }) {
 
           <Link 
             to="/apply"
-            className="w-full md:w-auto bg-white text-brand-navy px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-3 group/btn"
+            className="w-full md:w-auto bg-white text-brand-navy px-6 py-3 md:px-8 md:py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-brand-orange hover:text-white transition-all flex items-center justify-center gap-3 group/btn"
           >
             Enroll Now <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
           </Link>

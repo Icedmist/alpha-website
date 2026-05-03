@@ -54,9 +54,9 @@ export default function Roadmap() {
   ];
 
   return (
-    <div className="pt-32 min-h-screen">
+    <div className="pt-24 md:pt-32 min-h-screen">
       {/* Hero */}
-      <section className="px-6 pb-24 text-center space-y-8">
+      <section className="px-6 pb-16 md:pb-24 text-center space-y-8">
         <motion.div
            initial={{ opacity: 0, scale: 0.9 }}
            animate={{ opacity: 1, scale: 1 }}
@@ -64,19 +64,19 @@ export default function Roadmap() {
         >
           Growth Strategy
         </motion.div>
-        <h1 className="font-display font-black text-6xl md:text-8xl uppercase italic leading-none tracking-tighter">
+        <h1 className="font-display font-black text-4xl md:text-6xl lg:text-6xl uppercase italic leading-none tracking-tighter">
           Growth <br /><span className="text-brand-orange">Roadmap.</span>
         </h1>
-        <p className="text-xl text-white/50 leading-relaxed max-w-2xl mx-auto italic font-medium">
+        <p className="text-lg md:text-xl text-white/50 leading-relaxed max-w-2xl mx-auto italic font-medium">
             A strategic, phase-by-phase approach to building Nigeria's digital workforce infrastructure.
         </p>
       </section>
 
       {/* Timeline */}
-      <section className="px-6 py-40 bg-white/2 border-t border-white/5">
-        <div className="max-w-7xl mx-auto space-y-32">
+      <section className="px-6 py-20 md:py-32 lg:py-40 bg-white/2 border-t border-white/5">
+        <div className="max-w-7xl mx-auto space-y-24 md:space-y-32">
           {steps.map((step, i) => (
-            <div key={i} className="relative grid md:grid-cols-2 gap-16 items-start">
+            <div key={i} className="relative grid md:grid-cols-2 gap-12 md:gap-16 items-start">
                {/* Timeline Dot & Line */}
                {i !== steps.length - 1 && (
                   <div className="absolute left-[31px] top-20 bottom-[-100px] w-0.5 bg-gradient-to-b from-brand-orange to-transparent hidden md:block" />
@@ -88,12 +88,12 @@ export default function Roadmap() {
                         <span className="font-display font-black text-xl text-brand-orange italic">{i + 1}</span>
                     </div>
                     <div>
-                        <p className="text-brand-orange text-[10px] font-black uppercase tracking-[0.3em] mb-2">{step.period}</p>
-                        <h2 className="font-display font-black text-3xl uppercase italic tracking-tight">{step.phase}</h2>
+                        <p className="text-brand-orange text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] mb-2">{step.period}</p>
+                        <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic tracking-tight">{step.phase}</h2>
                     </div>
                  </div>
-                 <div className="md:pl-24">
-                    <h3 className="text-xl font-bold text-white/90 mb-8 italic">{step.title}</h3>
+                 <div className="pl-0 md:pl-24">
+                    <h3 className="text-lg md:text-xl font-bold text-white/90 mb-6 md:mb-8 italic">{step.title}</h3>
                     <ul className="space-y-6">
                         {step.items.map((item, j) => (
                             <li key={j} className="flex items-start gap-4 text-white/40 uppercase font-black text-xs tracking-widest leading-loose">
@@ -105,7 +105,7 @@ export default function Roadmap() {
                  </div>
                </div>
 
-               <div className="bg-white/5 border border-white/10 p-12 rounded-[56px] space-y-8 h-full flex flex-col justify-center">
+               <div className="bg-white/5 border border-white/10 p-8 md:p-12 rounded-[32px] md:rounded-[56px] space-y-8 h-full flex flex-col justify-center">
                     <div className="space-y-2">
                         <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-white/40">
                             <span>Readiness Level</span>
