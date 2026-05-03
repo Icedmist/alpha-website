@@ -20,7 +20,7 @@ export default function Roadmap() {
       period: "6-18 Months",
       title: "Ecosystem Integration",
       items: [
-        "Expansion to 10 institutions across Nigeria",
+        "Expansion to 10 institutions across Africa",
         "Reach 1,000+ verified talent profiles",
         "Deploy the Employer Portal for talent discovery",
         "Integrated certification system with global partners"
@@ -44,7 +44,7 @@ export default function Roadmap() {
       period: "3-5 Years",
       title: "Continental Leadership",
       items: [
-        "Establishment as the primary talent data source in Nigeria",
+        "Establishment as the primary talent data source in Africa",
         "Expansion into West African regional markets",
         "Full platform automation for talent lifecycle management",
         "Integration with pan-African workforce initiatives"
@@ -68,7 +68,7 @@ export default function Roadmap() {
           Growth <br /><span className="text-brand-orange">Roadmap.</span>
         </h1>
         <p className="text-lg md:text-xl text-white/50 leading-relaxed max-w-2xl mx-auto italic font-medium">
-            A strategic, phase-by-phase approach to building Nigeria's digital workforce infrastructure.
+            A strategic, phase-by-phase approach to building Africa's digital workforce infrastructure.
         </p>
       </section>
 

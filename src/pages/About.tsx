@@ -23,7 +23,7 @@ export default function About() {
   const values = [
     { title: "Integrity", desc: "Verified data you can trust." },
     { title: "Innovation", desc: "Redefining how Africa learns and works." },
-    { title: "Inclusion", desc: "Scaling digital access for all Nigerians." }
+    { title: "Inclusion", desc: "Scaling digital access for all Africans." }
   ];
 
   return (
@@ -43,7 +43,7 @@ export default function About() {
           </h1>
           <p className="text-lg md:text-xl text-white/60 leading-relaxed max-w-2xl mx-auto italic font-medium">
             Alpha Spark is not a traditional training company. We are a workforce infrastructure company 
-            building the foundation for Nigeria's digital economy.
+            building the foundation for Africa's digital economy.
           </p>
         </div>
       </section>
@@ -55,7 +55,7 @@ export default function About() {
             <Compass className="w-12 h-12 text-brand-orange mb-4" />
             <h2 className="font-display font-bold text-3xl md:text-4xl uppercase italic tracking-tight">Our Vision</h2>
             <p className="text-base md:text-lg text-white/50 leading-relaxed uppercase font-bold tracking-wider">
-              "To scale digital capability development across Nigeria, ensuring every individual is 
+              "To scale digital capability development across Africa, ensuring every individual is 
               job-ready and every institution is data-driven."
             </p>
           </div>

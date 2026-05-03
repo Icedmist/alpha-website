@@ -80,7 +80,7 @@ export default function Home() {
               <span className="text-brand-orange">THE BASE.</span>
             </h1>
             <p className="text-white/60 text-base md:text-lg lg:text-2xl max-w-lg mb-10 md:mb-14 leading-relaxed font-medium italic">
-              Alpha Spark is Nigeria's workforce infrastructure partner—redefining how talent is verified, 
+              Alpha Spark is Africa's workforce infrastructure partner—redefining how talent is verified, 
               trained, and deployed in the digital economy.
             </p>
             <div className="flex flex-wrap gap-6">
@@ -369,7 +369,7 @@ export default function Home() {
               THE TALENT <br />CLOUD.
             </h2>
             <p className="text-white text-lg md:text-xl lg:text-2xl leading-relaxed font-medium italic max-w-2xl">
-              Nigeria's most advanced registry of verified digital talent. 
+              Africa's most advanced registry of verified digital talent. 
               Connecting job-ready professionals with global opportunities.
             </p>
             <div className="flex gap-6">

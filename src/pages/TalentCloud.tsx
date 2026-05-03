@@ -63,7 +63,7 @@ export default function TalentCloud() {
                     Talent <br /><span className="text-brand-orange">Cloud.</span>
                 </h1>
                 <p className="text-lg md:text-xl text-white/50 leading-relaxed max-w-lg">
-                    The Alpha Talent Cloud is Nigeria's premier registry of verified digital talent, 
+                    The Alpha Talent Cloud is Africa's premier registry of verified digital talent, 
                     designed to eliminate the mismatch between education and employment.
                 </p>
                 <div className="flex gap-6 pt-4">

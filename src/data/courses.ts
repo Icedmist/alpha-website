@@ -35,7 +35,7 @@ export const courses: Course[] = [
     ],
     outcome: "Design a FinTech product concept ready to pitch to investors or build as MVP.",
     careerPaths: ["Fintech Analyst", "Payment Systems developer"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Paystack API", "Flutterwave", "Stripe", "Ethereum"]
   },
   {
@@ -57,7 +57,7 @@ export const courses: Course[] = [
     ],
     outcome: "Leave with a fully deployed website ready to show any employer or client.",
     careerPaths: ["Web developer", "Freelance Designer", "Frontend engineer"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["VS Code", "GitHub", "Vercel", "React", "Tailwind"]
   },
   {
@@ -79,7 +79,7 @@ export const courses: Course[] = [
     ],
     outcome: "Build a full brand identity kit and a portfolio of 10+ professional designs.",
     careerPaths: ["Graphics designer", "Brand designer", "Creative designer"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Canva", "Adobe Photoshop", "Illustrator", "Figma"]
   },
   {
@@ -101,7 +101,7 @@ export const courses: Course[] = [
     ],
     outcome: "Launch your first validated business idea ready for customers within 90 days.",
     careerPaths: ["Founder", "Entrepreneur", "Business owner"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Notion", "Slack", "Trello", "Pitch.com", "LinkedIn"]
   },
   {
@@ -123,7 +123,7 @@ export const courses: Course[] = [
     ],
     outcome: "Run a live facebook/instagram ad campaign with real budget and see results.",
     careerPaths: ["Digital marketer", "Ads specialist"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Meta Ads Manager", "Google Analytics", "SEMRush", "Mailchimp"]
   },
   {
@@ -145,7 +145,7 @@ export const courses: Course[] = [
     ],
     outcome: "Develop and deploy a custom AI model or agent for a real-world use case.",
     careerPaths: ["AI Engineer", "ML Researcher", "Data Scientist"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Python", "PyTorch", "OpenAI API", "Jupyter Notebooks", "HuggingFace"]
   },
   {
@@ -167,7 +167,7 @@ export const courses: Course[] = [
     ],
     outcome: "Complete a full case study and high-fidelity prototype ready for your portfolio.",
     careerPaths: ["Product Designer", "UI Designer", "UX Researcher"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Figma", "FigJam", "Miro", "Maze", "Zeplin"]
   },
   {
@@ -189,7 +189,7 @@ export const courses: Course[] = [
     ],
     outcome: "Produce a comprehensive data report and dashboard for a partner company.",
     careerPaths: ["Data Analyst", "Business Intelligence Analyst", "Data Strategist"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["SQL", "Tableau", "PowerBI", "Excel", "Pandas"]
   },
   {
@@ -211,7 +211,7 @@ export const courses: Course[] = [
     ],
     outcome: "Conduct a security audit and develop a defense strategy for an enterprise network.",
     careerPaths: ["Security Analyst", "Ethical Hacker", "Security Consultant"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Kali Linux", "Wireshark", "Metasploit", "Nmap", "AWS GuardDuty"]
   },
   {
@@ -233,7 +233,7 @@ export const courses: Course[] = [
     ],
     outcome: "Define a product vision, roadmap, and PRD for a new tech venture.",
     careerPaths: ["Product Manager", "Product Owner", "Program Manager"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Jira", "Confluence", "Productboard", "Mixpanel", "Google Analytics"]
   },
   {
@@ -255,7 +255,7 @@ export const courses: Course[] = [
     ],
     outcome: "Launch a fully functional mobile app on both iOS and Android platforms.",
     careerPaths: ["Mobile Developer", "App Architect", "Software Engineer"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Flutter", "Dart", "Firebase", "Xcode", "Android Studio"]
   },
   {
