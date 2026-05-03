@@ -13,6 +13,7 @@ export interface Course {
   talentCloud: string;
   accentColor: string;
   tools: string[];
+  iconName: string;
 }
 
 export const courses: Course[] = [
@@ -24,7 +25,7 @@ export const courses: Course[] = [
     hours: "24 HRS",
     level: "BEGINNER+",
     certificate: "VERIFIED",
-    fee: "N20,000",
+    fee: "₦20,000",
     accentColor: "#007BFF",
     learn: [
       "How digital payment work in Africa",
@@ -36,7 +37,8 @@ export const courses: Course[] = [
     outcome: "Design a FinTech product concept ready to pitch to investors or build as MVP.",
     careerPaths: ["Fintech Analyst", "Payment Systems developer"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Paystack API", "Flutterwave", "Stripe", "Ethereum"]
+    tools: ["Paystack API", "Flutterwave", "Stripe", "Ethereum"],
+    iconName: "Wallet"
   },
   {
     id: "fullstack-web",
@@ -46,7 +48,7 @@ export const courses: Course[] = [
     hours: "48 HRS",
     level: "BEGINNER+",
     certificate: "VERIFIED",
-    fee: "N25,000",
+    fee: "₦25,000",
     accentColor: "#00AEEF",
     learn: [
       "HTML, CSS & JavaScript",
@@ -58,7 +60,8 @@ export const courses: Course[] = [
     outcome: "Leave with a fully deployed website ready to show any employer or client.",
     careerPaths: ["Web developer", "Freelance Designer", "Frontend engineer"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["VS Code", "GitHub", "Vercel", "React", "Tailwind"]
+    tools: ["VS Code", "GitHub", "Vercel", "React", "Tailwind"],
+    iconName: "Code"
   },
   {
     id: "graphic-design",
@@ -68,7 +71,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "BEGINNER",
     certificate: "VERIFIED",
-    fee: "N18,000",
+    fee: "₦18,000",
     accentColor: "#FFFFFF",
     learn: [
       "Design principles and colour theory",
@@ -80,7 +83,8 @@ export const courses: Course[] = [
     outcome: "Build a full brand identity kit and a portfolio of 10+ professional designs.",
     careerPaths: ["Graphics designer", "Brand designer", "Creative designer"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Canva", "Adobe Photoshop", "Illustrator", "Figma"]
+    tools: ["Canva", "Adobe Photoshop", "Illustrator", "Figma"],
+    iconName: "Palette"
   },
   {
     id: "entrepreneurship",
@@ -90,7 +94,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "ALL LEVELS",
     certificate: "VERIFIED",
-    fee: "N20,000",
+    fee: "₦20,000",
     accentColor: "#00AEEF",
     learn: [
       "Founders mindset",
@@ -102,7 +106,8 @@ export const courses: Course[] = [
     outcome: "Launch your first validated business idea ready for customers within 90 days.",
     careerPaths: ["Founder", "Entrepreneur", "Business owner"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Notion", "Slack", "Trello", "Pitch.com", "LinkedIn"]
+    tools: ["Notion", "Slack", "Trello", "Pitch.com", "LinkedIn"],
+    iconName: "Rocket"
   },
   {
     id: "digital-marketing",
@@ -112,7 +117,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "BEGINNER+",
     certificate: "VERIFIED",
-    fee: "N20,000",
+    fee: "₦20,000",
     accentColor: "#007BFF",
     learn: [
       "Meta & Google Ads",
@@ -124,7 +129,8 @@ export const courses: Course[] = [
     outcome: "Run a live facebook/instagram ad campaign with real budget and see results.",
     careerPaths: ["Digital marketer", "Ads specialist"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Meta Ads Manager", "Google Analytics", "SEMRush", "Mailchimp"]
+    tools: ["Meta Ads Manager", "Google Analytics", "SEMRush", "Mailchimp"],
+    iconName: "Megaphone"
   },
   {
     id: "ai-ml",
@@ -134,7 +140,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "INTERMEDIATE",
     certificate: "VERIFIED",
-    fee: "N30,000",
+    fee: "₦30,000",
     accentColor: "#7C3AED",
     learn: [
       "Python for AI and Data Science",
@@ -146,7 +152,8 @@ export const courses: Course[] = [
     outcome: "Develop and deploy a custom AI model or agent for a real-world use case.",
     careerPaths: ["AI Engineer", "ML Researcher", "Data Scientist"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Python", "PyTorch", "OpenAI API", "Jupyter Notebooks", "HuggingFace"]
+    tools: ["Python", "PyTorch", "OpenAI API", "Jupyter Notebooks", "HuggingFace"],
+    iconName: "BrainCircuit"
   },
   {
     id: "ui-ux",
@@ -156,7 +163,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "BEGINNER+",
     certificate: "VERIFIED",
-    fee: "N20,000",
+    fee: "₦20,000",
     accentColor: "#F59E0B",
     learn: [
       "User research and personas",
@@ -168,7 +175,8 @@ export const courses: Course[] = [
     outcome: "Complete a full case study and high-fidelity prototype ready for your portfolio.",
     careerPaths: ["Product Designer", "UI Designer", "UX Researcher"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Figma", "FigJam", "Miro", "Maze", "Zeplin"]
+    tools: ["Figma", "FigJam", "Miro", "Maze", "Zeplin"],
+    iconName: "Layout"
   },
   {
     id: "data-science",
@@ -178,7 +186,7 @@ export const courses: Course[] = [
     hours: "48 HRS",
     level: "INTERMEDIATE",
     certificate: "VERIFIED",
-    fee: "N25,000",
+    fee: "₦25,000",
     accentColor: "#10B981",
     learn: [
       "Statistical analysis and probability",
@@ -190,7 +198,8 @@ export const courses: Course[] = [
     outcome: "Produce a comprehensive data report and dashboard for a partner company.",
     careerPaths: ["Data Analyst", "Business Intelligence Analyst", "Data Strategist"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["SQL", "Tableau", "PowerBI", "Excel", "Pandas"]
+    tools: ["SQL", "Tableau", "PowerBI", "Excel", "Pandas"],
+    iconName: "BarChart3"
   },
   {
     id: "cybersecurity",
@@ -200,7 +209,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "ADVANCED",
     certificate: "VERIFIED",
-    fee: "N25,000",
+    fee: "₦25,000",
     accentColor: "#EF4444",
     learn: [
       "Network security and firewalls",
@@ -212,7 +221,8 @@ export const courses: Course[] = [
     outcome: "Conduct a security audit and develop a defense strategy for an enterprise network.",
     careerPaths: ["Security Analyst", "Ethical Hacker", "Security Consultant"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Kali Linux", "Wireshark", "Metasploit", "Nmap", "AWS GuardDuty"]
+    tools: ["Kali Linux", "Wireshark", "Metasploit", "Nmap", "AWS GuardDuty"],
+    iconName: "ShieldCheck"
   },
   {
     id: "product-management",
@@ -222,7 +232,7 @@ export const courses: Course[] = [
     hours: "24 HRS",
     level: "ALL LEVELS",
     certificate: "VERIFIED",
-    fee: "N22,000",
+    fee: "₦22,000",
     accentColor: "#3B82F6",
     learn: [
       "Agile and Scrum methodologies",
@@ -234,7 +244,8 @@ export const courses: Course[] = [
     outcome: "Define a product vision, roadmap, and PRD for a new tech venture.",
     careerPaths: ["Product Manager", "Product Owner", "Program Manager"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Jira", "Confluence", "Productboard", "Mixpanel", "Google Analytics"]
+    tools: ["Jira", "Confluence", "Productboard", "Mixpanel", "Google Analytics"],
+    iconName: "Target"
   },
   {
     id: "mobile-dev",
@@ -244,7 +255,7 @@ export const courses: Course[] = [
     hours: "48 HRS",
     level: "INTERMEDIATE",
     certificate: "VERIFIED",
-    fee: "N28,000",
+    fee: "₦28,000",
     accentColor: "#6366F1",
     learn: [
       "Cross-platform dev with Flutter/React Native",
@@ -256,7 +267,8 @@ export const courses: Course[] = [
     outcome: "Launch a fully functional mobile app on both iOS and Android platforms.",
     careerPaths: ["Mobile Developer", "App Architect", "Software Engineer"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Flutter", "Dart", "Firebase", "Xcode", "Android Studio"]
+    tools: ["Flutter", "Dart", "Firebase", "Xcode", "Android Studio"],
+    iconName: "Smartphone"
   },
   {
     id: "blockchain-web3",
@@ -266,7 +278,7 @@ export const courses: Course[] = [
     hours: "36 HRS",
     level: "ADVANCED",
     certificate: "VERIFIED",
-    fee: "N30,000",
+    fee: "₦30,000",
     accentColor: "#F43F5E",
     learn: [
       "Smart contract dev with Solidity",
@@ -278,6 +290,7 @@ export const courses: Course[] = [
     outcome: "Build and deploy a decentralized application (DApp) on an Ethereum-compatible chain.",
     careerPaths: ["Blockchain Developer", "Web3 Engineer", "Smart Contract Auditor"],
     talentCloud: "Graduates get added to our African verified talent database",
-    tools: ["Solidity", "Hardhat", "Metamask", "Infura", "The Graph"]
+    tools: ["Solidity", "Hardhat", "Metamask", "Infura", "The Graph"],
+    iconName: "Cpu"
   }
 ];

@@ -11,7 +11,19 @@ import {
   Zap,
   ArrowRight,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Wallet,
+  Code,
+  Palette,
+  Rocket,
+  Megaphone,
+  BrainCircuit,
+  Layout,
+  BarChart3,
+  ShieldCheck,
+  Target,
+  Smartphone,
+  Cpu
 } from "lucide-react";
 import { Course } from "../data/courses";
 import { Link } from "react-router-dom";
@@ -27,6 +39,26 @@ export default function CourseCard({
 }) {
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  const getIcon = (name: string) => {
+    switch (name) {
+      case "Wallet": return Wallet;
+      case "Code": return Code;
+      case "Palette": return Palette;
+      case "Rocket": return Rocket;
+      case "Megaphone": return Megaphone;
+      case "BrainCircuit": return BrainCircuit;
+      case "Layout": return Layout;
+      case "BarChart3": return BarChart3;
+      case "ShieldCheck": return ShieldCheck;
+      case "Target": return Target;
+      case "Smartphone": return Smartphone;
+      case "Cpu": return Cpu;
+      default: return Zap;
+    }
+  };
+
+  const Icon = getIcon(course.iconName);
 
   useEffect(() => {
     if (initialExpanded) {
@@ -58,7 +90,7 @@ export default function CourseCard({
         <div className="flex items-start justify-between gap-6">
           <div className="flex items-start gap-6">
             <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-brand-orange/50 transition-colors shrink-0">
-              <Zap className="w-7 h-7 md:w-8 md:h-8 text-brand-orange" />
+              <Icon className="w-7 h-7 md:w-8 md:h-8 text-brand-orange" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-3 mb-2">

@@ -19,6 +19,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { courses as academyCourses } from "../data/courses";
 
 export default function Home() {
   const pillars = [
@@ -42,15 +43,23 @@ export default function Home() {
     },
   ];
 
-  const courses = [
-    { id: "ai-ml", name: "AI Fundamentals", icon: BrainCircuit },
-    { id: "data-science", name: "Data Analysis", icon: BarChart3 },
-    { id: "fullstack-web", name: "Programming", icon: Code },
-    { id: "cybersecurity", name: "Cybersecurity Awareness", icon: ShieldCheck },
-    { id: "digital-marketing", name: "Digital Literacy", icon: Monitor },
-    { id: "productivity", name: "Productivity & Automation", icon: Zap },
-    { id: "career-readiness", name: "Career Readiness", icon: Target },
-  ];
+  const getCourseIcon = (name: string) => {
+    switch (name) {
+      case "Wallet": return Database; // Using Lucide icons available in Home.tsx
+      case "Code": return Code;
+      case "Palette": return Lightbulb;
+      case "Rocket": return Zap;
+      case "Megaphone": return Users;
+      case "BrainCircuit": return BrainCircuit;
+      case "Layout": return Monitor;
+      case "BarChart3": return BarChart3;
+      case "ShieldCheck": return ShieldCheck;
+      case "Target": return Target;
+      case "Smartphone": return Monitor;
+      case "Cpu": return Database;
+      default: return Zap;
+    }
+  };
 
   const roadmap = [
     { phase: "PHASE 1: FOUNDATION", period: "0-6 Months", items: ["3 Schools / 300+ Students", "1 Paid Cohort", "Initial Talent Cloud database"] },
@@ -318,21 +327,24 @@ export default function Home() {
                 </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-              {courses.slice(0, 4).map((course, i) => (
-                <Link 
-                  key={i} 
-                  to={`/academy?course=${course.id}`}
-                  className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                    <course.icon className="w-12 h-12 text-white" />
-                  </div>
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500">
-                    <course.icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
-                  </div>
-                  <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight">{course.name}</span>
-                </Link>
-              ))}
+              {academyCourses.slice(0, 4).map((course, i) => {
+                const Icon = getCourseIcon(course.iconName);
+                return (
+                  <Link 
+                    key={i} 
+                    to={`/academy?course=${course.id}`}
+                    className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                      <Icon className="w-12 h-12 text-white" />
+                    </div>
+                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500">
+                      <Icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
+                    </div>
+                    <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight">{course.title}</span>
+                  </Link>
+                );
+              })}
             </div>
             <Link to="/academy" className="flex items-center gap-3 group text-brand-orange font-black text-sm uppercase tracking-widest">
               Explore all programs

@@ -8,7 +8,9 @@ import {
   Zap, 
   Target,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  Megaphone,
+  Rocket
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { courses, Course } from "../data/courses";
@@ -23,8 +25,8 @@ export default function Academy() {
     { name: "Data Analysis", icon: BarChart3, desc: "Turning raw data into strategic insights for decision making." },
     { name: "Programming", icon: Code, desc: "Software development from web apps to system infrastructure." },
     { name: "Cybersecurity Alertness", icon: ShieldCheck, desc: "Protecting digital assets in an increasingly connected world." },
-    { name: "Digital Literacy", icon: Monitor, desc: "Foundational skills for the modern digital workplace." },
-    { name: "Productivity & Automation", icon: Zap, desc: "Optimizing workflows using modern digital tools." },
+    { name: "Digital Literacy", icon: Megaphone, desc: "Foundational skills for the modern digital workplace." },
+    { name: "Productivity & Automation", icon: Rocket, desc: "Optimizing workflows using modern digital tools." },
     { name: "Career Readiness", icon: Target, desc: "Soft skills and professional branding for global employment." },
   ];
 
