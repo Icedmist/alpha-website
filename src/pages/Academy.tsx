@@ -10,11 +10,14 @@ import {
   ArrowRight,
   BookOpen
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { courses, Course } from "../data/courses";
 import CourseCard from "../components/CourseCard";
 
 export default function Academy() {
+  const [searchParams] = useSearchParams();
+  const activeCourseId = searchParams.get("course");
+
   const tracks = [
     { name: "AI Fundamentals", icon: BrainCircuit, desc: "Master the basics of Generative AI and prompt engineering." },
     { name: "Data Analysis", icon: BarChart3, desc: "Turning raw data into strategic insights for decision making." },
@@ -66,10 +69,13 @@ export default function Academy() {
                Join our industry-led programs designed to give you practical, verifiable skills in weeks.
              </p>
           </div>
-          <div className="grid gap-12">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
             {courses.map((course: Course) => (
-              <div key={course.id}>
-                <CourseCard course={course} />
+              <div key={course.id} id={course.id}>
+                <CourseCard 
+                  course={course} 
+                  initialExpanded={activeCourseId === course.id} 
+                />
               </div>
             ))}
           </div>

@@ -43,13 +43,13 @@ export default function Home() {
   ];
 
   const courses = [
-    { name: "AI Fundamentals", icon: BrainCircuit },
-    { name: "Data Analysis", icon: BarChart3 },
-    { name: "Programming", icon: Code },
-    { name: "Cybersecurity Awareness", icon: ShieldCheck },
-    { name: "Digital Literacy", icon: Monitor },
-    { name: "Productivity & Automation", icon: Zap },
-    { name: "Career Readiness", icon: Target },
+    { id: "ai-ml", name: "AI Fundamentals", icon: BrainCircuit },
+    { id: "data-science", name: "Data Analysis", icon: BarChart3 },
+    { id: "fullstack-web", name: "Programming", icon: Code },
+    { id: "cybersecurity", name: "Cybersecurity Awareness", icon: ShieldCheck },
+    { id: "digital-marketing", name: "Digital Literacy", icon: Monitor },
+    { id: "productivity", name: "Productivity & Automation", icon: Zap },
+    { id: "career-readiness", name: "Career Readiness", icon: Target },
   ];
 
   const roadmap = [
@@ -319,7 +319,11 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
               {courses.slice(0, 4).map((course, i) => (
-                <div key={i} className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden">
+                <Link 
+                  key={i} 
+                  to={`/academy?course=${course.id}`}
+                  className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
+                >
                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
                     <course.icon className="w-12 h-12 text-white" />
                   </div>
@@ -327,7 +331,7 @@ export default function Home() {
                     <course.icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
                   </div>
                   <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight">{course.name}</span>
-                </div>
+                </Link>
               ))}
             </div>
             <Link to="/academy" className="flex items-center gap-3 group text-brand-orange font-black text-sm uppercase tracking-widest">

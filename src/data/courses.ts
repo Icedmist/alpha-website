@@ -277,7 +277,7 @@ export const courses: Course[] = [
     ],
     outcome: "Build and deploy a decentralized application (DApp) on an Ethereum-compatible chain.",
     careerPaths: ["Blockchain Developer", "Web3 Engineer", "Smart Contract Auditor"],
-    talentCloud: "Graduates get added to our Nigerian verified talent database",
+    talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Solidity", "Hardhat", "Metamask", "Infura", "The Graph"]
   }
 ];
