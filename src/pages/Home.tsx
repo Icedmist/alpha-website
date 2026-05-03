@@ -19,6 +19,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { courses as academyCourses } from "../data/courses";
 
 export default function Home() {
   const pillars = [
@@ -42,15 +43,23 @@ export default function Home() {
     },
   ];
 
-  const courses = [
-    { name: "AI Fundamentals", icon: BrainCircuit },
-    { name: "Data Analysis", icon: BarChart3 },
-    { name: "Programming", icon: Code },
-    { name: "Cybersecurity Awareness", icon: ShieldCheck },
-    { name: "Digital Literacy", icon: Monitor },
-    { name: "Productivity & Automation", icon: Zap },
-    { name: "Career Readiness", icon: Target },
-  ];
+  const getCourseIcon = (name: string) => {
+    switch (name) {
+      case "Wallet": return Database; // Using Lucide icons available in Home.tsx
+      case "Code": return Code;
+      case "Palette": return Lightbulb;
+      case "Rocket": return Zap;
+      case "Megaphone": return Users;
+      case "BrainCircuit": return BrainCircuit;
+      case "Layout": return Monitor;
+      case "BarChart3": return BarChart3;
+      case "ShieldCheck": return ShieldCheck;
+      case "Target": return Target;
+      case "Smartphone": return Monitor;
+      case "Cpu": return Database;
+      default: return Zap;
+    }
+  };
 
   const roadmap = [
     { phase: "PHASE 1: FOUNDATION", period: "0-6 Months", items: ["3 Schools / 300+ Students", "1 Paid Cohort", "Initial Talent Cloud database"] },
@@ -62,11 +71,11 @@ export default function Home() {
   return (
     <div className="pt-20">
       {/* Hero Section */}
-      <section id="hero" className="relative pt-28 pb-40 px-6 overflow-hidden">
+      <section id="hero" className="relative pt-16 pb-20 md:pt-24 md:pb-32 lg:pb-40 px-6 overflow-hidden">
         <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-brand-orange/20 blur-[130px] rounded-full opacity-40" />
         <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] bg-brand-blue/20 blur-[130px] rounded-full opacity-40" />
         
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center relative z-10">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -75,20 +84,20 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-[10px] font-black uppercase tracking-[0.4em] mb-10 shadow-lg shadow-brand-orange/10">
               Future-Proofing Africa
             </div>
-            <h1 className="font-display font-black text-7xl md:text-[9rem] leading-[0.8] mb-10 uppercase italic tracking-tighter text-white">
+            <h1 className="font-display font-black text-4xl md:text-7xl lg:text-7xl leading-[0.8] mb-8 md:mb-10 uppercase italic tracking-tighter text-white">
               BUILDING <br />
               <span className="text-brand-orange">THE BASE.</span>
             </h1>
-            <p className="text-white/60 text-lg md:text-2xl max-w-lg mb-14 leading-relaxed font-medium italic">
-              Alpha Spark is Nigeria's workforce infrastructure partner—redefining how talent is verified, 
+            <p className="text-white/60 text-base md:text-lg lg:text-2xl max-w-lg mb-10 md:mb-14 leading-relaxed font-medium italic">
+              Alpha Spark is Africa's workforce infrastructure partner—redefining how talent is verified, 
               trained, and deployed in the digital economy.
             </p>
             <div className="flex flex-wrap gap-6">
-              <Link to="/apply" className="bg-brand-orange hover:bg-brand-orange/90 text-white px-12 py-6 rounded-full font-black uppercase tracking-widest text-sm flex items-center gap-4 group transition-all shadow-2xl shadow-brand-orange/30 hover:scale-105 active:scale-95">
+              <Link to="/apply" className="bg-brand-orange hover:bg-brand-orange/90 text-white px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm flex items-center gap-3 md:gap-4 group transition-all shadow-2xl shadow-brand-orange/30 hover:scale-105 active:scale-95">
                 Join Academy
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
               </Link>
-              <Link to="/about" className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-12 py-6 rounded-full font-black uppercase tracking-widest text-sm transition-all backdrop-blur-md">
+              <Link to="/about" className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm transition-all backdrop-blur-md">
                 Learn More
               </Link>
             </div>
@@ -103,14 +112,14 @@ export default function Home() {
             <div className="relative w-full aspect-square max-w-lg">
               <div className="absolute inset-0 bg-gradient-to-tr from-brand-orange/20 to-brand-blue/20 blur-3xl animate-pulse" />
               
-              <div className="relative bg-white/5 border border-white/10 rounded-[48px] p-12 backdrop-blur-3xl shadow-2xl overflow-hidden group">
+              <div className="relative bg-white/5 border border-white/10 rounded-[32px] md:rounded-[48px] p-8 md:p-12 backdrop-blur-3xl shadow-2xl overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-                <div className="flex justify-center mb-16 relative">
-                    <div className="w-32 h-32 bg-brand-orange rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform duration-500 shadow-2xl shadow-brand-orange/40">
-                        <Zap className="w-16 h-16 text-white fill-white" />
+                <div className="flex justify-center mb-10 md:mb-16 relative">
+                    <div className="w-24 h-24 md:w-32 md:h-32 bg-brand-orange rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform duration-500 shadow-2xl shadow-brand-orange/40">
+                        <Zap className="w-12 h-12 md:w-16 md:h-16 text-white fill-white" />
                     </div>
-                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center shadow-lg">
-                        <CheckCircle2 className="w-6 h-6 text-white" />
+                    <div className="absolute -top-4 -right-4 w-10 h-10 md:w-12 md:h-12 bg-brand-blue rounded-full flex items-center justify-center shadow-lg">
+                        <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
                     </div>
                 </div>
                 <div className="space-y-8">
@@ -136,8 +145,8 @@ export default function Home() {
       </section>
 
       {/* Stats Section */}
-      <section id="stats" className="py-16 bg-white/2 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12">
+      <section id="stats" className="py-12 md:py-16 bg-white/2 border-y border-white/10">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {[
             { label: "Verified Talent", value: "5,000+", icon: Users },
             { label: "Institutions", value: "20+", icon: Building2 },
@@ -145,17 +154,17 @@ export default function Home() {
             { label: "Innovation", value: "Leader", icon: Lightbulb },
           ].map((stat, i) => (
             <div key={i} className="text-center group border-r border-white/5 last:border-none">
-              <div className="text-5xl font-display font-black mb-3 text-white uppercase italic tracking-tighter">{stat.value}</div>
-              <div className="text-brand-orange text-[10px] uppercase tracking-[0.3em] font-black">{stat.label}</div>
+              <div className="text-3xl md:text-5xl font-display font-black mb-3 text-white uppercase italic tracking-tighter">{stat.value}</div>
+              <div className="text-brand-orange text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black">{stat.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Founders / Leadership Section */}
-      <section className="py-40 overflow-hidden bg-brand-navy">
-        <div className="max-w-7xl mx-auto px-6 mb-32">
-          <div className="grid lg:grid-cols-2 gap-24 items-center">
+      <section className="py-20 md:py-32 lg:py-40 overflow-hidden bg-brand-navy">
+        <div className="max-w-7xl mx-auto px-6 mb-20 md:mb-32">
+          <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -163,16 +172,16 @@ export default function Home() {
               className="relative"
             >
               <div className="absolute inset-0 bg-brand-orange/20 blur-[100px] rounded-full" />
-              <div className="relative aspect-[4/5] rounded-[64px] overflow-hidden border border-white/10 group shadow-2xl">
+              <div className="relative aspect-[4/5] rounded-[32px] md:rounded-[48px] lg:rounded-[64px] overflow-hidden border border-white/10 group shadow-2xl">
                 <img 
                   src="/assets/ishaq.jpg" 
                   alt="Ishaq Sulaiman" 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 p-12">
-                   <p className="text-[10px] font-black uppercase tracking-[0.5em] text-brand-orange mb-2">Founder & Executive Director</p>
-                   <h3 className="font-display font-black text-4xl text-white uppercase italic tracking-tighter">Ishaq Sulaiman</h3>
+                <div className="absolute bottom-0 left-0 p-6 md:p-12">
+                   <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.5em] text-brand-orange mb-2">Founder & Executive Director</p>
+                   <h3 className="font-display font-black text-2xl md:text-4xl text-white uppercase italic tracking-tighter">Ishaq Sulaiman</h3>
                 </div>
               </div>
             </motion.div>
@@ -180,11 +189,11 @@ export default function Home() {
             <div className="space-y-12">
               <div className="space-y-6">
                 <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">The Vision</p>
-                <h2 className="font-display font-black text-5xl md:text-8xl text-white uppercase italic tracking-tighter leading-[0.85]">
+                <h2 className="font-display font-black text-4xl md:text-6xl lg:text-6xl text-white uppercase italic tracking-tighter leading-[0.85]">
                   Pioneering <br />Digital <br /><span className="text-brand-orange">Verification.</span>
                 </h2>
               </div>
-              <p className="text-white/50 text-xl leading-relaxed italic font-medium max-w-lg">
+              <p className="text-white/50 text-lg md:text-xl leading-relaxed italic font-medium max-w-lg">
                 "We aren't just teaching people how to code or design; we are building the registry that validates 
                 Africa's potential for the global digital economy."
               </p>
@@ -198,9 +207,9 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 mb-16">
-          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">Board of Directors & Advisors</p>
-          <h2 className="font-display font-black text-5xl md:text-7xl text-white uppercase italic tracking-tighter leading-none">
+        <div className="max-w-7xl mx-auto px-6 mb-12 md:mb-16">
+          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">Board of Directors & Advisors</p>
+          <h2 className="font-display font-black text-4xl md:text-5xl lg:text-6xl text-white uppercase italic tracking-tighter leading-none">
             The <span className="text-brand-orange">Leadership.</span>
           </h2>
         </div>
@@ -218,7 +227,7 @@ export default function Home() {
             className="flex gap-8 whitespace-nowrap"
           >
             {[...Array(13)].map((_, i) => (
-              <div key={i} className="w-64 h-80 shrink-0 rounded-[48px] overflow-hidden border border-white/10 relative group">
+              <div key={i} className="w-56 h-72 md:w-64 md:h-80 shrink-0 rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 relative group">
                 <img 
                   src={`/assets/founders/f${i + 1}.jpg`} 
                   alt={`Founder ${i + 1}`} 
@@ -229,7 +238,7 @@ export default function Home() {
             ))}
             {/* Duplicate for seamless loop */}
             {[...Array(13)].map((_, i) => (
-              <div key={`dup-${i}`} className="w-64 h-80 shrink-0 rounded-[48px] overflow-hidden border border-white/10 relative group">
+              <div key={`dup-${i}`} className="w-56 h-72 md:w-64 md:h-80 shrink-0 rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 relative group">
                 <img 
                   src={`/assets/founders/f${i + 1}.jpg`} 
                   alt={`Founder ${i + 1}`} 
@@ -246,9 +255,9 @@ export default function Home() {
       <section id="pillars" className="py-40 px-6 relative overflow-hidden bg-brand-navy">
         <div className="absolute top-1/2 left-0 w-96 h-96 bg-brand-blue/5 blur-[120px] rounded-full -translate-x-1/2" />
         <div className="max-w-7xl mx-auto relative z-10">
-          <div className="text-center max-w-2xl mx-auto mb-24 space-y-6">
-             <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">Our Framework</p>
-            <h2 className="font-display font-black text-5xl md:text-7xl text-white uppercase italic leading-none tracking-tighter">
+          <div className="text-center max-w-2xl mx-auto mb-16 md:mb-24 space-y-6">
+             <p className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">Our Framework</p>
+            <h2 className="font-display font-black text-4xl md:text-6xl lg:text-6xl text-white uppercase italic leading-none tracking-tighter">
               A Workforce <br />
               <span className="text-brand-orange">Infrastructure</span> Company.
             </h2>
@@ -263,14 +272,14 @@ export default function Home() {
               <motion.div
                 key={i}
                 whileHover={{ y: -12, scale: 1.02 }}
-                className="bg-white/5 border border-white/10 p-12 rounded-[56px] hover:bg-white/[0.08] transition-all group relative overflow-hidden backdrop-blur-sm"
+                className="bg-white/5 border border-white/10 p-8 md:p-12 rounded-[32px] md:rounded-[48px] lg:rounded-[56px] hover:bg-white/[0.08] transition-all group relative overflow-hidden backdrop-blur-sm"
               >
                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-3xl rounded-full -mr-24 -mt-24 group-hover:bg-brand-orange/20 transition-all duration-700" />
                 <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-12 bg-white/5 group-hover:bg-brand-orange transition-all duration-500 shadow-lg`}>
                   <pillar.icon className="text-brand-orange group-hover:text-white w-10 h-10 transition-transform duration-500 group-hover:scale-110" />
                 </div>
-                <h3 className="font-display font-black text-3xl mb-6 uppercase italic tracking-tight text-white leading-tight">{pillar.title}</h3>
-                <p className="text-white/40 text-base leading-relaxed italic font-medium">
+                <h3 className="font-display font-black text-2xl md:text-3xl mb-4 md:mb-6 uppercase italic tracking-tight text-white leading-tight">{pillar.title}</h3>
+                <p className="text-white/40 text-sm md:text-base leading-relaxed italic font-medium">
                   {pillar.desc}
                 </p>
                 <div className="mt-10 h-1 w-12 bg-brand-orange/20 group-hover:w-24 group-hover:bg-brand-orange transition-all duration-500" />
@@ -281,8 +290,8 @@ export default function Home() {
       </section>
 
       {/* Partners Section */}
-      <section id="institutions" className="py-24 px-6 border-t border-white/5 bg-brand-navy/50">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16">
+      <section id="institutions" className="py-16 md:py-24 px-6 border-t border-white/5 bg-brand-navy/50">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 md:gap-16">
           <div className="max-w-md">
             <h3 className="font-display font-bold text-3xl uppercase italic mb-4">The Partnership Ecosystem</h3>
             <p className="text-white/30 text-sm italic">
@@ -300,7 +309,7 @@ export default function Home() {
                     <div className={`w-24 h-24 rounded-3xl ${p.bg} flex items-center justify-center border border-white/5 group-hover:scale-110 transition-all duration-500`}>
                        <p.icon className={`w-10 h-10 ${p.color} transition-colors`} />
                     </div>
-                    <span className="text-[10px] font-black tracking-[0.3em] text-white/50 group-hover:text-white transition-colors">{p.label}</span>
+                    <span className="text-[9px] md:text-[10px] font-black tracking-[0.3em] text-white/50 group-hover:text-white transition-colors">{p.label}</span>
                 </div>
             ))}
           </div>
@@ -308,27 +317,34 @@ export default function Home() {
       </section>
 
       {/* Academy & Skills Preview */}
-      <section id="academy" className="py-40 px-6 bg-white/[0.03]">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-24 items-center">
+      <section id="academy" className="py-20 md:py-32 lg:py-40 px-6 bg-white/[0.03]">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
           <div className="space-y-12">
             <div>
                 <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-6">Learning Tracks</p>
-                <h2 className="font-display font-black text-5xl md:text-7xl text-white uppercase italic leading-[0.95] tracking-tighter">
+                <h2 className="font-display font-black text-4xl md:text-6xl lg:text-6xl text-white uppercase italic leading-[0.95] tracking-tighter">
                     Practical <br />Skills for <br />the <span className="text-brand-orange">Era.</span>
                 </h2>
             </div>
-            <div className="grid grid-cols-2 gap-5">
-              {courses.slice(0, 4).map((course, i) => (
-                <div key={i} className="flex flex-col gap-6 p-8 bg-white/5 rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-                    <course.icon className="w-12 h-12 text-white" />
-                  </div>
-                  <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500">
-                    <course.icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
-                  </div>
-                  <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight">{course.name}</span>
-                </div>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+              {academyCourses.slice(0, 4).map((course, i) => {
+                const Icon = getCourseIcon(course.iconName);
+                return (
+                  <Link 
+                    key={i} 
+                    to={`/academy?course=${course.id}`}
+                    className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                      <Icon className="w-12 h-12 text-white" />
+                    </div>
+                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500">
+                      <Icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
+                    </div>
+                    <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight">{course.title}</span>
+                  </Link>
+                );
+              })}
             </div>
             <Link to="/academy" className="flex items-center gap-3 group text-brand-orange font-black text-sm uppercase tracking-widest">
               Explore all programs
@@ -355,8 +371,8 @@ export default function Home() {
       </section>
 
       {/* Talent Cloud Section Preview */}
-      <section id="talent-cloud" className="py-40 px-6">
-        <div className="max-w-7xl mx-auto rounded-[80px] bg-gradient-to-br from-brand-orange to-brand-amber p-12 md:p-32 overflow-hidden relative group shadow-[0_0_100px_rgba(244,162,97,0.2)]">
+      <section id="talent-cloud" className="py-20 md:py-32 lg:py-40 px-6">
+        <div className="max-w-7xl mx-auto rounded-[40px] md:rounded-[64px] lg:rounded-[80px] bg-gradient-to-br from-brand-orange to-brand-amber p-8 md:p-20 lg:p-32 overflow-hidden relative group shadow-[0_0_100px_rgba(244,162,97,0.2)]">
           <div className="absolute top-0 right-0 p-16 opacity-10 scale-150 rotate-12 group-hover:rotate-0 transition-transform duration-[2s]">
             <Cloud className="w-[30rem] h-[30rem] text-white" />
           </div>
@@ -365,11 +381,11 @@ export default function Home() {
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.4em]">
               Talent Analytics
             </div>
-            <h2 className="font-display font-black text-6xl md:text-9xl text-white uppercase italic leading-[0.85] tracking-tighter">
+            <h2 className="font-display font-black text-5xl md:text-7xl lg:text-7xl text-white uppercase italic leading-[0.85] tracking-tighter">
               THE TALENT <br />CLOUD.
             </h2>
-            <p className="text-white text-xl md:text-2xl leading-relaxed font-medium italic max-w-2xl">
-              Nigeria's most advanced registry of verified digital talent. 
+            <p className="text-white text-lg md:text-xl lg:text-2xl leading-relaxed font-medium italic max-w-2xl">
+              Africa's most advanced registry of verified digital talent. 
               Connecting job-ready professionals with global opportunities.
             </p>
             <div className="flex gap-6">

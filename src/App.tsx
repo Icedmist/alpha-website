@@ -58,10 +58,10 @@ function Layout({ children }: { children: ReactNode }) {
 
       {/* Navigation */}
       <nav id="navbar" className="fixed top-0 w-full z-40 bg-brand-navy/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between text-white">
-          <Link to="/" className="flex items-center gap-3">
-            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 object-contain" />
-            <span className="font-display font-black text-2xl tracking-tighter uppercase italic">ALPHA SPARK</span>
+        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between text-white">
+          <Link to="/" className="flex items-center gap-2 md:gap-3">
+            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+            <span className="font-display font-black text-lg md:text-2xl tracking-tighter uppercase italic">ALPHA SPARK</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -103,7 +103,7 @@ function Layout({ children }: { children: ReactNode }) {
                 <Link 
                   key={link.name} 
                   to={link.href}
-                  className="text-xl font-display font-bold uppercase italic"
+                  className="text-lg font-display font-bold uppercase italic"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}
@@ -120,15 +120,15 @@ function Layout({ children }: { children: ReactNode }) {
       <main>{children}</main>
 
       {/* Footer */}
-      <footer id="footer" className="bg-white/2 pt-32 pb-16 border-t border-white/10 px-6 mt-40">
+      <footer id="footer" className="bg-white/2 pt-20 pb-12 md:pt-32 md:pb-16 border-t border-white/10 px-6 mt-20 md:mt-40">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-4 gap-20 mb-32">
+          <div className="grid lg:grid-cols-4 gap-12 lg:gap-20 mb-20 md:mb-32">
             <div className="lg:col-span-2 space-y-10">
-              <div className="flex items-center gap-4">
-                <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-12 h-12 object-contain" />
-                <span className="font-display font-black text-3xl tracking-tighter text-white uppercase italic">alpha spark.</span>
+              <div className="flex items-center gap-3 md:gap-4">
+                <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+                <span className="font-display font-black text-2xl md:text-3xl tracking-tighter text-white uppercase italic">alpha spark.</span>
               </div>
-              <p className="text-white/30 text-lg max-w-sm leading-relaxed italic">
+              <p className="text-white/30 text-base md:text-lg max-w-sm leading-relaxed italic">
                 Empowering individuals and institutions with practical digital capabilities, 
                 verified skills, and access to opportunities.
               </p>
@@ -149,7 +149,7 @@ function Layout({ children }: { children: ReactNode }) {
               <ul className="space-y-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
                 <li><a href="mailto:hello@alphaspark.tech" className="hover:text-white transition-colors">hello@alphaspark.tech</a></li>
                 <li><a href="tel:09075444148" className="hover:text-white transition-colors">09075444148</a></li>
-                <li className="text-brand-orange">Gombe State, Nigeria</li>
+                <li className="text-brand-orange">Gombe State, Africa</li>
                 <li className="pt-6 flex gap-8">
                   <TrendingUp className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
                   <Target className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
@@ -161,7 +161,7 @@ function Layout({ children }: { children: ReactNode }) {
           
           <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10 text-center md:text-left">
             <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
-              © 2025 Alpha Spark Initiative. Ignite Nigeria.
+              © 2025 Alpha Spark. Ignite Africa.
             </div>
             <div className="flex gap-10 text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">
               #ALPHASPARK #IGNITE #FUTURE
