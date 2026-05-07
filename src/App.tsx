@@ -149,7 +149,7 @@ function Layout({ children }: { children: ReactNode }) {
               <ul className="space-y-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
                 <li><a href="mailto:hello@alphaspark.tech" className="hover:text-white transition-colors">hello@alphaspark.tech</a></li>
                 <li><a href="tel:09075444148" className="hover:text-white transition-colors">09075444148</a></li>
-                <li className="text-brand-orange">Gombe State, Africa</li>
+                <li className="text-brand-orange">Gombe State, Nigeria</li>
                 <li className="pt-6 flex gap-8">
                   <TrendingUp className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
                   <Target className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />

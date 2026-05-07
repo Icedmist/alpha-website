@@ -208,9 +208,9 @@ export default function Home() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 mb-12 md:mb-16">
-          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">Board of Directors & Advisors</p>
+          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">The People Behind Alpha Spark</p>
           <h2 className="font-display font-black text-4xl md:text-5xl lg:text-6xl text-white uppercase italic tracking-tighter leading-none">
-            The <span className="text-brand-orange">Leadership.</span>
+            Meet the <span className="text-brand-orange">Team.</span>
           </h2>
         </div>
         
@@ -226,22 +226,22 @@ export default function Home() {
             }}
             className="flex gap-8 whitespace-nowrap"
           >
-            {[...Array(13)].map((_, i) => (
+            {[...Array(15)].map((_, i) => (
               <div key={i} className="w-56 h-72 md:w-64 md:h-80 shrink-0 rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 relative group">
                 <img 
-                  src={`/assets/founders/f${i + 1}.jpg`} 
-                  alt={`Founder ${i + 1}`} 
+                  src={`/assets/team/member-${i + 1}.jpg`} 
+                  alt={`Team Member ${i + 1}`} 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
               </div>
             ))}
             {/* Duplicate for seamless loop */}
-            {[...Array(13)].map((_, i) => (
+            {[...Array(15)].map((_, i) => (
               <div key={`dup-${i}`} className="w-56 h-72 md:w-64 md:h-80 shrink-0 rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 relative group">
                 <img 
-                  src={`/assets/founders/f${i + 1}.jpg`} 
-                  alt={`Founder ${i + 1}`} 
+                  src={`/assets/team/member-${i + 1}.jpg`} 
+                  alt={`Team Member ${i + 1}`} 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />

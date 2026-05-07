@@ -154,9 +154,9 @@ export default function About() {
       {/* Leadership Section */}
       <section className="py-20 md:py-32 lg:py-40 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 mb-16 md:mb-24 text-center">
-          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">The Advisory Board & Team</p>
+          <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">The People Behind Alpha Spark</p>
           <h2 className="font-display font-black text-4xl md:text-6xl lg:text-6xl text-white uppercase italic tracking-tighter leading-none">
-            Our <span className="text-brand-orange">Leadership.</span>
+            Meet the <span className="text-brand-orange">Team.</span>
           </h2>
         </div>
         
@@ -172,22 +172,22 @@ export default function About() {
             }}
             className="flex gap-10 whitespace-nowrap"
           >
-            {[...Array(13)].map((_, i) => (
+            {[...Array(15)].map((_, i) => (
               <div key={i} className="w-64 h-96 md:w-80 md:h-[450px] shrink-0 rounded-[32px] md:rounded-[64px] overflow-hidden border border-white/10 relative group">
                 <img 
-                  src={`/assets/founders/f${i + 1}.jpg`} 
-                  alt={`Founder ${i + 1}`} 
+                  src={`/assets/team/member-${i + 1}.jpg`} 
+                  alt={`Team Member ${i + 1}`} 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
               </div>
             ))}
             {/* Duplicate for seamless loop */}
-            {[...Array(13)].map((_, i) => (
+            {[...Array(15)].map((_, i) => (
               <div key={`dup-${i}`} className="w-64 h-96 md:w-80 md:h-[450px] shrink-0 rounded-[32px] md:rounded-[64px] overflow-hidden border border-white/10 relative group">
                 <img 
-                  src={`/assets/founders/f${i + 1}.jpg`} 
-                  alt={`Founder ${i + 1}`} 
+                  src={`/assets/team/member-${i + 1}.jpg`} 
+                  alt={`Team Member ${i + 1}`} 
                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />

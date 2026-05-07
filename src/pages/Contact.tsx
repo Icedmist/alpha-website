@@ -66,7 +66,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white uppercase tracking-widest text-xs mb-2">Headquarters</h3>
-                    <p className="text-white/60 font-medium italic">Gombe State, Africa.</p>
+                    <p className="text-white/60 font-medium italic">Gombe State, Nigeria.</p>
                   </div>
                 </div>
               </div>
