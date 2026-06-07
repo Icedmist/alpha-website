@@ -54,7 +54,11 @@ export default function StudentDashboard() {
   );
 
   const isEligibleForGraduation = (course: Course) => {
+    if (currentUser.issuedCertificates?.includes(course.id)) return true;
+
     const courseLessons = course.modules.flatMap((m) => m.lessons);
+    if (courseLessons.length === 0) return false;
+
     const completedAll = courseLessons.every((l) => currentUser.completedLessons.includes(l.id));
     
     // Checked if all assignments are submitted & graded

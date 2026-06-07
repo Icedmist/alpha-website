@@ -171,12 +171,14 @@ export default function AdminDashboard() {
 
     // Make sure enrolled
     const updatedEnrolled = Array.from(new Set([...studentObj.enrolledCourses, courseObj.id]));
+    const updatedIssued = Array.from(new Set([...(studentObj.issuedCertificates || []), courseObj.id]));
 
     updateSpecificUser(studentObj.id, {
       ...studentObj,
       enrolledCourses: updatedEnrolled,
       completedLessons: updatedCompleted,
-      submissions: updatedSubmissions
+      submissions: updatedSubmissions,
+      issuedCertificates: updatedIssued
     });
 
     alert(`Graduation certificate issued to ${studentObj.name} for "${courseObj.title}"!`);
@@ -534,8 +536,9 @@ export default function AdminDashboard() {
                         if (!course) return null;
                         
                         const courseLessons = course.modules.flatMap(m => m.lessons);
-                        const completedAll = courseLessons.every(l => student.completedLessons.includes(l.id));
-                        if (!completedAll) return null;
+                        const completedAll = courseLessons.length > 0 && courseLessons.every(l => student.completedLessons.includes(l.id));
+                        const isManual = student.issuedCertificates?.includes(courseId);
+                        if (!completedAll && !isManual) return null;
 
                         const certId = `AS-${course.id.toUpperCase()}-${student.id.substring(2).toUpperCase()}`;
 

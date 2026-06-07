@@ -27,6 +27,7 @@ export interface User {
   employmentStatus?: string;
   portfolioLinks?: string[];
   projectShowcase?: string;
+  issuedCertificates?: string[]; // Course IDs that have been issued certificates
 }
 
 interface AuthContextType {
