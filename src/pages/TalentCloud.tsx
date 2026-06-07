@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { 
   Cloud, 
@@ -7,10 +8,78 @@ import {
   Cpu, 
   BarChart, 
   Users,
-  CheckCircle2
+  CheckCircle2,
+  Award
 } from "lucide-react";
+import { courses, Course } from "../data/courses";
+
+interface Graduate {
+  id: string;
+  name: string;
+  courseTitle: string;
+  certId: string;
+  skills: string[];
+  date: string;
+}
 
 export default function TalentCloud() {
+  const [graduates, setGraduates] = useState<Graduate[]>([]);
+
+  useEffect(() => {
+    // Read from sandbox
+    const rawUsers = localStorage.getItem("alpha_academy_users");
+    const users = rawUsers ? JSON.parse(rawUsers) : [];
+    const localCoursesStr = localStorage.getItem("alpha_custom_courses");
+    const activeCourses: Course[] = localCoursesStr ? JSON.parse(localCoursesStr) : courses;
+
+    const list: Graduate[] = [];
+
+    // Seed mock graduates for visual fullness
+    const mockGraduates: Graduate[] = [
+      {
+        id: "mock-1",
+        name: "Mustapha Yusuf",
+        courseTitle: "Machine Learning & AI",
+        certId: "AS-MLAI-YUSUF9",
+        skills: ["Python", "TensorFlow", "Scikit-Learn"],
+        date: "05/12/2025"
+      },
+      {
+        id: "mock-2",
+        name: "Sani Ibrahim",
+        courseTitle: "Cloud Architecture & DevOps",
+        certId: "AS-CLDE-IBRAH2",
+        skills: ["Docker", "Kubernetes", "AWS", "Terraform"],
+        date: "06/01/2026"
+      }
+    ];
+
+    // Read real graduates from registry
+    users.forEach((user: any) => {
+      user.enrolledCourses?.forEach((courseId: string) => {
+        const course = activeCourses.find(c => c.id === courseId);
+        if (!course) return;
+
+        const courseLessons = course.modules.flatMap(m => m.lessons);
+        const completedAll = courseLessons.length > 0 && courseLessons.every(l => user.completedLessons?.includes(l.id));
+
+        if (completedAll) {
+          list.push({
+            id: `${user.id}-${course.id}`,
+            name: user.name,
+            courseTitle: course.title,
+            certId: `AS-${course.id.toUpperCase()}-${user.id.substring(2).toUpperCase()}`,
+            skills: course.tools.slice(0, 3),
+            date: new Date().toLocaleDateString()
+          });
+        }
+      });
+    });
+
+    // Combine real + mock
+    setGraduates([...list, ...mockGraduates]);
+  }, []);
+
   const features = [
     {
       title: "Verified Skill Profiles",
@@ -73,23 +142,40 @@ export default function TalentCloud() {
                     </div>
                 </div>
             </div>
-            <div className="bg-white/[0.03] border border-white/10 p-6 md:p-12 rounded-[32px] md:rounded-[56px] backdrop-blur-xl space-y-8">
-                <div className="flex items-center justify-between mb-6 md:mb-8 pb-6 md:pb-8 border-b border-white/5">
-                    <span className="font-display font-black text-xl md:text-2xl uppercase italic text-brand-orange">Cloud Terminal</span>
+            
+            {/* Cloud Terminal: Live Graduates Registry */}
+            <div className="bg-white/[0.03] border border-white/10 p-6 md:p-10 rounded-[32px] md:rounded-[48px] backdrop-blur-xl space-y-6">
+                <div className="flex items-center justify-between pb-4 border-b border-white/5">
+                    <div>
+                        <span className="font-display font-black text-lg uppercase italic text-brand-orange">Talent Registry</span>
+                        <p className="text-[9px] text-white/30 font-mono uppercase tracking-widest mt-1">Live Verified Scholars</p>
+                    </div>
                     <Search className="text-white/20 w-5 h-5" />
                 </div>
-                <div className="space-y-6">
-                    {[1, 2, 3].map((_, i) => (
-                        <div key={i} className="flex items-center justify-between p-6 bg-white/5 rounded-3xl group hover:bg-brand-orange/10 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/10" />
-                                <div>
-                                    <div className="h-3 w-24 bg-white/20 rounded-full mb-2" />
-                                    <div className="h-2 w-16 bg-white/10 rounded-full" />
+                
+                <div className="space-y-4 max-h-[360px] overflow-y-auto pr-2">
+                    {graduates.map((grad) => (
+                        <div 
+                          key={grad.id} 
+                          className="p-5 bg-white/5 rounded-2xl border border-white/5 hover:border-brand-orange/30 transition-all flex justify-between items-center gap-4"
+                        >
+                            <div className="space-y-2 text-left">
+                                <div className="flex items-center gap-2">
+                                    <h4 className="font-bold text-xs text-white">{grad.name}</h4>
+                                    <Award className="w-3.5 h-3.5 text-brand-orange" />
+                                </div>
+                                <p className="text-[10px] text-white/50">{grad.courseTitle}</p>
+                                <div className="flex flex-wrap gap-1">
+                                    {grad.skills.map((s, idx) => (
+                                        <span key={idx} className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[8px] font-mono text-white/40">
+                                            {s}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <div className="w-12 h-6 rounded-full bg-brand-orange/20 border border-brand-orange/40" />
+                            <div className="text-right shrink-0">
+                                <span className="font-mono text-[8px] font-bold text-brand-blue block">ID: {grad.certId}</span>
+                                <span className="text-[8px] text-white/20 font-mono block mt-1">{grad.date}</span>
                             </div>
                         </div>
                     ))}

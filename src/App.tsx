@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useState, useEffect, type ReactNode } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Page Components
 import Home from "./pages/Home";
@@ -24,6 +25,7 @@ import TalentCloud from "./pages/TalentCloud";
 import Roadmap from "./pages/Roadmap";
 import Contact from "./pages/Contact";
 import Apply from "./pages/Apply";
+import AcademyDashboard from "./pages/AcademyDashboard";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -35,6 +37,7 @@ function ScrollToTop() {
 
 function Layout({ children }: { children: ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { currentUser } = useAuth();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -68,19 +71,19 @@ function Layout({ children }: { children: ReactNode }) {
             {navLinks.map((link) => (
               <Link 
                 key={link.name} 
-                to={link.href}
+                to={link.name === "Academy" && currentUser ? "/academy/dashboard" : link.href}
                 className="text-sm font-bold uppercase tracking-widest text-white/60 hover:text-brand-orange transition-colors"
                 id={`nav-${link.name.toLowerCase().replace(" ", "-")}`}
               >
-                {link.name}
+                {link.name === "Academy" && currentUser ? "Academy Dashboard" : link.name}
               </Link>
             ))}
             <Link 
-              to="/apply"
+              to={currentUser ? "/academy/dashboard" : "/apply"}
               id="cta-join-academy"
               className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide text-xs transition-all"
             >
-              Join Academy
+              {currentUser ? "Portal Dashboard" : "Join Academy"}
             </Link>
           </div>
 
@@ -102,16 +105,20 @@ function Layout({ children }: { children: ReactNode }) {
               {navLinks.map((link) => (
                 <Link 
                   key={link.name} 
-                  to={link.href}
+                  to={link.name === "Academy" && currentUser ? "/academy/dashboard" : link.href}
                   className="text-lg font-display font-bold uppercase italic"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {link.name}
+                  {link.name === "Academy" && currentUser ? "Academy Dashboard" : link.name}
                 </Link>
               ))}
-              <button className="bg-brand-orange text-white px-6 py-4 rounded-xl font-bold uppercase">
-                Join Academy
-              </button>
+              <Link 
+                to={currentUser ? "/academy/dashboard" : "/apply"}
+                onClick={() => setIsMenuOpen(false)}
+                className="bg-brand-orange text-white text-center px-6 py-4 rounded-xl font-bold uppercase"
+              >
+                {currentUser ? "Portal Dashboard" : "Join Academy"}
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
@@ -177,17 +184,20 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/academy" element={<Academy />} />
-          <Route path="/talent-cloud" element={<TalentCloud />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/apply" element={<Apply />} />
-        </Routes>
-      </Layout>
+      <AuthProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/academy" element={<Academy />} />
+            <Route path="/academy/dashboard" element={<AcademyDashboard />} />
+            <Route path="/talent-cloud" element={<TalentCloud />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/apply" element={<Apply />} />
+          </Routes>
+        </Layout>
+      </AuthProvider>
     </Router>
   );
 }
