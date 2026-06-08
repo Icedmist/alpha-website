@@ -4,11 +4,17 @@ import { useAuth } from "../context/AuthContext";
 import StudentDashboard from "../components/academy/StudentDashboard";
 import InstructorDashboard from "../components/academy/InstructorDashboard";
 import AdminDashboard from "../components/academy/AdminDashboard";
-import { LogOut, User, Lock, Mail, Phone, BookOpen, ShieldCheck, Zap } from "lucide-react";
+import AccountCenter from "../components/academy/AccountCenter";
+import ReferralModal from "../components/academy/ReferralModal";
+import { LogOut, User, Lock, Mail, Phone, BookOpen, ShieldCheck, Zap, LayoutDashboard, Gift } from "lucide-react";
 
 export default function AcademyDashboard() {
   const { currentUser, login, register, logout, resetPassword } = useAuth();
   
+  // Dashboard tabs
+  const [activeTab, setActiveTab] = useState<"dashboard" | "account">("dashboard");
+  const [showReferralModal, setShowReferralModal] = useState(false);
+
   // Form toggles
   const [isLogin, setIsLogin] = useState(true);
   const [showForgot, setShowForgot] = useState(false);
@@ -87,7 +93,7 @@ export default function AcademyDashboard() {
             {/* Profile Card */}
             <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-orange to-brand-blue flex items-center justify-center font-bold text-white uppercase shadow-md shadow-brand-orange/20 shrink-0">
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${currentUser.avatarGradient || 'from-brand-orange to-brand-blue'} flex items-center justify-center font-bold text-white uppercase shadow-md shadow-brand-orange/20 shrink-0`}>
                   {currentUser.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
@@ -108,6 +114,40 @@ export default function AcademyDashboard() {
                   {currentUser.role}
                 </span>
               </div>
+            </div>
+
+            {/* Portal Navigation Menu */}
+            <div className="space-y-1">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Portal Menu</span>
+              <button 
+                onClick={() => setActiveTab("dashboard")}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                  activeTab === "dashboard" 
+                    ? "text-white bg-white/10" 
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <LayoutDashboard className="w-4 h-4 text-brand-orange" />
+                My Dashboard
+              </button>
+              <button 
+                onClick={() => setActiveTab("account")}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                  activeTab === "account" 
+                    ? "text-white bg-white/10" 
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <User className="w-4 h-4 text-brand-blue" />
+                Account Center
+              </button>
+              <button 
+                onClick={() => setShowReferralModal(true)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
+              >
+                <Gift className="w-4 h-4 text-brand-orange" />
+                Refer & Earn
+              </button>
             </div>
 
             {/* General Portal Tools / Stats (Quick indicators in Sidebar) */}
@@ -146,16 +186,55 @@ export default function AcademyDashboard() {
 
         {/* Main Content Workspace */}
         <main className="flex-1 md:h-screen md:overflow-y-auto p-6 md:p-10 space-y-8 bg-[#0a0d16]">
+          {/* Mobile Tab switcher */}
+          <div className="md:hidden flex bg-white/5 border border-white/10 p-1.5 rounded-2xl gap-1">
+            <button 
+              onClick={() => setActiveTab("dashboard")}
+              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                activeTab === "dashboard" ? "bg-brand-orange text-white" : "text-white/60"
+              }`}
+            >
+              Dashboard
+            </button>
+            <button 
+              onClick={() => setActiveTab("account")}
+              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+                activeTab === "account" ? "bg-brand-orange text-white" : "text-white/60"
+              }`}
+            >
+              Account Center
+            </button>
+            <button 
+              onClick={() => setShowReferralModal(true)}
+              className="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-white/60 hover:text-white"
+            >
+              Refer & Earn
+            </button>
+          </div>
+
           <motion.div
+            key={activeTab}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {currentUser.role === "student" && <StudentDashboard />}
-            {currentUser.role === "instructor" && <InstructorDashboard />}
-            {currentUser.role === "admin" && <AdminDashboard />}
+            {activeTab === "dashboard" ? (
+              <>
+                {currentUser.role === "student" && <StudentDashboard />}
+                {currentUser.role === "instructor" && <InstructorDashboard />}
+                {currentUser.role === "admin" && <AdminDashboard />}
+              </>
+            ) : (
+              <AccountCenter />
+            )}
           </motion.div>
         </main>
+
+        <AnimatePresence>
+          {showReferralModal && (
+            <ReferralModal onClose={() => setShowReferralModal(false)} />
+          )}
+        </AnimatePresence>
       </div>
     );
   }

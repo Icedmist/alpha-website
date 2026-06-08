@@ -28,6 +28,12 @@ export interface User {
   portfolioLinks?: string[];
   projectShowcase?: string;
   issuedCertificates?: string[]; // Course IDs that have been issued certificates
+  headline?: string;
+  biography?: string;
+  website?: string;
+  githubLink?: string;
+  linkedinLink?: string;
+  avatarGradient?: string;
 }
 
 interface AuthContextType {

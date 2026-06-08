@@ -82,6 +82,15 @@ function Layout({ children }: { children: ReactNode }) {
                 {link.name === "Academy" && currentUser ? "Academy Dashboard" : link.name}
               </Link>
             ))}
+            {!currentUser && (
+              <Link 
+                to="/academy/dashboard"
+                id="nav-login"
+                className="text-sm font-bold uppercase tracking-widest text-white/60 hover:text-brand-orange transition-colors"
+              >
+                Login
+              </Link>
+            )}
             <Link 
               to={currentUser ? "/academy/dashboard" : "/apply"}
               id="cta-join-academy"
@@ -116,6 +125,15 @@ function Layout({ children }: { children: ReactNode }) {
                   {link.name === "Academy" && currentUser ? "Academy Dashboard" : link.name}
                 </Link>
               ))}
+              {!currentUser && (
+                <Link 
+                  to="/academy/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-display font-bold uppercase italic text-white/60 hover:text-brand-orange"
+                >
+                  Login
+                </Link>
+              )}
               <Link 
                 to={currentUser ? "/academy/dashboard" : "/apply"}
                 onClick={() => setIsMenuOpen(false)}
