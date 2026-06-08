@@ -57,12 +57,20 @@ export default function Academy() {
               We provide practical, competency-based digital education designed to bridge the gap 
               between academic knowledge and industry requirements.
             </p>
+            <div className="flex flex-wrap gap-4 pt-4">
+              <a href="#cohorts" className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-3.5 rounded-full font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-transform">
+                Browse Tracks
+              </a>
+              <Link to="/academy/dashboard" className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-3.5 rounded-full font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-transform">
+                Sign In to Portal
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Active Cohorts */}
-      <section className="px-6 py-20 md:py-32 lg:py-40 bg-white/[0.02]">
+      <section id="cohorts" className="px-6 py-20 md:py-32 lg:py-40 bg-white/[0.02]">
         <div className="max-w-7xl mx-auto">
           <div className="mb-16 md:mb-24 space-y-4">
              <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">Now Enrolling</p>
@@ -97,9 +105,12 @@ export default function Academy() {
              <p className="text-white font-medium italic text-lg md:text-xl">
                 Ready to skill up for the future? Join our next cohort and become part of the Alpha Spark ecosystem.
              </p>
-             <div className="flex justify-center">
+             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link to="/apply" className="bg-white text-brand-navy px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm hover:scale-105 transition-transform">
                     Apply to Academy
+                </Link>
+                <Link to="/academy/dashboard" className="bg-brand-navy/30 hover:bg-brand-navy/50 text-white border border-white/15 px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm hover:scale-105 transition-transform">
+                    Sign In to Portal
                 </Link>
              </div>
           </div>

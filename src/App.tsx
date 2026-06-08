@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useState, useEffect, type ReactNode } from "react";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Page Components
 import Home from "./pages/Home";
@@ -24,6 +25,7 @@ import TalentCloud from "./pages/TalentCloud";
 import Roadmap from "./pages/Roadmap";
 import Contact from "./pages/Contact";
 import Apply from "./pages/Apply";
+import AcademyDashboard from "./pages/AcademyDashboard";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -35,12 +37,16 @@ function ScrollToTop() {
 
 function Layout({ children }: { children: ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { currentUser } = useAuth();
+  const { pathname } = useLocation();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
+
+  const isDashboard = pathname.startsWith("/academy/dashboard") && currentUser;
 
   const navLinks = [
     { name: "About", href: "/about" },
@@ -57,8 +63,9 @@ function Layout({ children }: { children: ReactNode }) {
       {/* Progress Bar removed */}
 
       {/* Navigation */}
-      <nav id="navbar" className="fixed top-0 w-full z-40 bg-brand-navy/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between text-white">
+      {!isDashboard && (
+        <nav id="navbar" className="fixed top-0 w-full z-40 bg-brand-navy/80 backdrop-blur-md border-b border-white/5">
+          <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between text-white">
           <Link to="/" className="flex items-center gap-2 md:gap-3">
             <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
             <span className="font-display font-black text-lg md:text-2xl tracking-tighter uppercase italic">ALPHA SPARK</span>
@@ -68,19 +75,28 @@ function Layout({ children }: { children: ReactNode }) {
             {navLinks.map((link) => (
               <Link 
                 key={link.name} 
-                to={link.href}
+                to={link.name === "Academy" && currentUser ? "/academy/dashboard" : link.href}
                 className="text-sm font-bold uppercase tracking-widest text-white/60 hover:text-brand-orange transition-colors"
                 id={`nav-${link.name.toLowerCase().replace(" ", "-")}`}
               >
-                {link.name}
+                {link.name === "Academy" && currentUser ? "Academy Dashboard" : link.name}
               </Link>
             ))}
+            {!currentUser && (
+              <Link 
+                to="/academy/dashboard"
+                id="nav-login"
+                className="text-sm font-bold uppercase tracking-widest text-white/60 hover:text-brand-orange transition-colors"
+              >
+                Login
+              </Link>
+            )}
             <Link 
-              to="/apply"
+              to={currentUser ? "/academy/dashboard" : "/apply"}
               id="cta-join-academy"
               className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide text-xs transition-all"
             >
-              Join Academy
+              {currentUser ? "Portal Dashboard" : "Join Academy"}
             </Link>
           </div>
 
@@ -102,73 +118,89 @@ function Layout({ children }: { children: ReactNode }) {
               {navLinks.map((link) => (
                 <Link 
                   key={link.name} 
-                  to={link.href}
+                  to={link.name === "Academy" && currentUser ? "/academy/dashboard" : link.href}
                   className="text-lg font-display font-bold uppercase italic"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {link.name}
+                  {link.name === "Academy" && currentUser ? "Academy Dashboard" : link.name}
                 </Link>
               ))}
-              <button className="bg-brand-orange text-white px-6 py-4 rounded-xl font-bold uppercase">
-                Join Academy
-              </button>
+              {!currentUser && (
+                <Link 
+                  to="/academy/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="text-lg font-display font-bold uppercase italic text-white/60 hover:text-brand-orange"
+                >
+                  Login
+                </Link>
+              )}
+              <Link 
+                to={currentUser ? "/academy/dashboard" : "/apply"}
+                onClick={() => setIsMenuOpen(false)}
+                className="bg-brand-orange text-white text-center px-6 py-4 rounded-xl font-bold uppercase"
+              >
+                {currentUser ? "Portal Dashboard" : "Join Academy"}
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
+      )}
 
-      <main>{children}</main>
+      <main className={isDashboard ? "w-full" : ""}>{children}</main>
 
       {/* Footer */}
-      <footer id="footer" className="bg-white/2 pt-20 pb-12 md:pt-32 md:pb-16 border-t border-white/10 px-6 mt-20 md:mt-40">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-4 gap-12 lg:gap-20 mb-20 md:mb-32">
-            <div className="lg:col-span-2 space-y-10">
-              <div className="flex items-center gap-3 md:gap-4">
-                <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-                <span className="font-display font-black text-2xl md:text-3xl tracking-tighter text-white uppercase italic">alpha spark.</span>
+      {!isDashboard && (
+        <footer id="footer" className="bg-white/2 pt-20 pb-12 md:pt-32 md:pb-16 border-t border-white/10 px-6 mt-20 md:mt-40">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-4 gap-12 lg:gap-20 mb-20 md:mb-32">
+              <div className="lg:col-span-2 space-y-10">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+                  <span className="font-display font-black text-2xl md:text-3xl tracking-tighter text-white uppercase italic">alpha spark.</span>
+                </div>
+                <p className="text-white/30 text-base md:text-lg max-w-sm leading-relaxed italic">
+                  Empowering individuals and institutions with practical digital capabilities, 
+                  verified skills, and access to opportunities.
+                </p>
               </div>
-              <p className="text-white/30 text-base md:text-lg max-w-sm leading-relaxed italic">
-                Empowering individuals and institutions with practical digital capabilities, 
-                verified skills, and access to opportunities.
-              </p>
+              
+              <div>
+                <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Platform</h4>
+                <ul className="space-y-6 text-white/40 text-sm font-bold uppercase tracking-widest">
+                  <li><Link to="/academy" className="hover:text-white transition-colors">Academy</Link></li>
+                  <li><Link to="/talent-cloud" className="hover:text-white transition-colors">Talent Cloud</Link></li>
+                  <li><Link to="/apply" className="hover:text-white transition-colors">Enrollment</Link></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Connect</h4>
+                <ul className="space-y-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
+                  <li><a href="mailto:hello@alphaspark.tech" className="hover:text-white transition-colors">hello@alphaspark.tech</a></li>
+                  <li><a href="tel:09075444148" className="hover:text-white transition-colors">09075444148</a></li>
+                  <li className="text-brand-orange">Gombe State, Nigeria</li>
+                  <li className="pt-6 flex gap-8">
+                    <TrendingUp className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <Target className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
+                    <ShieldCheck className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
+                  </li>
+                </ul>
+              </div>
             </div>
             
-            <div>
-              <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Platform</h4>
-              <ul className="space-y-6 text-white/40 text-sm font-bold uppercase tracking-widest">
-                <li><Link to="/academy" className="hover:text-white transition-colors">Academy</Link></li>
-                <li><Link to="/talent-cloud" className="hover:text-white transition-colors">Talent Cloud</Link></li>
-                <li><Link to="/apply" className="hover:text-white transition-colors">Enrollment</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Connect</h4>
-              <ul className="space-y-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
-                <li><a href="mailto:hello@alphaspark.tech" className="hover:text-white transition-colors">hello@alphaspark.tech</a></li>
-                <li><a href="tel:09075444148" className="hover:text-white transition-colors">09075444148</a></li>
-                <li className="text-brand-orange">Gombe State, Africa</li>
-                <li className="pt-6 flex gap-8">
-                  <TrendingUp className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
-                  <Target className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
-                  <ShieldCheck className="w-6 h-6 opacity-30 hover:opacity-100 transition-opacity cursor-pointer" />
-                </li>
-              </ul>
+            <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10 text-center md:text-left">
+              <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
+                © 2025 Alpha Spark. Ignite Africa.
+              </div>
+              <div className="flex gap-10 text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">
+                #ALPHASPARK #IGNITE #FUTURE
+              </div>
             </div>
           </div>
-          
-          <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10 text-center md:text-left">
-            <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
-              © 2025 Alpha Spark. Ignite Africa.
-            </div>
-            <div className="flex gap-10 text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">
-              #ALPHASPARK #IGNITE #FUTURE
-            </div>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }
@@ -177,17 +209,20 @@ export default function App() {
   return (
     <Router>
       <ScrollToTop />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/academy" element={<Academy />} />
-          <Route path="/talent-cloud" element={<TalentCloud />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/apply" element={<Apply />} />
-        </Routes>
-      </Layout>
+      <AuthProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/academy" element={<Academy />} />
+            <Route path="/academy/dashboard" element={<AcademyDashboard />} />
+            <Route path="/talent-cloud" element={<TalentCloud />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/apply" element={<Apply />} />
+          </Routes>
+        </Layout>
+      </AuthProvider>
     </Router>
   );
 }
