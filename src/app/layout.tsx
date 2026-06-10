@@ -4,6 +4,9 @@ import '../index.css';
 export const metadata = {
   title: 'Alpha Spark',
   description: 'Empowering individuals and institutions with practical digital capabilities.',
+  icons: {
+    icon: '/assets/logo.png',
+  },
 };
 
 export default function RootLayout({

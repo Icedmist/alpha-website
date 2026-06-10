@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   BarChart, Users, DollarSign, BookOpen, Award, Shield, 
   Trash2, UserPlus, RefreshCw, Layers, PlusCircle, Edit3, ShieldAlert
@@ -8,7 +8,37 @@ import { useAuth, User } from "../../context/AuthContext";
 
 export default function AdminDashboard() {
   const { allUsers, updateSpecificUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "certificates">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "certificates" | "system_activities">("analytics");
+
+  // Activities & Subscribers states
+  const [activities, setActivities] = useState<any[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "system_activities") {
+      const fetchData = async () => {
+        setLoadingActivities(true);
+        try {
+          const actRes = await fetch("/api/admin/activities");
+          if (actRes.ok) {
+            const actData = await actRes.json();
+            setActivities(actData);
+          }
+          const subRes = await fetch("/api/admin/newsletter");
+          if (subRes.ok) {
+            const subData = await subRes.json();
+            setSubscribers(subData);
+          }
+        } catch (err) {
+          console.error("Failed to fetch admin activities data:", err);
+        } finally {
+          setLoadingActivities(false);
+        }
+      };
+      fetchData();
+    }
+  }, [activeTab]);
 
   // Local state for Course CRUD
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
@@ -196,17 +226,18 @@ export default function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-white/10 gap-6">
+      <div className="flex border-b border-white/10 gap-6 overflow-x-auto scrollbar-none pb-0.5">
         {[
           { id: "analytics", label: "Analytics Summary", icon: BarChart },
           { id: "users", label: "Access Controls", icon: Shield },
           { id: "courses", label: "Course Inventory", icon: BookOpen },
-          { id: "certificates", label: "Credential Registry", icon: Award }
+          { id: "certificates", label: "Credential Registry", icon: Award },
+          { id: "system_activities", label: "System Activities", icon: RefreshCw }
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-4 text-xs font-black uppercase tracking-widest flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
+            className={`pb-4 text-xs font-black uppercase tracking-widest flex items-center gap-2 border-b-2 transition-colors cursor-pointer shrink-0 ${
               activeTab === tab.id 
                 ? "border-brand-orange text-brand-orange" 
                 : "border-transparent text-white/40 hover:text-white"
@@ -560,6 +591,168 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "system_activities" && (
+          <div className="space-y-12">
+            {/* Header */}
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">System Activities & Logs</h2>
+              <p className="text-white/40 text-xs italic">View entire system audits, newsletter subscriptions, and all assignment submissions.</p>
+            </div>
+
+            {loadingActivities ? (
+              <div className="flex justify-center items-center py-20 text-white/50 text-xs font-bold uppercase tracking-widest gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-brand-orange" />
+                Loading logs...
+              </div>
+            ) : (
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Left/Middle Columns: Activities Feed and Course Submissions */}
+                <div className="lg:col-span-2 space-y-12">
+                  {/* Global Activities */}
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-white">Global Audit Feed</h3>
+                    <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[350px] overflow-y-auto">
+                      {activities.length === 0 ? (
+                        <p className="text-white/30 text-xs italic py-4">No system activities recorded yet.</p>
+                      ) : (
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                              <th className="pb-2">Timestamp</th>
+                              <th className="pb-2">User</th>
+                              <th className="pb-2">Event</th>
+                              <th className="pb-2">Details</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 text-white/70">
+                            {activities.map((act) => (
+                              <tr key={act.id}>
+                                <td className="py-2.5 font-mono text-[10px] text-white/40">
+                                  {new Date(act.timestamp).toLocaleString()}
+                                </td>
+                                <td className="py-2.5 font-semibold text-white">
+                                  {act.userName || act.userId || 'System'}
+                                </td>
+                                <td className="py-2.5 font-bold uppercase tracking-wider text-[10px] text-brand-orange">
+                                  {act.action}
+                                </td>
+                                <td className="py-2.5 text-white/60 italic">{act.details}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* All Assignment Submissions */}
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-white">All Assignment Submissions</h3>
+                    <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[350px] overflow-y-auto">
+                      {allUsers.flatMap(user => 
+                        (user.submissions || []).map(sub => ({
+                          userId: user.id,
+                          userName: user.name,
+                          userEmail: user.email,
+                          ...sub
+                        }))
+                      ).length === 0 ? (
+                        <p className="text-white/30 text-xs italic py-4">No student assignments submitted yet.</p>
+                      ) : (
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                              <th className="pb-2">Student</th>
+                              <th className="pb-2">Course / Assignment</th>
+                              <th className="pb-2">Submitted</th>
+                              <th className="pb-2">Status</th>
+                              <th className="pb-2">Grade / Feedback</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 text-white/70">
+                            {allUsers.flatMap(user => 
+                              (user.submissions || []).map(sub => ({
+                                userId: user.id,
+                                userName: user.name,
+                                userEmail: user.email,
+                                ...sub
+                              }))
+                            )
+                            .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+                            .map((sub, i) => (
+                              <tr key={i}>
+                                <td className="py-3">
+                                  <div className="font-semibold text-white">{sub.userName}</div>
+                                  <div className="text-[10px] text-white/40">{sub.userEmail}</div>
+                                </td>
+                                <td className="py-3">
+                                  <div className="font-bold text-[10px] uppercase text-brand-orange">{sub.courseId}</div>
+                                  <div className="text-white/60 italic">{sub.assignmentTitle}</div>
+                                </td>
+                                <td className="py-3 text-white/40 text-[10px]">
+                                  {new Date(sub.submittedAt).toLocaleDateString()}
+                                </td>
+                                <td className="py-3">
+                                  <span className={`px-2 py-0.5 rounded text-[9px] uppercase font-bold border ${
+                                    sub.status === 'graded' 
+                                      ? 'bg-green-500/10 text-green-400 border-green-500/10' 
+                                      : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/10'
+                                  }`}>
+                                    {sub.status}
+                                  </span>
+                                </td>
+                                <td className="py-3">
+                                  {sub.status === 'graded' ? (
+                                    <div>
+                                      <span className="font-bold text-white">{sub.score}%</span>
+                                      {sub.feedback && <p className="text-[10px] text-white/40 italic">{sub.feedback}</p>}
+                                    </div>
+                                  ) : (
+                                    <span className="text-white/30 italic">Not graded</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Newsletter Roster */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-white">Newsletter Roster</h3>
+                  <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[750px] overflow-y-auto">
+                    {subscribers.length === 0 ? (
+                      <p className="text-white/30 text-xs italic py-4">No subscribers registered yet.</p>
+                    ) : (
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                            <th className="pb-2">Email Address</th>
+                            <th className="pb-2">Subscribed At</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-white/70">
+                          {subscribers.map((sub) => (
+                            <tr key={sub.id}>
+                              <td className="py-2.5 font-semibold text-white">{sub.email}</td>
+                              <td className="py-2.5 font-mono text-[10px] text-white/40">
+                                {new Date(sub.subscribedAt).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
