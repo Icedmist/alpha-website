@@ -8,27 +8,58 @@ export function middleware(request: NextRequest) {
   // Detect subdomain vs root domain
   const isAcademySubdomain = host.startsWith('academy.');
 
+  console.log('Middleware Request:', {
+    host,
+    pathname: url.pathname,
+    isAcademySubdomain,
+  });
+
   if (!isAcademySubdomain) {
-    // Main domain context
+    // Main domain context: redirect academy requests to subdomain
     if (url.pathname === '/academy') {
-      return NextResponse.redirect('http://academy.localhost:3000/');
+      return new NextResponse(null, {
+        status: 307,
+        headers: {
+          'Location': 'http://academy.localhost:3000/',
+        },
+      });
     }
     if (url.pathname.startsWith('/academy/dashboard')) {
-      return NextResponse.redirect('http://academy.localhost:3000/dashboard');
+      return new NextResponse(null, {
+        status: 307,
+        headers: {
+          'Location': 'http://academy.localhost:3000/dashboard',
+        },
+      });
     }
   } else {
     // Academy subdomain context
     if (url.pathname === '/academy') {
-      return NextResponse.redirect('http://academy.localhost:3000/');
+      return new NextResponse(null, {
+        status: 307,
+        headers: {
+          'Location': 'http://academy.localhost:3000/',
+        },
+      });
     }
     if (url.pathname.startsWith('/academy/dashboard')) {
-      return NextResponse.redirect('http://academy.localhost:3000/dashboard');
+      return new NextResponse(null, {
+        status: 307,
+        headers: {
+          'Location': 'http://academy.localhost:3000/dashboard',
+        },
+      });
     }
 
-    // Redirect standard main site routes to root domain
+    // Redirect standard main site routes back to main domain
     const mainSiteRoutes = ['/about', '/talent-cloud', '/roadmap', '/contact', '/apply'];
     if (mainSiteRoutes.some((route) => url.pathname.startsWith(route))) {
-      return NextResponse.redirect(`http://localhost:3000${url.pathname}${url.search}`);
+      return new NextResponse(null, {
+        status: 307,
+        headers: {
+          'Location': `http://localhost:3000${url.pathname}${url.search}`,
+        },
+      });
     }
   }
 

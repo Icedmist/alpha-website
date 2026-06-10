@@ -11,6 +11,10 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  trustedOrigins: [
+    "http://localhost:3000",
+    "http://academy.localhost:3000",
+  ],
 });
 export type Session = typeof auth.$Infer.Session.session;
 export type User = typeof auth.$Infer.Session.user;

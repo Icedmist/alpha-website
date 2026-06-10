@@ -18,14 +18,14 @@ import { useState, useEffect, type ReactNode } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Page Components
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Academy from "./pages/Academy";
-import TalentCloud from "./pages/TalentCloud";
-import Roadmap from "./pages/Roadmap";
-import Contact from "./pages/Contact";
-import Apply from "./pages/Apply";
-import AcademyDashboard from "./pages/AcademyDashboard";
+import Home from "./views/Home";
+import About from "./views/About";
+import Academy from "./views/Academy";
+import TalentCloud from "./views/TalentCloud";
+import Roadmap from "./views/Roadmap";
+import Contact from "./views/Contact";
+import Apply from "./views/Apply";
+import AcademyDashboard from "./views/AcademyDashboard";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -337,8 +337,26 @@ export default function App() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const host = window.location.hostname;
-      if (host.startsWith("academy.")) {
-        setIsAcademySubdomain(true);
+      const pathname = window.location.pathname;
+      const search = window.location.search;
+      const isAcademy = host.startsWith("academy.");
+      
+      setIsAcademySubdomain(isAcademy);
+
+      if (isAcademy) {
+        // Redirect main site routes back to root domain
+        const mainSiteRoutes = ["/about", "/talent-cloud", "/roadmap", "/contact", "/apply"];
+        if (mainSiteRoutes.some(route => pathname.startsWith(route))) {
+          window.location.href = `http://localhost:3000${pathname}${search}`;
+        }
+      } else {
+        // Redirect academy paths to academy subdomain
+        if (pathname === "/academy") {
+          window.location.href = `http://academy.localhost:3000/${search}`;
+        } else if (pathname.startsWith("/academy/")) {
+          const subPath = pathname.replace(/^\/academy/, "");
+          window.location.href = `http://academy.localhost:3000${subPath}${search}`;
+        }
       }
     }
   }, []);
