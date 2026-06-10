@@ -98,6 +98,15 @@ function initMock() {
             },
           };
         },
+        add: async (data: any) => {
+          const docId = Math.random().toString(36).substring(2, 15);
+          mockDbStore[collectionName][docId] = data;
+          console.log(
+            `[Mock Firestore ADD] ${collectionName}/${docId}:`,
+            data
+          );
+          return { id: docId, writeTime: new Date() };
+        },
         get: async () => {
           const list = Object.entries(mockDbStore[collectionName] || {}).map(
             ([id, val]) => ({
