@@ -12,7 +12,7 @@ export default function InstructorDashboard() {
   const [activeTab, setActiveTab] = useState<"grading" | "students" | "lessons">("grading");
   
   // Grading states
-  const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; submission: Submission } | null>(null);
+  const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; userName: string; submission: Submission } | null>(null);
   const [score, setScore] = useState<number>(85);
   const [feedback, setFeedback] = useState<string>("");
 

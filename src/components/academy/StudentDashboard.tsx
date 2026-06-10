@@ -665,7 +665,7 @@ export default function StudentDashboard() {
                           )}
                         </div>
                       ) : (
-                        <form onSubmit={(e) => handleAssignmentSubmit(e, activeLesson, activeCourse.id)} className="space-y-6">
+                        <form onSubmit={(e) => handleAssignmentSubmit(e, activeLesson, activeCourse?.id || "")} className="space-y-6">
                           <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-wider text-white/40">Submission Writeup</label>
                             <textarea
