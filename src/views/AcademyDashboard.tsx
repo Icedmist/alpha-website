@@ -399,10 +399,10 @@ export default function AcademyDashboard() {
               ) : (
                 <>
                   <button 
-                    onClick={() => { setIsLogin(!isLogin); setError(""); setSuccess(""); }}
-                    className="hover:text-white transition-colors cursor-pointer"
+                    onClick={() => { window.location.href = "http://localhost:3000/apply"; }}
+                    className="hover:text-white transition-colors cursor-pointer text-brand-orange"
                   >
-                    {isLogin ? "Need an Account? Register" : "Have an Account? Login"}
+                    Need an Account? Register & Apply
                   </button>
                   <button 
                     onClick={() => { setShowForgot(true); setError(""); setSuccess(""); }}

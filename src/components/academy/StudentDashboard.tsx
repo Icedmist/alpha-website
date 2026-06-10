@@ -11,6 +11,7 @@ import CertificateGenerator from "./CertificateGenerator";
 
 export default function StudentDashboard() {
   const { currentUser, updateUser } = useAuth();
+  if (!currentUser) return null;
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [payingCourse, setPayingCourse] = useState<Course | null>(null);

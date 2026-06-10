@@ -1,28 +1,80 @@
 import { motion } from "motion/react";
 import React, { useState } from "react";
-import { CheckCircle2, User, BookOpen, MapPin, Briefcase, GraduationCap, ArrowRight, Zap, ShieldCheck } from "lucide-react";
+import { CheckCircle2, User, BookOpen, MapPin, Briefcase, GraduationCap, ArrowRight, Zap, ShieldCheck, Lock } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Apply() {
+  const { currentUser, register } = useAuth();
   const [step, setStep] = useState(1);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     location: "",
-    program: "AI Fundamentals",
-    background: "",
-    experience: "Beginner",
+    program: "Full Stack Web Development",
+    background: "student",
+    experience: "Beginner (0-1 years)",
     reason: ""
   });
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep(4); // Success step
-    console.log("Application submitted:", formData);
+  const handleSubmit = async (e: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setSubmitError("");
+    setLoading(true);
+
+    try {
+      // 1. If not logged in, register first
+      if (!currentUser) {
+        if (!password || password.length < 6) {
+          throw new Error("Password must be at least 6 characters long.");
+        }
+        const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+        if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email || !formData.phone) {
+          throw new Error("Please fill out all personal details in step 1.");
+        }
+        await register(
+          fullName,
+          formData.email,
+          formData.phone,
+          password,
+          "student"
+        );
+      }
+
+      // 2. Submit application & auto-enroll
+      const appRes = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: formData.phone,
+          location: formData.location,
+          program: formData.program,
+          background: formData.background,
+          experience: formData.experience,
+          reason: formData.reason
+        }),
+      });
+
+      if (!appRes.ok) {
+        const errorData = await appRes.json();
+        throw new Error(errorData.error || "Failed to submit application.");
+      }
+
+      setStep(4); // Success step
+    } catch (err: any) {
+      console.error("Application submission failed:", err);
+      setSubmitError(err.message || "An unexpected error occurred during submission.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const programs = [
@@ -87,6 +139,12 @@ export default function Apply() {
                 <Zap className="w-64 h-64 text-white" />
             </div>
 
+            {submitError && (
+              <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl text-xs font-semibold">
+                {submitError}
+              </div>
+            )}
+
             {step === 1 && (
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}
@@ -97,6 +155,13 @@ export default function Apply() {
                     <User className="text-brand-orange w-6 h-6" />
                     <h2 className="font-display font-bold text-2xl md:text-3xl uppercase italic tracking-tight">Personal Info</h2>
                 </div>
+
+                {currentUser && (
+                  <div className="p-4 bg-brand-blue/10 border border-brand-blue/20 text-brand-blue rounded-2xl text-xs font-semibold">
+                    Applying as logged-in user: <span className="text-white">{currentUser.name} ({currentUser.email})</span>
+                  </div>
+                )}
+
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">First Name</label>
@@ -117,15 +182,34 @@ export default function Apply() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Email Address</label>
-                  <input 
-                    type="email" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  />
+                
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Email Address</label>
+                    <input 
+                      type="email" 
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      disabled={!!currentUser}
+                    />
+                  </div>
+                  {!currentUser && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Account Password (min 6 chars)</label>
+                      <div className="relative">
+                        <input 
+                          type="password" 
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange pl-12"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <Lock className="absolute left-4 top-3.5 md:top-5 text-white/20 w-4 h-4" />
+                      </div>
+                    </div>
+                  )}
                 </div>
+
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Phone Number</label>
@@ -274,17 +358,25 @@ export default function Apply() {
                   <CheckCircle2 className="w-16 h-16 text-white" />
                 </div>
                 <div className="space-y-4">
-                  <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight">Application Received!</h2>
+                  <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight">Application & Enrollment Successful!</h2>
                   <p className="text-white/40 max-w-sm mx-auto italic text-sm md:text-base">
-                    Great choice, {formData.firstName}. Our admissions team will review your application and get in touch within 48 hours.
+                    Welcome to the academy! Your student account has been created/updated, and you are automatically enrolled in the {formData.program} track.
                   </p>
                 </div>
-                <button 
-                  onClick={() => window.location.href = "/"}
-                  className="bg-white/5 border border-white/10 text-white/60 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest"
-                >
-                  Return to Homepage
-                </button>
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
+                  <button 
+                    onClick={() => window.location.href = "http://academy.localhost:3000/dashboard"}
+                    className="bg-brand-orange hover:bg-brand-orange/90 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+                  >
+                    Go to Academy Dashboard
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = "/"}
+                    className="bg-white/5 border border-white/10 text-white/60 px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest hover:text-white transition-colors cursor-pointer"
+                  >
+                    Return to Homepage
+                  </button>
+                </div>
               </motion.div>
             )}
           </div>

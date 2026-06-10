@@ -8,12 +8,16 @@ import { useAuth, User } from "../../context/AuthContext";
 
 export default function AdminDashboard() {
   const { allUsers, updateSpecificUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "certificates" | "system_activities">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities">("analytics");
 
   // Activities & Subscribers states
   const [activities, setActivities] = useState<any[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
+
+  // Applications state
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loadingApplications, setLoadingApplications] = useState(false);
 
   useEffect(() => {
     if (activeTab === "system_activities") {
@@ -37,6 +41,22 @@ export default function AdminDashboard() {
         }
       };
       fetchData();
+    } else if (activeTab === "applications") {
+      const fetchApplications = async () => {
+        setLoadingApplications(true);
+        try {
+          const res = await fetch("/api/admin/applications");
+          if (res.ok) {
+            const data = await res.json();
+            setApplications(data);
+          }
+        } catch (err) {
+          console.error("Failed to fetch admin applications data:", err);
+        } finally {
+          setLoadingApplications(false);
+        }
+      };
+      fetchApplications();
     }
   }, [activeTab]);
 
@@ -231,6 +251,7 @@ export default function AdminDashboard() {
           { id: "analytics", label: "Analytics Summary", icon: BarChart },
           { id: "users", label: "Access Controls", icon: Shield },
           { id: "courses", label: "Course Inventory", icon: BookOpen },
+          { id: "applications", label: "Applications", icon: UserPlus },
           { id: "certificates", label: "Credential Registry", icon: Award },
           { id: "system_activities", label: "System Activities", icon: RefreshCw }
         ].map((tab) => (
@@ -327,8 +348,21 @@ export default function AdminDashboard() {
                           {user.role}
                         </span>
                       </td>
-                      <td className="py-4 pr-4 text-white/40">
-                        {user.enrolledCourses.length > 0 ? `${user.enrolledCourses.length} Courses` : "None"}
+                      <td className="py-4 pr-4">
+                        {user.enrolledCourses && user.enrolledCourses.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {user.enrolledCourses.map((cid: string) => {
+                              const courseObj = courses.find((c) => c.id === cid);
+                              return (
+                                <span key={cid} className="bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-2 py-0.5 rounded text-[10px] font-bold">
+                                  {courseObj?.title || cid}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-white/20 italic">None</span>
+                        )}
                       </td>
                       <td className="py-4 text-right">
                         <select
@@ -591,6 +625,76 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "applications" && (
+          <div className="space-y-12">
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Student Applications</h2>
+              <p className="text-white/40 text-xs italic">Review admissions applications submitted through the registration and application portal.</p>
+            </div>
+
+            {loadingApplications ? (
+              <div className="flex justify-center items-center py-20 text-white/50 text-xs font-bold uppercase tracking-widest gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-brand-orange" />
+                Loading applications...
+              </div>
+            ) : applications.length === 0 ? (
+              <div className="bg-white/5 border border-white/10 p-12 rounded-3xl text-center">
+                <Users className="w-12 h-12 text-white/20 mx-auto mb-4 animate-pulse" />
+                <h3 className="font-bold text-white text-sm uppercase tracking-wider">No Applications Yet</h3>
+                <p className="text-white/40 text-xs mt-1">When students apply via the /apply page, their applications will show up here.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-6">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="text-white/40 font-bold border-b border-white/10 pb-3">
+                      <th className="pb-3 pr-4">Applicant</th>
+                      <th className="pb-3 pr-4">Program Applied</th>
+                      <th className="pb-3 pr-4">Location & Contact</th>
+                      <th className="pb-3 pr-4">Background & Experience</th>
+                      <th className="pb-3 pr-4">Reason for Applying</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-white/70">
+                    {applications.map((app) => (
+                      <tr key={app.id} className="align-top hover:bg-white/[0.02] transition-colors">
+                        <td className="py-4 pr-4">
+                          <div className="font-bold text-white text-sm">{app.name}</div>
+                          <div className="text-white/40 font-mono text-[10px] mt-0.5">{app.email}</div>
+                          <div className="text-[10px] text-brand-orange uppercase tracking-wider font-bold mt-1">
+                            Applied: {new Date(app.submittedAt).toLocaleDateString()}
+                          </div>
+                        </td>
+                        <td className="py-4 pr-4 font-semibold text-white/90">
+                          {app.program}
+                          <span className="block text-[10px] text-white/40 font-mono mt-0.5">Course ID: {app.courseId}</span>
+                        </td>
+                        <td className="py-4 pr-4">
+                          <div className="text-white/80">{app.location || "N/A"}</div>
+                          <div className="text-white/40 font-mono text-[10px] mt-0.5">{app.phone || "N/A"}</div>
+                        </td>
+                        <td className="py-4 pr-4">
+                          <div className="capitalize font-semibold text-brand-blue">{app.background}</div>
+                          <div className="text-white/50 text-[11px] mt-1">{app.experience}</div>
+                        </td>
+                        <td className="py-4 pr-4 max-w-xs text-white/60 italic leading-relaxed whitespace-pre-wrap">
+                          "{app.reason || "No statement provided."}"
+                        </td>
+                        <td className="py-4">
+                          <span className="bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider">
+                            {app.status || "Approved"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 

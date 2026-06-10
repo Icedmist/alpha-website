@@ -1,5 +1,8 @@
 import { auth } from '../../../lib/auth';
 import { db } from '../../../lib/firebase-admin';
+import { db as pgDb } from '../../../db';
+import { user as userTable } from '../../../db/schema';
+import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 
 const SEED_USERS = [
@@ -21,7 +24,7 @@ const SEED_USERS = [
     password: 'instructor123',
     phone: '+2348055667788',
     role: 'instructor',
-    enrolledCourses: ['ai-ml', 'fullstack-web', 'graphic-design'],
+    enrolledCourses: [],
     completedLessons: [],
     quizScores: {},
     submissions: [],
@@ -33,28 +36,11 @@ const SEED_USERS = [
     password: 'student123',
     phone: '+2349075444148',
     role: 'student',
-    enrolledCourses: ['fullstack-web'],
-    completedLessons: ['fsw-m1-l1'],
-    quizScores: {
-      'fsw-m1-q1': 100,
-    },
-    submissions: [
-      {
-        courseId: 'fullstack-web',
-        lessonId: 'fsw-m2-a1',
-        assignmentTitle: 'Assignment: Portfolio Website Deployment',
-        content:
-          'I have built my website and deployed it. It contains a details page.',
-        portfolioLink: 'https://myportfolio-mustapha.vercel.app',
-        submittedAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-        status: 'pending',
-      },
-    ],
-    attendanceDates: [
-      new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString().split('T')[0],
-      new Date(Date.now() - 24 * 3600 * 1000).toISOString().split('T')[0],
-      new Date().toISOString().split('T')[0],
-    ],
+    enrolledCourses: [],
+    completedLessons: [],
+    quizScores: {},
+    submissions: [],
+    attendanceDates: [],
   },
 ];
 
@@ -63,7 +49,7 @@ export async function GET() {
 
   for (const user of SEED_USERS) {
     try {
-      // 1. Create in Better Auth (Supabase Postgres)
+      // 1. Create in Better Auth (Postgres)
       const res = await auth.api.signUpEmail({
         body: {
           email: user.email,
@@ -85,9 +71,30 @@ export async function GET() {
         results.push(`Successfully seeded ${user.email} (ID: ${userId})`);
       }
     } catch (error: any) {
-      // If user already exists in Better Auth database, we catch the error
-      if (error?.message?.includes('already exists') || error?.code === '23505') {
-        results.push(`${user.email} already exists, skipping.`);
+      // Catch duplicate/already exists error
+      const isDuplicate = error?.message?.includes('already exists') || error?.code === '23505';
+      if (isDuplicate) {
+        try {
+          const existing = await pgDb
+            .select()
+            .from(userTable)
+            .where(eq(userTable.email, user.email))
+            .limit(1);
+
+          if (existing.length > 0) {
+            const userId = existing[0].id;
+            const { password: _, ...profileData } = user;
+            await db.collection('users').doc(userId).set({
+              ...profileData,
+              createdAt: new Date().toISOString(),
+            });
+            results.push(`Recovered Firestore profile for existing ${user.email} (ID: ${userId})`);
+          } else {
+            results.push(`Error: user duplicate error thrown but not found in Postgres for ${user.email}`);
+          }
+        } catch (dbErr: any) {
+          results.push(`DB Error looking up ${user.email}: ${dbErr?.message || dbErr}`);
+        }
       } else {
         results.push(`Error seeding ${user.email}: ${error?.message || error}`);
       }

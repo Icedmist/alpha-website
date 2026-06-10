@@ -1,0 +1,40 @@
+{
+  "users": {
+    "XBByHunCSE8SpvqSvNMyXd2O90tADG4B": {
+      "name": "Alpha Admin",
+      "email": "admin@alphaspark.tech",
+      "phone": "+2348011223344",
+      "role": "admin",
+      "enrolledCourses": [],
+      "completedLessons": [],
+      "quizScores": {},
+      "submissions": [],
+      "attendanceDates": [],
+      "createdAt": "2026-06-10T13:02:50.961Z"
+    },
+    "CmDWedV2KmdFWa03XM6AMDIxH4U6Jo40": {
+      "name": "Dr. Gabriel Okafor",
+      "email": "instructor@alphaspark.tech",
+      "phone": "+2348055667788",
+      "role": "instructor",
+      "enrolledCourses": [],
+      "completedLessons": [],
+      "quizScores": {},
+      "submissions": [],
+      "attendanceDates": [],
+      "createdAt": "2026-06-10T13:02:51.894Z"
+    },
+    "5N0VoOySadr654XjaTMfoHQtTcvuly89": {
+      "name": "Mustapha Yusuf",
+      "email": "student@alphaspark.tech",
+      "phone": "+2349075444148",
+      "role": "student",
+      "enrolledCourses": [],
+      "completedLessons": [],
+      "quizScores": {},
+      "submissions": [],
+      "attendanceDates": [],
+      "createdAt": "2026-06-10T13:02:52.840Z"
+    }
+  }
+}

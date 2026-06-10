@@ -14,24 +14,64 @@ export async function GET() {
     }
 
     const userId = sessionData.user.id;
+    const userEmail = sessionData.user.email;
 
     // Fetch the tenant-isolated Firestore profile document
     const userDoc = await db.collection('users').doc(userId).get();
 
     if (!userDoc.exists) {
-      // For new users, initialize and return a default profile skeleton
-      const defaultProfile = {
-        name: sessionData.user.name,
-        email: sessionData.user.email,
-        phone: '',
-        role: 'student', // Default role
-        enrolledCourses: [],
-        completedLessons: [],
-        quizScores: {},
-        submissions: [],
-        attendanceDates: [],
-        createdAt: new Date().toISOString(),
+      // Automatic role/profile recovery map for sandbox seed accounts
+      const SEED_PROFILES: Record<string, any> = {
+        'admin@alphaspark.tech': {
+          name: 'Alpha Admin',
+          email: 'admin@alphaspark.tech',
+          phone: '+2348011223344',
+          role: 'admin',
+          enrolledCourses: [],
+          completedLessons: [],
+          quizScores: {},
+          submissions: [],
+          attendanceDates: [],
+        },
+        'instructor@alphaspark.tech': {
+          name: 'Dr. Gabriel Okafor',
+          email: 'instructor@alphaspark.tech',
+          phone: '+2348055667788',
+          role: 'instructor',
+          enrolledCourses: [],
+          completedLessons: [],
+          quizScores: {},
+          submissions: [],
+          attendanceDates: [],
+        },
+        'student@alphaspark.tech': {
+          name: 'Mustapha Yusuf',
+          email: 'student@alphaspark.tech',
+          phone: '+2349075444148',
+          role: 'student',
+          enrolledCourses: [],
+          completedLessons: [],
+          quizScores: {},
+          submissions: [],
+          attendanceDates: [],
+        },
       };
+
+      const seedProfile = SEED_PROFILES[userEmail];
+      const defaultProfile = seedProfile
+        ? { ...seedProfile, createdAt: new Date().toISOString() }
+        : {
+            name: sessionData.user.name,
+            email: sessionData.user.email,
+            phone: '',
+            role: 'student',
+            enrolledCourses: [],
+            completedLessons: [],
+            quizScores: {},
+            submissions: [],
+            attendanceDates: [],
+            createdAt: new Date().toISOString(),
+          };
 
       // Store in isolated Firestore instance
       await db.collection('users').doc(userId).set(defaultProfile);

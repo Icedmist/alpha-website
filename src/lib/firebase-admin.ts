@@ -54,17 +54,55 @@ if (!projectId || !clientEmail || !privateKey) {
   }
 }
 
+import fs from 'fs';
+import path from 'path';
+
+const DB_FILE_PATH = path.join(process.cwd(), 'mock_firestore.json');
+
+function loadMockDb(): Record<string, Record<string, any>> {
+  try {
+    if (fs.existsSync(DB_FILE_PATH)) {
+      const content = fs.readFileSync(DB_FILE_PATH, 'utf8');
+      return JSON.parse(content);
+    }
+  } catch (err) {
+    console.error('Error loading mock Firestore DB from file:', err);
+  }
+  return {};
+}
+
+function saveMockDb(store: Record<string, Record<string, any>>) {
+  try {
+    fs.writeFileSync(DB_FILE_PATH, JSON.stringify(store, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error saving mock Firestore DB to file:', err);
+  }
+}
+
 function initMock() {
-  // In-memory mock database store for simulating CRUD locally without crashing
-  const mockDbStore: Record<string, Record<string, any>> = {};
+  // Load mock database from file to persist data across dev server hot reloads
+  const mockDbStore = loadMockDb();
 
   db = {
     collection: (collectionName: string) => {
       if (!mockDbStore[collectionName]) {
         mockDbStore[collectionName] = {};
+        saveMockDb(mockDbStore);
       }
 
-      return {
+      const chain: any = {
+        _orderByField: null,
+        _orderByDirection: 'asc',
+        _limit: null,
+        orderBy: function (field: string, direction: 'asc' | 'desc' = 'asc') {
+          this._orderByField = field;
+          this._orderByDirection = direction;
+          return this;
+        },
+        limit: function (n: number) {
+          this._limit = n;
+          return this;
+        },
         doc: (docId: string) => {
           return {
             get: async () => {
@@ -81,6 +119,7 @@ function initMock() {
               } else {
                 mockDbStore[collectionName][docId] = data;
               }
+              saveMockDb(mockDbStore);
               console.log(
                 `[Mock Firestore SET] ${collectionName}/${docId}:`,
                 mockDbStore[collectionName][docId]
@@ -90,6 +129,7 @@ function initMock() {
             update: async (data: any) => {
               const current = mockDbStore[collectionName][docId] || {};
               mockDbStore[collectionName][docId] = { ...current, ...data };
+              saveMockDb(mockDbStore);
               console.log(
                 `[Mock Firestore UPDATE] ${collectionName}/${docId}:`,
                 mockDbStore[collectionName][docId]
@@ -101,19 +141,39 @@ function initMock() {
         add: async (data: any) => {
           const docId = Math.random().toString(36).substring(2, 15);
           mockDbStore[collectionName][docId] = data;
+          saveMockDb(mockDbStore);
           console.log(
             `[Mock Firestore ADD] ${collectionName}/${docId}:`,
             data
           );
           return { id: docId, writeTime: new Date() };
         },
-        get: async () => {
-          const list = Object.entries(mockDbStore[collectionName] || {}).map(
+        get: async function () {
+          let list = Object.entries(mockDbStore[collectionName] || {}).map(
             ([id, val]) => ({
               id,
               ...val,
             })
           );
+
+          if (this._orderByField) {
+            const field = this._orderByField;
+            const dir = this._orderByDirection === 'desc' ? -1 : 1;
+            list.sort((a: any, b: any) => {
+              const valA = a[field];
+              const valB = b[field];
+              if (valA === undefined || valA === null) return 1;
+              if (valB === undefined || valB === null) return -1;
+              if (valA < valB) return -1 * dir;
+              if (valA > valB) return 1 * dir;
+              return 0;
+            });
+          }
+
+          if (this._limit !== null) {
+            list = list.slice(0, this._limit);
+          }
+
           return {
             forEach: (callback: (doc: any) => void) => {
               list.forEach((doc) => {
@@ -126,6 +186,8 @@ function initMock() {
           };
         },
       };
+
+      return chain;
     },
   };
 
