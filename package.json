@@ -13,6 +13,7 @@
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.6.16",
     "@google/genai": "^1.29.0",
+    "@tailwindcss/postcss": "^4.3.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "better-auth": "^1.6.16",
@@ -23,6 +24,7 @@
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "next": "^16.2.9",
+    "postcss": "^8.5.15",
     "postgres": "^3.4.9",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
