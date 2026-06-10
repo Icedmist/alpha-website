@@ -97,7 +97,7 @@ export default function AdminDashboard() {
       );
 
       // Attendance check
-      const attendanceDays = student.attendanceDates.length;
+      const attendanceDays = (student.attendanceDates || []).length;
       const attendancePercent = Math.min(
         100,
         Math.round(

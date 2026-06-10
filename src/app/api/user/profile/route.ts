@@ -157,6 +157,20 @@ export async function POST(req: Request) {
       });
     }
 
+    // 5. Check Daily Check-In
+    const oldAttendance = oldData.attendanceDates || [];
+    const newAttendance = updatableFields.attendanceDates || [];
+    const addedAttendance = newAttendance.filter((d: string) => !oldAttendance.includes(d));
+    for (const date of addedAttendance) {
+      await db.collection('activities').add({
+        userId: targetUserId,
+        userName: oldData.name || updatableFields.name || 'User',
+        action: 'Daily Check-In',
+        details: `Checked in for today: ${date}`,
+        timestamp,
+      });
+    }
+
     // Save/update the fields in the isolated custom Firestore instance
     await db.collection('users').doc(targetUserId).set(
       {

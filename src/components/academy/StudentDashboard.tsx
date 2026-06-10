@@ -43,7 +43,7 @@ export default function StudentDashboard() {
     : 0;
 
   // Attendance logic
-  const attendanceDays = currentUser.attendanceDates.length;
+  const attendanceDays = (currentUser.attendanceDates || []).length;
   // Let attendance % = (attendanceDays / 5) * 50 + (lessonsCompleted / totalLessonsTotal) * 50
   const attendancePercent = Math.min(
     100,
@@ -177,14 +177,15 @@ export default function StudentDashboard() {
 
   const handleDailyCheckIn = () => {
     const today = new Date().toISOString().split("T")[0];
-    if (currentUser.attendanceDates.includes(today)) {
+    const attendance = currentUser.attendanceDates || [];
+    if (attendance.includes(today)) {
       alert("You have already checked in for today!");
       return;
     }
 
     updateUser({
       ...currentUser,
-      attendanceDates: [...currentUser.attendanceDates, today]
+      attendanceDates: [...attendance, today]
     });
     alert("Checked in successfully! Attendance updated.");
   };
