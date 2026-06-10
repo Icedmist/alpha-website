@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../context/AuthContext";
 import StudentDashboard from "../components/academy/StudentDashboard";
@@ -12,8 +12,14 @@ export default function AcademyDashboard() {
   const { currentUser, login, register, logout, resetPassword } = useAuth();
   
   // Dashboard tabs
-  const [activeTab, setActiveTab] = useState<"dashboard" | "account">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "account" | "admin">("dashboard");
   const [showReferralModal, setShowReferralModal] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.role === "admin") {
+      setActiveTab("admin");
+    }
+  }, [currentUser]);
 
   // Form toggles
   const [isLogin, setIsLogin] = useState(true);
@@ -119,6 +125,19 @@ export default function AcademyDashboard() {
             {/* Portal Navigation Menu */}
             <div className="space-y-1">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Portal Menu</span>
+              {currentUser.role === "admin" && (
+                <button 
+                  onClick={() => setActiveTab("admin")}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    activeTab === "admin" 
+                      ? "text-white bg-white/10" 
+                      : "text-white/60 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4 text-red-400" />
+                  Admin Panel
+                </button>
+              )}
               <button 
                 onClick={() => setActiveTab("dashboard")}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
@@ -187,10 +206,20 @@ export default function AcademyDashboard() {
         {/* Main Content Workspace */}
         <main className="flex-1 md:h-screen md:overflow-y-auto p-6 md:p-10 space-y-8 bg-[#0a0d16]">
           {/* Mobile Tab switcher */}
-          <div className="md:hidden flex bg-white/5 border border-white/10 p-1.5 rounded-2xl gap-1">
+          <div className="md:hidden flex bg-white/5 border border-white/10 p-1.5 rounded-2xl gap-1 overflow-x-auto">
+            {currentUser.role === "admin" && (
+              <button 
+                onClick={() => setActiveTab("admin")}
+                className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                  activeTab === "admin" ? "bg-brand-orange text-white" : "text-white/60"
+                }`}
+              >
+                Admin Panel
+              </button>
+            )}
             <button 
               onClick={() => setActiveTab("dashboard")}
-              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+              className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
                 activeTab === "dashboard" ? "bg-brand-orange text-white" : "text-white/60"
               }`}
             >
@@ -198,7 +227,7 @@ export default function AcademyDashboard() {
             </button>
             <button 
               onClick={() => setActiveTab("account")}
-              className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all ${
+              className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
                 activeTab === "account" ? "bg-brand-orange text-white" : "text-white/60"
               }`}
             >
@@ -206,7 +235,7 @@ export default function AcademyDashboard() {
             </button>
             <button 
               onClick={() => setShowReferralModal(true)}
-              className="flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-white/60 hover:text-white"
+              className="flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider text-white/60 hover:text-white whitespace-nowrap"
             >
               Refer & Earn
             </button>
@@ -218,7 +247,9 @@ export default function AcademyDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {activeTab === "dashboard" ? (
+            {activeTab === "admin" ? (
+              <AdminDashboard />
+            ) : activeTab === "dashboard" ? (
               <>
                 {currentUser.role === "student" && <StudentDashboard />}
                 {currentUser.role === "instructor" && <InstructorDashboard />}

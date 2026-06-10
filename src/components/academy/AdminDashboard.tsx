@@ -7,7 +7,7 @@ import { courses, Course } from "../../data/courses";
 import { useAuth, User } from "../../context/AuthContext";
 
 export default function AdminDashboard() {
-  const { allUsers, updateSpecificUser } = useAuth();
+  const { allUsers, updateSpecificUser, loadAllUsers } = useAuth();
   const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities">("analytics");
 
   // Activities & Subscribers states
@@ -20,6 +20,11 @@ export default function AdminDashboard() {
   const [loadingApplications, setLoadingApplications] = useState(false);
 
   useEffect(() => {
+    // Reload user/student list from server
+    if (loadAllUsers) {
+      loadAllUsers();
+    }
+
     if (activeTab === "system_activities") {
       const fetchData = async () => {
         setLoadingActivities(true);

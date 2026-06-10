@@ -52,6 +52,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<string>;
   updateUser: (updatedUser: User) => void;
   updateSpecificUser: (userId: string, updatedUser: User) => void;
+  loadAllUsers: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -239,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetPassword,
         updateUser,
         updateSpecificUser,
+        loadAllUsers,
       }}
     >
       {!loading && children}

@@ -219,7 +219,7 @@ export default function StudentDashboard() {
         <div className="space-y-12">
           {/* Welcome Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
               <Award className="w-48 h-48 text-white" />
             </div>
             <div>

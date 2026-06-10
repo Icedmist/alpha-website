@@ -15,6 +15,11 @@ export const auth = betterAuth({
     "http://localhost:3000",
     "http://academy.localhost:3000",
   ],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+  },
 });
 export type Session = typeof auth.$Infer.Session.session;
 export type User = typeof auth.$Infer.Session.user;
