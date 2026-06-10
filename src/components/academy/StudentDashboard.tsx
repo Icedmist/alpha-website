@@ -44,6 +44,8 @@ export default function StudentDashboard() {
 
   // Attendance logic
   const attendanceDays = (currentUser.attendanceDates || []).length;
+  const todayDateStr = new Date().toISOString().split("T")[0];
+  const hasCheckedInToday = (currentUser.attendanceDates || []).includes(todayDateStr);
   // Let attendance % = (attendanceDays / 5) * 50 + (lessonsCompleted / totalLessonsTotal) * 50
   const attendancePercent = Math.min(
     100,
@@ -229,9 +231,22 @@ export default function StudentDashboard() {
             <div className="flex gap-4">
               <button 
                 onClick={handleDailyCheckIn}
-                className="bg-brand-blue hover:bg-brand-blue/90 text-white px-6 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg shadow-brand-blue/20 cursor-pointer"
+                disabled={hasCheckedInToday}
+                className={`${
+                  hasCheckedInToday 
+                    ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed opacity-80" 
+                    : "bg-brand-blue hover:bg-brand-blue/90 text-white shadow-lg shadow-brand-blue/20 cursor-pointer"
+                } px-6 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all`}
               >
-                <UserCheck className="w-4 h-4" /> Check-In Today
+                {hasCheckedInToday ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" /> Checked In Today
+                  </>
+                ) : (
+                  <>
+                    <UserCheck className="w-4 h-4" /> Check-In Today
+                  </>
+                )}
               </button>
             </div>
           </div>
