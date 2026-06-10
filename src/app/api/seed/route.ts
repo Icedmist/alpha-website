@@ -4,6 +4,7 @@ import { db as pgDb } from '../../../db';
 import { user as userTable } from '../../../db/schema';
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { courses } from '../../../data/courses';
 
 const SEED_USERS = [
   {
@@ -36,7 +37,7 @@ const SEED_USERS = [
     password: 'student123',
     phone: '+2349075444148',
     role: 'student',
-    enrolledCourses: [],
+    enrolledCourses: ['fullstack-web'],
     completedLessons: [],
     quizScores: {},
     submissions: [],
@@ -47,34 +48,39 @@ const SEED_USERS = [
 export async function GET() {
   const results: string[] = [];
 
+  try {
+    // 1. Seed courses collection
+    for (const course of courses) {
+      await db.collection('courses').doc(course.id).set({
+        ...course,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    results.push(`Successfully seeded ${courses.length} courses in Firestore`);
+  } catch (courseErr: any) {
+    results.push(`Error seeding courses: ${courseErr?.message || courseErr}`);
+  }
+
   for (const user of SEED_USERS) {
     try {
-      // 1. Create in Better Auth (Postgres)
-      const res = await auth.api.signUpEmail({
-        body: {
-          email: user.email,
-          password: user.password,
-          name: user.name,
-        },
-      });
+      let userId: string | null = null;
 
-      if (res && res.user) {
-        const userId = res.user.id;
-
-        // 2. Initialize Firestore profile
-        const { password: _, ...profileData } = user;
-        await db.collection('users').doc(userId).set({
-          ...profileData,
-          createdAt: new Date().toISOString(),
+      // 2. Create in Better Auth (Postgres)
+      try {
+        const res = await auth.api.signUpEmail({
+          body: {
+            email: user.email,
+            password: user.password,
+            name: user.name,
+          },
         });
-
-        results.push(`Successfully seeded ${user.email} (ID: ${userId})`);
-      }
-    } catch (error: any) {
-      // Catch duplicate/already exists error
-      const isDuplicate = error?.message?.includes('already exists') || error?.code === '23505';
-      if (isDuplicate) {
-        try {
+        if (res && res.user) {
+          userId = res.user.id;
+          results.push(`Successfully created credentials for ${user.email} (ID: ${userId})`);
+        }
+      } catch (authErr: any) {
+        const isDuplicate = authErr?.message?.includes('already exists') || authErr?.code === '23505';
+        if (isDuplicate) {
           const existing = await pgDb
             .select()
             .from(userTable)
@@ -82,22 +88,67 @@ export async function GET() {
             .limit(1);
 
           if (existing.length > 0) {
-            const userId = existing[0].id;
-            const { password: _, ...profileData } = user;
-            await db.collection('users').doc(userId).set({
-              ...profileData,
-              createdAt: new Date().toISOString(),
-            });
-            results.push(`Recovered Firestore profile for existing ${user.email} (ID: ${userId})`);
-          } else {
-            results.push(`Error: user duplicate error thrown but not found in Postgres for ${user.email}`);
+            userId = existing[0].id;
+            results.push(`Recovered existing credentials for ${user.email} (ID: ${userId})`);
           }
-        } catch (dbErr: any) {
-          results.push(`DB Error looking up ${user.email}: ${dbErr?.message || dbErr}`);
+        } else {
+          results.push(`Auth Error for ${user.email}: ${authErr?.message || authErr}`);
         }
-      } else {
-        results.push(`Error seeding ${user.email}: ${error?.message || error}`);
       }
+
+      // 3. Initialize/Update Firestore profile
+      if (userId) {
+        const { password: _, ...profileData } = user;
+        const timestamp = new Date().toISOString();
+        const todayDateStr = timestamp.split('T')[0];
+
+        if (user.role === 'student') {
+          profileData.attendanceDates = [todayDateStr];
+          
+          // Seed application for this student
+          await db.collection('applications').doc(userId).set({
+            userId,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            location: 'Lagos, Nigeria',
+            program: 'Full Stack Web Development',
+            courseId: 'fullstack-web',
+            background: 'Science background',
+            experience: 'None',
+            reason: 'To become a professional software engineer',
+            submittedAt: timestamp,
+            status: 'approved',
+          });
+          results.push(`Seeded application for ${user.email}`);
+
+          // Seed activity logs
+          await db.collection('activities').add({
+            userId,
+            userName: user.name,
+            action: 'Course Enrollment',
+            details: 'Enrolled in course: fullstack-web via Academy Application',
+            timestamp,
+          });
+          await db.collection('activities').add({
+            userId,
+            userName: user.name,
+            action: 'Daily Check-In',
+            details: `Checked in for today: ${todayDateStr}`,
+            timestamp,
+          });
+        }
+
+        await db.collection('users').doc(userId).set({
+          ...profileData,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        });
+
+        results.push(`Successfully populated Firestore profile for ${user.email} (ID: ${userId})`);
+      }
+    } catch (error: any) {
+      results.push(`General Error seeding ${user.email}: ${error?.message || error}`);
     }
   }
 
