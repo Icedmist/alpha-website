@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { courses } from "../../data/courses";
+import { authClient } from "../../lib/auth-client";
 import { 
   User, Lock, CreditCard, Gift, Github, Linkedin, 
   Check, Save, Eye, EyeOff, AlertCircle, Calendar, Receipt, FileText
@@ -69,7 +70,7 @@ export default function AccountCenter() {
     }
   };
 
-  const handleSecuritySave = (e: React.FormEvent) => {
+  const handleSecuritySave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSecurityMessage(null);
 
@@ -85,37 +86,23 @@ export default function AccountCenter() {
 
     setLoading(true);
 
-    // Simulated update in localStorage
     try {
-      const storedRaw = localStorage.getItem("alpha_academy_users");
-      if (storedRaw) {
-        const db: any[] = JSON.parse(storedRaw);
-        const index = db.findIndex((u) => u.id === currentUser.id);
-        
-        if (index !== -1) {
-          // Check current password
-          if (db[index].password !== currentPassword) {
-            setSecurityMessage({ type: "error", text: "Incorrect current password." });
-            setLoading(false);
-            return;
-          }
+      const { error } = await authClient.changePassword({
+        currentPassword,
+        newPassword,
+        revokeOtherSessions: true,
+      });
 
-          // Update password
-          db[index].password = newPassword;
-          localStorage.setItem("alpha_academy_users", JSON.stringify(db));
-          
-          setSecurityMessage({ type: "success", text: "Password updated successfully!" });
-          setCurrentPassword("");
-          setNewPassword("");
-          setConfirmPassword("");
-        } else {
-          setSecurityMessage({ type: "error", text: "User record not found." });
-        }
+      if (error) {
+        setSecurityMessage({ type: "error", text: error.message || "Incorrect current password or update failed." });
       } else {
-        setSecurityMessage({ type: "error", text: "Local database error." });
+        setSecurityMessage({ type: "success", text: "Password updated successfully!" });
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
       }
     } catch (err: any) {
-      setSecurityMessage({ type: "error", text: "Could not update credentials." });
+      setSecurityMessage({ type: "error", text: err.message || "Could not update credentials." });
     } finally {
       setLoading(false);
     }
