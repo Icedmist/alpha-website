@@ -8,29 +8,35 @@ import { courses, Course } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
 
 export default function InstructorDashboard() {
-  const { allUsers, updateSpecificUser } = useAuth();
+  const { currentUser, allUsers, updateSpecificUser } = useAuth();
   const [activeTab, setActiveTab] = useState<"grading" | "students" | "lessons">("grading");
   
+  const assignedCourseIds = currentUser?.enrolledCourses || [];
+  const instructorCourses = courses.filter((c) => assignedCourseIds.includes(c.id));
+
   // Grading states
   const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; userName: string; submission: Submission } | null>(null);
   const [score, setScore] = useState<number>(85);
   const [feedback, setFeedback] = useState<string>("");
 
   // Lesson editor states
-  const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || "");
+  const [selectedCourseId, setSelectedCourseId] = useState(instructorCourses[0]?.id || "");
   const [moduleTitle, setModuleTitle] = useState("");
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonType, setLessonType] = useState<"video" | "pdf" | "quiz" | "assignment">("video");
   const [lessonDuration, setLessonDuration] = useState("15 mins");
   const [lessonPromptOrUrl, setLessonPromptOrUrl] = useState("");
 
-  const students = allUsers.filter((u) => u.role === "student");
+  // Filter students enrolled in at least one course assigned to the instructor
+  const students = allUsers.filter(
+    (u) => u.role === "student" && u.enrolledCourses.some((cid) => assignedCourseIds.includes(cid))
+  );
 
-  // Get all pending submissions across all students
+  // Get all pending submissions across assigned students/courses
   const pendingSubmissions: { userId: string; userName: string; submission: Submission }[] = [];
   students.forEach((student) => {
     student.submissions.forEach((sub) => {
-      if (sub.status === "pending") {
+      if (sub.status === "pending" && assignedCourseIds.includes(sub.courseId)) {
         pendingSubmissions.push({
           userId: student.id,
           userName: student.name,
@@ -301,10 +307,15 @@ export default function InstructorDashboard() {
                   value={selectedCourseId}
                   onChange={(e) => setSelectedCourseId(e.target.value)}
                   className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none"
+                  disabled={instructorCourses.length === 0}
                 >
-                  {courses.map(c => (
-                    <option key={c.id} value={c.id}>{c.title}</option>
-                  ))}
+                  {instructorCourses.length > 0 ? (
+                    instructorCourses.map((c) => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))
+                  ) : (
+                    <option value="">No courses assigned</option>
+                  )}
                 </select>
               </div>
 

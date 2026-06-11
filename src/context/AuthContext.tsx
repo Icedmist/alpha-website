@@ -53,6 +53,7 @@ interface AuthContextType {
   updateUser: (updatedUser: User) => void;
   updateSpecificUser: (userId: string, updatedUser: User) => void;
   loadAllUsers: () => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -229,6 +230,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      const res = await fetch(`/api/admin/users?userId=${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setAllUsers((prev) => prev.filter((u) => u.id !== userId));
+      } else {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to delete user');
+      }
+    } catch (err: any) {
+      console.error('Failed to delete user:', err);
+      alert(err.message || 'Failed to delete user');
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -241,6 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateUser,
         updateSpecificUser,
         loadAllUsers,
+        deleteUser,
       }}
     >
       {!loading && children}

@@ -227,6 +227,7 @@ export async function POST(req: Request) {
     await db.collection('users').doc(targetUserId).set(
       {
         ...updatableFields,
+        ...(email ? { email } : {}),
         updatedAt: timestamp,
       },
       { merge: true }

@@ -6,9 +6,20 @@ import {
 import { courses, Course } from "../../data/courses";
 import { useAuth, User } from "../../context/AuthContext";
 
-export default function AdminDashboard() {
-  const { allUsers, updateSpecificUser, loadAllUsers } = useAuth();
+interface AdminDashboardProps {
+  activeView?: "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities";
+  onTabChange?: (tab: "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities") => void;
+}
+
+export default function AdminDashboard({ activeView, onTabChange }: AdminDashboardProps = {}) {
+  const { allUsers, updateSpecificUser, loadAllUsers, deleteUser } = useAuth();
   const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities">("analytics");
+
+  useEffect(() => {
+    if (activeView) {
+      setActiveTab(activeView);
+    }
+  }, [activeView]);
 
   // Activities & Subscribers states
   const [activities, setActivities] = useState<any[]>([]);
@@ -250,30 +261,6 @@ export default function AdminDashboard() {
         <p className="text-white/40 text-sm mt-1 italic">Control operations, user rosters, billing databases, and verified certifications.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-white/10 gap-6 overflow-x-auto scrollbar-none pb-0.5">
-        {[
-          { id: "analytics", label: "Analytics Summary", icon: BarChart },
-          { id: "users", label: "Access Controls", icon: Shield },
-          { id: "courses", label: "Course Inventory", icon: BookOpen },
-          { id: "applications", label: "Applications", icon: UserPlus },
-          { id: "certificates", label: "Credential Registry", icon: Award },
-          { id: "system_activities", label: "System Activities", icon: RefreshCw }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-4 text-xs font-black uppercase tracking-widest flex items-center gap-2 border-b-2 transition-colors cursor-pointer shrink-0 ${
-              activeTab === tab.id 
-                ? "border-brand-orange text-brand-orange" 
-                : "border-transparent text-white/40 hover:text-white"
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
-      </div>
 
       {/* Tab Contents */}
       <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px]">
@@ -354,31 +341,70 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="py-4 pr-4">
-                        {user.enrolledCourses && user.enrolledCourses.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {user.enrolledCourses.map((cid: string) => {
-                              const courseObj = courses.find((c) => c.id === cid);
-                              return (
-                                <span key={cid} className="bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-2 py-0.5 rounded text-[10px] font-bold">
-                                  {courseObj?.title || cid}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-white/20 italic">None</span>
-                        )}
+                        <div className="flex flex-col gap-1.5">
+                          {user.enrolledCourses && user.enrolledCourses.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {user.enrolledCourses.map((cid: string) => {
+                                const courseObj = courses.find((c) => c.id === cid);
+                                return (
+                                  <span key={cid} className="bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-2 py-0.5 rounded text-[10px] font-bold">
+                                    {courseObj?.title || cid}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-white/20 italic text-[10px]">None Assigned</span>
+                          )}
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value === "") return;
+                              const cid = e.target.value;
+                              const isEnrolled = (user.enrolledCourses || []).includes(cid);
+                              const updatedCourses = isEnrolled
+                                ? (user.enrolledCourses || []).filter((id: string) => id !== cid)
+                                : [...(user.enrolledCourses || []), cid];
+                              
+                              updateSpecificUser(user.id, {
+                                ...user,
+                                enrolledCourses: updatedCourses
+                              });
+                              e.target.value = "";
+                            }}
+                            className="bg-brand-navy border border-white/10 rounded-lg px-2 py-1 text-[9px] font-bold text-white/50 focus:outline-none w-fit cursor-pointer hover:text-white"
+                          >
+                            <option value="">+ Assign/Remove Track</option>
+                            {activeCourses.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {(user.enrolledCourses || []).includes(c.id) ? "✓ Remove: " : "+ Assign: "} {c.title}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </td>
                       <td className="py-4 text-right">
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
-                          className="bg-brand-navy border border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold text-white focus:outline-none"
-                        >
-                          <option value="student">Make Student</option>
-                          <option value="instructor">Make Instructor</option>
-                          <option value="admin">Make Admin</option>
-                        </select>
+                        <div className="flex items-center justify-end gap-2">
+                          <select
+                            value={user.role}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
+                            className="bg-brand-navy border border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold text-white focus:outline-none"
+                          >
+                            <option value="student">Make Student</option>
+                            <option value="instructor">Make Instructor</option>
+                            <option value="admin">Make Admin</option>
+                          </select>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to permanently delete user "${user.name}"?`)) {
+                                deleteUser(user.id);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
