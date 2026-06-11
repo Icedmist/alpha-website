@@ -6,13 +6,14 @@ import InstructorDashboard from "../components/academy/InstructorDashboard";
 import AdminDashboard from "../components/academy/AdminDashboard";
 import AccountCenter from "../components/academy/AccountCenter";
 import ReferralModal from "../components/academy/ReferralModal";
-import { LogOut, User, Lock, Mail, Phone, BookOpen, ShieldCheck, Zap, LayoutDashboard, Gift, BarChart, Users, ClipboardCheck, Award } from "lucide-react";
+import { LogOut, User, Lock, Mail, Phone, BookOpen, ShieldCheck, Zap, LayoutDashboard, Gift, BarChart, Users, ClipboardCheck, Award, Menu, X } from "lucide-react";
 
 export default function AcademyDashboard() {
   const { currentUser, login, register, logout, resetPassword } = useAuth();
   
   // Dashboard tabs
   const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
 
   useEffect(() => {
@@ -68,25 +69,208 @@ export default function AcademyDashboard() {
     return (
       <div className="min-h-screen bg-[#080c14] text-white flex flex-col md:flex-row w-full">
         {/* Mobile Dashboard Top Header */}
-        <div className="md:hidden flex justify-between items-center bg-white/5 border-b border-white/10 px-6 py-4 shrink-0">
-          <span className="font-display font-black text-base uppercase tracking-tight text-white">
-            Alpha <span className="text-brand-orange">Academy</span>
-          </span>
-          <div className="flex items-center gap-4">
-            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
-              currentUser.role === "admin" 
-                ? "bg-red-500/10 border border-red-500/20 text-red-400" 
-                : currentUser.role === "instructor" 
-                  ? "bg-[#3bb75e]/10 border border-[#3bb75e]/20 text-[#3bb75e]" 
-                  : "bg-brand-blue/10 border border-brand-blue/20 text-brand-blue"
-            }`}>
-              {currentUser.role}
+        <div className="md:hidden flex justify-between items-center bg-[#0d1220] border-b border-white/10 px-6 py-4 shrink-0 sticky top-0 z-30">
+          <div className="flex items-center gap-3">
+            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-6 h-6 object-contain" />
+            <span className="font-display font-black text-sm uppercase tracking-tight text-white italic">
+              Alpha <span className="text-brand-orange">Academy</span>
             </span>
-            <button onClick={logout} className="text-[10px] text-white/50 hover:text-brand-orange uppercase font-black cursor-pointer">
-              Logout
-            </button>
           </div>
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+            className="text-white hover:text-brand-orange transition-colors p-1.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
+
+        {/* Mobile Menu Overlay Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden w-full bg-[#0d1220]/95 backdrop-blur-xl border-b border-white/10 absolute top-[57px] left-0 z-20 flex flex-col p-6 space-y-6 overflow-y-auto max-h-[calc(100vh-57px)]"
+            >
+              {/* User Profile Info */}
+              <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${currentUser.avatarGradient || 'from-brand-orange to-brand-blue'} flex items-center justify-center font-bold text-white uppercase shrink-0`}>
+                  {currentUser.name.charAt(0)}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black text-white truncate">{currentUser.name}</p>
+                  <p className="text-[9px] text-white/40 truncate">{currentUser.email}</p>
+                </div>
+                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
+                  currentUser.role === "admin" 
+                    ? "bg-red-500/10 border border-red-500/20 text-red-400" 
+                    : currentUser.role === "instructor" 
+                      ? "bg-[#3bb75e]/10 border border-[#3bb75e]/20 text-[#3bb75e]" 
+                      : "bg-brand-blue/10 border border-brand-blue/20 text-brand-blue"
+                }`}>
+                  {currentUser.role}
+                </span>
+              </div>
+
+              {/* Navigation Items */}
+              <div className="space-y-1">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Portal Menu</span>
+                
+                {currentUser.role === "admin" && (
+                  <>
+                    <button 
+                      onClick={() => { setActiveTab("admin_analytics"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "admin_analytics" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <BarChart className="w-4 h-4 text-brand-orange" />
+                      Analytics Overview
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("admin_users"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "admin_users" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <Users className="w-4 h-4 text-brand-blue" />
+                      User Access
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("admin_courses"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "admin_courses" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <BookOpen className="w-4 h-4 text-[#3bb75e]" />
+                      Course Catalog
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("admin_applications"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "admin_applications" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <ClipboardCheck className="w-4 h-4 text-yellow-400" />
+                      Applications Panel
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("admin_certificates"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "admin_certificates" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <Award className="w-4 h-4 text-purple-400" />
+                      Certificates Registry
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("admin_system_activities"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "admin_system_activities" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <ShieldCheck className="w-4 h-4 text-red-400" />
+                      System Activities
+                    </button>
+                  </>
+                )}
+
+                {currentUser.role === "instructor" && (
+                  <>
+                    <button 
+                      onClick={() => { setActiveTab("instructor_grading"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "instructor_grading" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <ClipboardCheck className="w-4 h-4 text-brand-orange" />
+                      Grading Center
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("instructor_students"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "instructor_students" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <Users className="w-4 h-4 text-brand-blue" />
+                      Student Roster
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab("instructor_lessons"); setMobileMenuOpen(false); }}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                        activeTab === "instructor_lessons" ? "text-white bg-white/10" : "text-white/60"
+                      }`}
+                    >
+                      <BookOpen className="w-4 h-4 text-[#3bb75e]" />
+                      Syllabus Builder
+                    </button>
+                  </>
+                )}
+
+                {currentUser.role === "student" && (
+                  <button 
+                    onClick={() => { setActiveTab("dashboard"); setMobileMenuOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                      activeTab === "dashboard" ? "text-white bg-white/10" : "text-white/60"
+                    }`}
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-brand-orange" />
+                    My Dashboard
+                  </button>
+                )}
+
+                <button 
+                  onClick={() => { setActiveTab("account"); setMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
+                    activeTab === "account" ? "text-white bg-white/10" : "text-white/60"
+                  }`}
+                >
+                  <User className="w-4 h-4 text-brand-blue" />
+                  Account Center
+                </button>
+                
+                <button 
+                  onClick={() => { setShowReferralModal(true); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-all text-left cursor-pointer"
+                >
+                  <Gift className="w-4 h-4 text-brand-orange" />
+                  Refer & Earn
+                </button>
+              </div>
+
+              {/* Ecosystem Links */}
+              <div className="space-y-1">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Ecosystem Links</span>
+                <a 
+                  href="/" 
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <Zap className="w-4 h-4 text-brand-orange" />
+                  Ecosystem Home
+                </a>
+                <a 
+                  href="/talent-cloud" 
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <BookOpen className="w-4 h-4 text-brand-blue" />
+                  Talent Cloud
+                </a>
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="pt-4 border-t border-white/10 space-y-4">
+                <button
+                  onClick={() => { logout(); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Desktop/Tablet Sidebar */}
         <aside className="w-full md:w-64 lg:w-72 bg-brand-navy border-b md:border-b-0 md:border-r border-white/10 flex flex-col justify-between p-6 md:h-screen sticky top-0 shrink-0">
@@ -303,111 +487,6 @@ export default function AcademyDashboard() {
 
         {/* Main Content Workspace */}
         <main className="flex-1 md:h-screen md:overflow-y-auto p-6 md:p-10 space-y-8 bg-[#0a0d16]">
-          {/* Mobile Tab switcher */}
-          <div className="md:hidden flex bg-white/5 border border-white/10 p-1.5 rounded-2xl gap-1 overflow-x-auto">
-            {currentUser.role === "admin" ? (
-              <>
-                <button 
-                  onClick={() => setActiveTab("admin_analytics")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "admin_analytics" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Analytics
-                </button>
-                <button 
-                  onClick={() => setActiveTab("admin_users")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "admin_users" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Users
-                </button>
-                <button 
-                  onClick={() => setActiveTab("admin_courses")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "admin_courses" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Courses
-                </button>
-                <button 
-                  onClick={() => setActiveTab("admin_applications")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "admin_applications" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Applications
-                </button>
-                <button 
-                  onClick={() => setActiveTab("admin_certificates")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "admin_certificates" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Certificates
-                </button>
-                <button 
-                  onClick={() => setActiveTab("admin_system_activities")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "admin_system_activities" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  System
-                </button>
-              </>
-            ) : currentUser.role === "instructor" ? (
-              <>
-                <button 
-                  onClick={() => setActiveTab("instructor_grading")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "instructor_grading" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Grading
-                </button>
-                <button 
-                  onClick={() => setActiveTab("instructor_students")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "instructor_students" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Students
-                </button>
-                <button 
-                  onClick={() => setActiveTab("instructor_lessons")}
-                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === "instructor_lessons" ? "bg-brand-orange text-white" : "text-white/60"
-                  }`}
-                >
-                  Syllabus
-                </button>
-              </>
-            ) : (
-              <button 
-                onClick={() => setActiveTab("dashboard")}
-                className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                  activeTab === "dashboard" ? "bg-brand-orange text-white" : "text-white/60"
-                }`}
-              >
-                Dashboard
-              </button>
-            )}
-            <button 
-              onClick={() => setActiveTab("account")}
-              className={`flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
-                activeTab === "account" ? "bg-brand-orange text-white" : "text-white/60"
-              }`}
-            >
-              Account
-            </button>
-            <button 
-              onClick={() => setShowReferralModal(true)}
-              className="flex-1 py-2.5 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider text-white/60 hover:text-white whitespace-nowrap"
-            >
-              Refer & Earn
-            </button>
-          </div>
 
           <motion.div
             key={activeTab}
