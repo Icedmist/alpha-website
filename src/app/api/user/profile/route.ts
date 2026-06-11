@@ -2,6 +2,10 @@ import { auth } from '../../../../lib/auth';
 import { db } from '../../../../lib/firebase-admin';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { db as pgDb } from '../../../../db';
+import { user as userTable } from '../../../../db/schema';
+import { eq } from 'drizzle-orm';
+
 
 export async function GET() {
   try {
@@ -209,6 +213,14 @@ export async function POST(req: Request) {
         details: `Checked in for today: ${date}`,
         timestamp,
       });
+    }
+
+    // If name is being updated, sync it with Postgres user table for Better Auth consistency
+    if (updatableFields.name) {
+      await pgDb
+        .update(userTable)
+        .set({ name: updatableFields.name, updatedAt: new Date() })
+        .where(eq(userTable.id, targetUserId));
     }
 
     // Save/update the fields in the isolated custom Firestore instance

@@ -130,7 +130,7 @@ export default function AccountCenter() {
     return currentUser.enrolledCourses.map((courseId, index) => {
       const courseObj = courses.find((c) => c.id === courseId);
       const title = courseObj ? courseObj.title : "Custom Digital Track";
-      const amount = courseObj ? `₦${courseObj.price?.toLocaleString() || "150,000"}` : "₦150,000";
+      const amount = courseObj ? (courseObj.fee || "₦150,000") : "₦150,000";
 
       return {
         id: `INV-${courseId.toUpperCase().substring(0, 4)}-${10023 + index}`,

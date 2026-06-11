@@ -6,54 +6,6 @@ const projectId = process.env.FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-let app;
-let db: any;
-let storage: any;
-
-if (!projectId || !clientEmail || !privateKey) {
-  console.warn(
-    '⚠️ Missing Firebase Admin SDK environment variables. Booting with Mock client.'
-  );
-  initMock();
-} else {
-  try {
-    // Format private key correctly (replace literal \n with actual newlines)
-    const formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
-
-    app =
-      getApps().length === 0
-        ? initializeApp({
-            credential: cert({
-              projectId,
-              clientEmail,
-              privateKey: formattedPrivateKey,
-            }),
-          })
-        : getApps()[0];
-
-    // Target isolated custom database ID instance if specified
-    const customDbId = process.env.FIREBASE_CUSTOM_DB_ID;
-    db =
-      customDbId && customDbId !== 'isolated-tenant-db-id'
-        ? getFirestore(app, customDbId)
-        : getFirestore(app);
-
-    // Target isolated custom storage bucket if specified
-    const customBucket = process.env.FIREBASE_CUSTOM_STORAGE_BUCKET;
-    storage =
-      customBucket &&
-      customBucket !== 'techtradehub-academy-tenant-isolated-bucket'
-        ? getStorage(app).bucket(customBucket)
-        : getStorage(app).bucket();
-  } catch (error) {
-    console.warn(
-      '⚠️ Firebase Admin SDK failed to initialize. Falling back to Mock client.',
-      error
-    );
-    initMock();
-  }
-}
-
 import fs from 'fs';
 import path from 'path';
 
@@ -78,6 +30,10 @@ function saveMockDb(store: Record<string, Record<string, any>>) {
     console.error('Error saving mock Firestore DB to file:', err);
   }
 }
+
+let app: any;
+let db: any;
+let storage: any;
 
 function initMock() {
   // Load mock database from file to persist data across dev server hot reloads
@@ -203,6 +159,53 @@ function initMock() {
       }),
     }),
   };
+}
+
+if (!projectId || !clientEmail || !privateKey) {
+  console.warn(
+    '⚠️ Missing Firebase Admin SDK environment variables. Booting with Mock client.'
+  );
+  initMock();
+} else {
+  try {
+    // Format private key correctly (replace literal \n with actual newlines)
+    const formattedPrivateKey = privateKey.replace(/\\n/g, '\n');
+
+    const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`;
+
+    app =
+      getApps().length === 0
+        ? initializeApp({
+            credential: cert({
+              projectId,
+              clientEmail,
+              privateKey: formattedPrivateKey,
+            }),
+            storageBucket,
+          })
+        : getApps()[0];
+
+    // Target isolated custom database ID instance if specified
+    const customDbId = process.env.FIREBASE_CUSTOM_DB_ID;
+    db =
+      customDbId && customDbId !== 'isolated-tenant-db-id'
+        ? getFirestore(app, customDbId)
+        : getFirestore(app);
+
+    // Target isolated custom storage bucket if specified
+    const customBucket = process.env.FIREBASE_CUSTOM_STORAGE_BUCKET;
+    storage =
+      customBucket &&
+      customBucket !== 'techtradehub-academy-tenant-isolated-bucket'
+        ? getStorage(app).bucket(customBucket)
+        : getStorage(app).bucket();
+  } catch (error) {
+    console.warn(
+      '⚠️ Firebase Admin SDK failed to initialize. Falling back to Mock client.',
+      error
+    );
+    initMock();
+  }
 }
 
 export { db, storage };
