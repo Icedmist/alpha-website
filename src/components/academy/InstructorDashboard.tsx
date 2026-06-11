@@ -7,9 +7,23 @@ import {
 import { courses, Course } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
 
-export default function InstructorDashboard() {
+export default function InstructorDashboard({ 
+  activeView, 
+  onTabChange 
+}: { 
+  activeView?: "grading" | "students" | "lessons"; 
+  onTabChange?: (tab: "grading" | "students" | "lessons") => void;
+}) {
   const { currentUser, allUsers, updateSpecificUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<"grading" | "students" | "lessons">("grading");
+  const [localActiveTab, setLocalActiveTab] = useState<"grading" | "students" | "lessons">("grading");
+  
+  const activeTab = activeView || localActiveTab;
+  const setActiveTab = (tab: "grading" | "students" | "lessons") => {
+    setLocalActiveTab(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
   
   const assignedCourseIds = currentUser?.enrolledCourses || [];
   const instructorCourses = courses.filter((c) => assignedCourseIds.includes(c.id));
@@ -147,34 +161,6 @@ export default function InstructorDashboard() {
         <p className="text-white/40 text-sm mt-1 italic">Review code projects, monitor cohorts, and push syllabus updates.</p>
       </div>
 
-      {/* Tabs Selector */}
-      <div className="flex border-b border-white/10 gap-6">
-        {[
-          { id: "grading", label: "Grading Center", count: pendingSubmissions.length, icon: ClipboardCheck },
-          { id: "students", label: "Student Roster", count: students.length, icon: Users },
-          { id: "lessons", label: "Syllabus Builder", icon: PlusCircle }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-4 text-xs font-black uppercase tracking-widest flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
-              activeTab === tab.id 
-                ? "border-brand-orange text-brand-orange" 
-                : "border-transparent text-white/40 hover:text-white"
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-            {tab.count !== undefined && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[9px] ${
-                tab.id === "grading" && tab.count > 0 ? "bg-brand-orange text-white" : "bg-white/10 text-white/60"
-              }`}>
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
 
       {/* Workspace Area */}
       <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px]">

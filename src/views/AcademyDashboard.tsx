@@ -18,6 +18,8 @@ export default function AcademyDashboard() {
   useEffect(() => {
     if (currentUser?.role === "admin") {
       setActiveTab("admin_analytics");
+    } else if (currentUser?.role === "instructor") {
+      setActiveTab("instructor_grading");
     } else {
       setActiveTab("dashboard");
     }
@@ -196,6 +198,42 @@ export default function AcademyDashboard() {
                     System Activities
                   </button>
                 </>
+              ) : currentUser.role === "instructor" ? (
+                <>
+                  <button 
+                    onClick={() => setActiveTab("instructor_grading")}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                      activeTab === "instructor_grading" 
+                        ? "text-white bg-white/10" 
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <ClipboardCheck className="w-4 h-4 text-brand-orange" />
+                    Grading Center
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab("instructor_students")}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                      activeTab === "instructor_students" 
+                        ? "text-white bg-white/10" 
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <Users className="w-4 h-4 text-brand-blue" />
+                    Student Roster
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab("instructor_lessons")}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                      activeTab === "instructor_lessons" 
+                        ? "text-white bg-white/10" 
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <BookOpen className="w-4 h-4 text-[#3bb75e]" />
+                    Syllabus Builder
+                  </button>
+                </>
               ) : (
                 <button 
                   onClick={() => setActiveTab("dashboard")}
@@ -318,6 +356,33 @@ export default function AcademyDashboard() {
                   System
                 </button>
               </>
+            ) : currentUser.role === "instructor" ? (
+              <>
+                <button 
+                  onClick={() => setActiveTab("instructor_grading")}
+                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                    activeTab === "instructor_grading" ? "bg-brand-orange text-white" : "text-white/60"
+                  }`}
+                >
+                  Grading
+                </button>
+                <button 
+                  onClick={() => setActiveTab("instructor_students")}
+                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                    activeTab === "instructor_students" ? "bg-brand-orange text-white" : "text-white/60"
+                  }`}
+                >
+                  Students
+                </button>
+                <button 
+                  onClick={() => setActiveTab("instructor_lessons")}
+                  className={`py-2 px-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap ${
+                    activeTab === "instructor_lessons" ? "bg-brand-orange text-white" : "text-white/60"
+                  }`}
+                >
+                  Syllabus
+                </button>
+              </>
             ) : (
               <button 
                 onClick={() => setActiveTab("dashboard")}
@@ -355,10 +420,14 @@ export default function AcademyDashboard() {
                 activeView={activeTab.replace("admin_", "") as any} 
                 onTabChange={(tab) => setActiveTab("admin_" + tab)}
               />
+            ) : activeTab.startsWith("instructor_") ? (
+              <InstructorDashboard 
+                activeView={activeTab.replace("instructor_", "") as any} 
+                onTabChange={(tab) => setActiveTab("instructor_" + tab)}
+              />
             ) : activeTab === "dashboard" ? (
               <>
                 {currentUser.role === "student" && <StudentDashboard />}
-                {currentUser.role === "instructor" && <InstructorDashboard />}
               </>
             ) : (
               <AccountCenter />
