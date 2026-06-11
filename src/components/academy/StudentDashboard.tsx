@@ -218,16 +218,16 @@ export default function StudentDashboard() {
       {!activeCourseId ? (
         <div className="space-y-12">
           {/* Welcome Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/5 border border-white/10 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
               <Award className="w-48 h-48 text-white" />
             </div>
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange">Student Panel</p>
-              <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight mt-2">
+              <h2 className="font-display font-black text-2xl md:text-4xl uppercase italic tracking-tight mt-1.5">
                 Hello, {currentUser.name}
               </h2>
-              <p className="text-white/40 text-sm mt-1 italic">Track your courses, attendance, and download certificates.</p>
+              <p className="text-white/40 text-xs md:text-sm mt-1 italic">Track your courses, attendance, and download certificates.</p>
             </div>
             <div className="flex gap-4">
               <button 
@@ -237,7 +237,7 @@ export default function StudentDashboard() {
                   hasCheckedInToday 
                     ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed opacity-80" 
                     : "bg-brand-blue hover:bg-brand-blue/90 text-white shadow-lg shadow-brand-blue/20 cursor-pointer"
-                } px-6 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all`}
+                } px-4 py-2.5 md:px-6 md:py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all`}
               >
                 {hasCheckedInToday ? (
                   <>
@@ -253,32 +253,32 @@ export default function StudentDashboard() {
           </div>
 
           {/* Quick Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/5 border border-white/10 p-6 rounded-3xl space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Attendance Rate</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl md:rounded-3xl space-y-2">
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/30">Attendance Rate</p>
               <div className="flex items-end justify-between">
-                <span className="text-3xl font-black text-brand-blue">{attendancePercent}%</span>
-                <span className={`text-[9px] font-black uppercase px-2 py-1 rounded ${
+                <span className="text-2xl md:text-3xl font-black text-brand-blue">{attendancePercent}%</span>
+                <span className={`text-[8px] md:text-[9px] font-black uppercase px-2 py-0.5 md:py-1 rounded ${
                   attendancePercent >= 80 ? "bg-green-500/10 text-green-400" : "bg-brand-orange/10 text-brand-orange"
                 }`}>
                   {attendancePercent >= 80 ? "Eligible" : "Requires 80%"}
                 </span>
               </div>
-              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden mt-3">
+              <div className="w-full bg-white/5 h-1.5 md:h-2 rounded-full overflow-hidden mt-3">
                 <div className="bg-brand-blue h-full transition-all duration-500" style={{ width: `${attendancePercent}%` }} />
               </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 p-6 rounded-3xl space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Enrolled tracks</p>
-              <span className="text-3xl font-black text-brand-orange">{enrolled.length} Active</span>
-              <p className="text-xs text-white/40 italic mt-2">Across 12 technical disciplines.</p>
+            <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl md:rounded-3xl space-y-2">
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/30">Enrolled tracks</p>
+              <span className="text-2xl md:text-3xl font-black text-brand-orange">{enrolled.length} Active</span>
+              <p className="text-[11px] text-white/40 italic mt-1.5">Across 12 technical disciplines.</p>
             </div>
 
-            <div className="bg-white/5 border border-white/10 p-6 rounded-3xl space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Attendance days</p>
-              <span className="text-3xl font-black text-white">{attendanceDays} Checked-in</span>
-              <p className="text-xs text-white/40 italic mt-2">Simulated live check-in history.</p>
+            <div className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl md:rounded-3xl space-y-2">
+              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-white/30">Attendance days</p>
+              <span className="text-2xl md:text-3xl font-black text-white">{attendanceDays} Checked-in</span>
+              <p className="text-[11px] text-white/40 italic mt-1.5">Simulated live check-in history.</p>
             </div>
           </div>
 
@@ -293,7 +293,7 @@ export default function StudentDashboard() {
                 <p className="text-white/40 italic">You are not enrolled in any courses yet. Scroll down to choose an ecosystem track.</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 gap-4 md:gap-6">
                 {enrolled.map((course) => {
                   const courseLessons = course.modules.flatMap(m => m.lessons);
                   const completed = courseLessons.filter(l => currentUser.completedLessons.includes(l.id)).length;
@@ -304,7 +304,7 @@ export default function StudentDashboard() {
                   return (
                     <div 
                       key={course.id} 
-                      className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px] space-y-6 flex flex-col justify-between hover:bg-white/10 transition-all cursor-pointer"
+                      className="bg-white/5 border border-white/10 p-5 md:p-6 rounded-2xl md:rounded-[32px] space-y-4 flex flex-col justify-between hover:bg-white/10 transition-all cursor-pointer"
                       onClick={() => {
                         setActiveCourseId(course.id);
                         if (course.modules[0]?.lessons[0]) {
@@ -428,28 +428,28 @@ export default function StudentDashboard() {
         /* Course Syllabus Viewer */
         <div className="space-y-6">
           {/* Header Controls */}
-          <div className="flex items-center justify-between bg-white/5 border border-white/10 p-6 rounded-2xl">
+          <div className="flex items-center justify-between bg-white/5 border border-white/10 p-4 sm:p-5 rounded-2xl">
             <div>
               <button 
                 onClick={() => setActiveCourseId(null)} 
                 className="text-xs font-black uppercase tracking-widest text-brand-orange hover:text-white transition-colors"
               >
-                ← Back to Dashboard
+                &larr; Back to Dashboard
               </button>
-              <h3 className="font-display font-black text-xl md:text-2xl uppercase italic tracking-tight text-white mt-1">
+              <h3 className="font-display font-black text-lg md:text-2xl uppercase italic tracking-tight text-white mt-1">
                 {activeCourse?.title}
               </h3>
             </div>
             <div className="text-right hidden sm:block">
               <p className="text-[10px] text-white/40 uppercase">Progress</p>
-              <p className="font-mono text-sm font-black text-white">{completedLessonsInActiveCourse} / {totalLessons} Completed</p>
+              <p className="font-mono text-xs md:text-sm font-black text-white">{completedLessonsInActiveCourse} / {totalLessons} Completed</p>
             </div>
           </div>
 
           {/* Two Column Workspace */}
-          <div className="grid lg:grid-cols-3 gap-8 items-start">
+          <div className="grid lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 items-start">
             {/* Left Column: Syllabus Menu */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-6">
+            <div className="bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-6 space-y-4 md:space-y-6">
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange">Syllabus Outline</h4>
               <div className="space-y-6">
                 {activeCourse?.modules.map((mod) => (
@@ -495,22 +495,22 @@ export default function StudentDashboard() {
             </div>
 
             {/* Right Column: Active Lesson Workspace */}
-            <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 space-y-8 min-h-[500px]">
+            <div className="lg:col-span-2 bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-8 space-y-5 md:space-y-8 min-h-[500px]">
               {activeLesson ? (
-                <div className="space-y-8">
+                <div className="space-y-4 md:space-y-8">
                   <div>
                     <span className="px-3 py-1 rounded bg-brand-orange/15 border border-brand-orange/30 text-brand-orange text-[8px] font-black uppercase tracking-widest">
                       Active: {activeLesson.type}
                     </span>
-                    <h2 className="font-display font-black text-2xl uppercase italic tracking-tight text-white mt-3">
+                    <h2 className="font-display font-black text-xl sm:text-2xl uppercase italic tracking-tight text-white mt-2">
                       {activeLesson.title}
                     </h2>
                   </div>
 
                   {/* Render content based on type */}
                   {activeLesson.type === "video" && (
-                    <div className="space-y-6">
-                      <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center">
+                    <div className="space-y-4 md:space-y-6">
+                      <div className="relative aspect-video w-full rounded-xl md:rounded-2xl overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center">
                         {activeLesson.videoUrl ? (
                           <iframe
                             className="absolute inset-0 w-full h-full"

@@ -153,37 +153,37 @@ export default function InstructorDashboard({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header Panel */}
-      <div className="bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
+      <div className="bg-white/5 border border-white/10 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange">Instructor Hub</p>
-        <h2 className="font-display font-black text-3xl uppercase italic mt-2">Classroom Dashboard</h2>
-        <p className="text-white/40 text-sm mt-1 italic">Review code projects, monitor cohorts, and push syllabus updates.</p>
+        <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic mt-1.5">Classroom Dashboard</h2>
+        <p className="text-white/40 text-xs md:text-sm mt-1 italic">Review code projects, monitor cohorts, and push syllabus updates.</p>
       </div>
 
 
       {/* Workspace Area */}
-      <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px]">
+      <div className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-2xl md:rounded-[32px]">
         {activeTab === "grading" && (
           <div className="space-y-6">
-            <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white">
+            <h3 className="font-display font-black text-lg md:text-xl uppercase italic tracking-tight text-white">
               Submissions Queue
             </h3>
             
             {pendingSubmissions.length === 0 ? (
-              <div className="bg-white/[0.02] border border-white/5 p-12 text-center rounded-2xl">
+              <div className="bg-white/[0.02] border border-white/5 p-8 md:p-12 text-center rounded-2xl">
                 <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto mb-4" />
                 <p className="text-white/40 italic">Queue cleared. All submitted assignments are graded!</p>
               </div>
             ) : (
-              <div className="grid gap-6">
+              <div className="grid gap-4 md:gap-6">
                 {pendingSubmissions.map((item, idx) => {
                   const course = courses.find(c => c.id === item.submission.courseId);
 
                   return (
                     <div 
                       key={idx} 
-                      className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-colors"
+                      className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 hover:bg-white/10 transition-colors"
                     >
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-3">

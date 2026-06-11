@@ -66,239 +66,39 @@ export default function AcademyDashboard() {
   };
 
   if (currentUser) {
-    return (
-      <div className="min-h-screen bg-[#080c14] text-white flex flex-col md:flex-row w-full">
-        {/* Mobile Dashboard Top Header */}
-        <div className="md:hidden flex justify-between items-center bg-[#0d1220] border-b border-white/10 px-6 py-4 shrink-0 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-6 h-6 object-contain" />
-            <span className="font-display font-black text-sm uppercase tracking-tight text-white italic">
-              Alpha <span className="text-brand-orange">Academy</span>
-            </span>
-          </div>
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-            className="text-white hover:text-brand-orange transition-colors p-1.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
+    const SidebarContent = ({ isMobile, onClose }: { isMobile?: boolean; onClose?: () => void }) => {
+      const handleTabClick = (tab: string) => {
+        setActiveTab(tab);
+        if (onClose) onClose();
+      };
 
-        {/* Mobile Menu Overlay Drawer */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="md:hidden w-full bg-[#0d1220]/95 backdrop-blur-xl border-b border-white/10 absolute top-[57px] left-0 z-20 flex flex-col p-6 space-y-6 overflow-y-auto max-h-[calc(100vh-57px)]"
-            >
-              {/* User Profile Info */}
-              <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${currentUser.avatarGradient || 'from-brand-orange to-brand-blue'} flex items-center justify-center font-bold text-white uppercase shrink-0`}>
-                  {currentUser.name.charAt(0)}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black text-white truncate">{currentUser.name}</p>
-                  <p className="text-[9px] text-white/40 truncate">{currentUser.email}</p>
-                </div>
-                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider ${
-                  currentUser.role === "admin" 
-                    ? "bg-red-500/10 border border-red-500/20 text-red-400" 
-                    : currentUser.role === "instructor" 
-                      ? "bg-[#3bb75e]/10 border border-[#3bb75e]/20 text-[#3bb75e]" 
-                      : "bg-brand-blue/10 border border-brand-blue/20 text-brand-blue"
-                }`}>
-                  {currentUser.role}
-                </span>
-              </div>
-
-              {/* Navigation Items */}
-              <div className="space-y-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Portal Menu</span>
-                
-                {currentUser.role === "admin" && (
-                  <>
-                    <button 
-                      onClick={() => { setActiveTab("admin_analytics"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "admin_analytics" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <BarChart className="w-4 h-4 text-brand-orange" />
-                      Analytics Overview
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("admin_users"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "admin_users" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <Users className="w-4 h-4 text-brand-blue" />
-                      User Access
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("admin_courses"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "admin_courses" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <BookOpen className="w-4 h-4 text-[#3bb75e]" />
-                      Course Catalog
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("admin_applications"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "admin_applications" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <ClipboardCheck className="w-4 h-4 text-yellow-400" />
-                      Applications Panel
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("admin_certificates"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "admin_certificates" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <Award className="w-4 h-4 text-purple-400" />
-                      Certificates Registry
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("admin_system_activities"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "admin_system_activities" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <ShieldCheck className="w-4 h-4 text-red-400" />
-                      System Activities
-                    </button>
-                  </>
-                )}
-
-                {currentUser.role === "instructor" && (
-                  <>
-                    <button 
-                      onClick={() => { setActiveTab("instructor_grading"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "instructor_grading" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <ClipboardCheck className="w-4 h-4 text-brand-orange" />
-                      Grading Center
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("instructor_students"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "instructor_students" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <Users className="w-4 h-4 text-brand-blue" />
-                      Student Roster
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab("instructor_lessons"); setMobileMenuOpen(false); }}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                        activeTab === "instructor_lessons" ? "text-white bg-white/10" : "text-white/60"
-                      }`}
-                    >
-                      <BookOpen className="w-4 h-4 text-[#3bb75e]" />
-                      Syllabus Builder
-                    </button>
-                  </>
-                )}
-
-                {currentUser.role === "student" && (
-                  <button 
-                    onClick={() => { setActiveTab("dashboard"); setMobileMenuOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                      activeTab === "dashboard" ? "text-white bg-white/10" : "text-white/60"
-                    }`}
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-brand-orange" />
-                    My Dashboard
-                  </button>
-                )}
-
-                <button 
-                  onClick={() => { setActiveTab("account"); setMobileMenuOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left ${
-                    activeTab === "account" ? "text-white bg-white/10" : "text-white/60"
-                  }`}
-                >
-                  <User className="w-4 h-4 text-brand-blue" />
-                  Account Center
-                </button>
-                
-                <button 
-                  onClick={() => { setShowReferralModal(true); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-all text-left cursor-pointer"
-                >
-                  <Gift className="w-4 h-4 text-brand-orange" />
-                  Refer & Earn
-                </button>
-              </div>
-
-              {/* Ecosystem Links */}
-              <div className="space-y-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Ecosystem Links</span>
-                <a 
-                  href="/" 
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                  <Zap className="w-4 h-4 text-brand-orange" />
-                  Ecosystem Home
-                </a>
-                <a 
-                  href="/talent-cloud" 
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
-                >
-                  <BookOpen className="w-4 h-4 text-brand-blue" />
-                  Talent Cloud
-                </a>
-              </div>
-
-              {/* Bottom Actions */}
-              <div className="pt-4 border-t border-white/10 space-y-4">
-                <button
-                  onClick={() => { logout(); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center justify-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4" /> Sign Out
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Desktop/Tablet Sidebar */}
-        <aside className="w-full md:w-64 lg:w-72 bg-brand-navy border-b md:border-b-0 md:border-r border-white/10 flex flex-col justify-between p-6 md:h-screen sticky top-0 shrink-0">
-          <div className="space-y-8">
+      return (
+        <div className="flex flex-col justify-between h-full min-h-full">
+          <div className="space-y-6">
             {/* Branding */}
             <div className="flex items-center gap-3">
               <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-8 h-8 object-contain" />
               <div>
-                <h2 className="font-display font-black text-base tracking-tighter uppercase italic leading-none text-white">ALPHA SPARK</h2>
+                <h2 className="font-display font-black text-sm tracking-tighter uppercase italic leading-none text-white">ALPHA SPARK</h2>
                 <span className="text-[8px] font-black uppercase tracking-[0.3em] text-brand-orange">ACADEMY PORTAL</span>
               </div>
             </div>
 
             {/* Profile Card */}
-            <div className="bg-white/5 border border-white/10 p-4 rounded-2xl flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${currentUser.avatarGradient || 'from-brand-orange to-brand-blue'} flex items-center justify-center font-bold text-white uppercase shadow-md shadow-brand-orange/20 shrink-0`}>
+            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl flex flex-col gap-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-8 h-8 rounded-full bg-gradient-to-tr ${currentUser.avatarGradient || 'from-brand-orange to-brand-blue'} flex items-center justify-center font-bold text-white text-xs uppercase shadow-md shadow-brand-orange/20 shrink-0`}>
                   {currentUser.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-black text-white truncate">{currentUser.name}</p>
-                  <p className="text-[9px] text-white/40 truncate">{currentUser.email}</p>
+                  <p className="text-[11px] font-black text-white truncate">{currentUser.name}</p>
+                  <p className="text-[8px] text-white/40 truncate">{currentUser.email}</p>
                 </div>
               </div>
 
-              <div className="border-t border-white/5 pt-3 flex justify-between items-center">
+              <div className="border-t border-white/5 pt-2 flex justify-between items-center">
                 <span className="text-[8px] font-black text-white/45 uppercase tracking-wider">Access Tier</span>
-                <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
+                <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${
                   currentUser.role === "admin" 
                     ? "bg-red-500/10 border border-red-500/20 text-red-400" 
                     : currentUser.role === "instructor" 
@@ -312,177 +112,239 @@ export default function AcademyDashboard() {
 
             {/* Portal Navigation Menu */}
             <div className="space-y-1">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Portal Menu</span>
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Portal Menu</span>
               {currentUser.role === "admin" ? (
                 <>
                   <button 
-                    onClick={() => setActiveTab("admin_analytics")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("admin_analytics")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "admin_analytics" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <BarChart className="w-4 h-4 text-brand-orange" />
+                    <BarChart className="w-3.5 h-3.5 text-brand-orange" />
                     Analytics Overview
                   </button>
                   <button 
-                    onClick={() => setActiveTab("admin_users")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("admin_users")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "admin_users" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <Users className="w-4 h-4 text-brand-blue" />
+                    <Users className="w-3.5 h-3.5 text-brand-blue" />
                     User Access
                   </button>
                   <button 
-                    onClick={() => setActiveTab("admin_courses")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("admin_courses")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "admin_courses" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 text-[#3bb75e]" />
+                    <BookOpen className="w-3.5 h-3.5 text-[#3bb75e]" />
                     Course Catalog
                   </button>
                   <button 
-                    onClick={() => setActiveTab("admin_applications")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("admin_applications")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "admin_applications" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <ClipboardCheck className="w-4 h-4 text-yellow-400" />
+                    <ClipboardCheck className="w-3.5 h-3.5 text-yellow-400" />
                     Applications Panel
                   </button>
                   <button 
-                    onClick={() => setActiveTab("admin_certificates")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("admin_certificates")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "admin_certificates" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <Award className="w-4 h-4 text-purple-400" />
+                    <Award className="w-3.5 h-3.5 text-purple-400" />
                     Certificates Registry
                   </button>
                   <button 
-                    onClick={() => setActiveTab("admin_system_activities")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("admin_system_activities")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "admin_system_activities" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <ShieldCheck className="w-4 h-4 text-red-400" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-red-400" />
                     System Activities
                   </button>
                 </>
               ) : currentUser.role === "instructor" ? (
                 <>
                   <button 
-                    onClick={() => setActiveTab("instructor_grading")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("instructor_grading")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "instructor_grading" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <ClipboardCheck className="w-4 h-4 text-brand-orange" />
+                    <ClipboardCheck className="w-3.5 h-3.5 text-brand-orange" />
                     Grading Center
                   </button>
                   <button 
-                    onClick={() => setActiveTab("instructor_students")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("instructor_students")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "instructor_students" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <Users className="w-4 h-4 text-brand-blue" />
+                    <Users className="w-3.5 h-3.5 text-brand-blue" />
                     Student Roster
                   </button>
                   <button 
-                    onClick={() => setActiveTab("instructor_lessons")}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    onClick={() => handleTabClick("instructor_lessons")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "instructor_lessons" 
                         ? "text-white bg-white/10" 
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 text-[#3bb75e]" />
+                    <BookOpen className="w-3.5 h-3.5 text-[#3bb75e]" />
                     Syllabus Builder
                   </button>
                 </>
               ) : (
                 <button 
-                  onClick={() => setActiveTab("dashboard")}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                  onClick={() => handleTabClick("dashboard")}
+                  className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                     activeTab === "dashboard" 
                       ? "text-white bg-white/10" 
                       : "text-white/60 hover:text-white hover:bg-white/5"
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4 text-brand-orange" />
+                  <LayoutDashboard className="w-3.5 h-3.5 text-brand-orange" />
                   My Dashboard
                 </button>
               )}
               <button 
-                onClick={() => setActiveTab("account")}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
+                onClick={() => handleTabClick("account")}
+                className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                   activeTab === "account" 
                     ? "text-white bg-white/10" 
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
-                <User className="w-4 h-4 text-brand-blue" />
+                <User className="w-3.5 h-3.5 text-brand-blue" />
                 Account Center
               </button>
               <button 
-                onClick={() => setShowReferralModal(true)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
+                onClick={() => { setShowReferralModal(true); if (onClose) onClose(); }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
               >
-                <Gift className="w-4 h-4 text-brand-orange" />
+                <Gift className="w-3.5 h-3.5 text-brand-orange" />
                 Refer & Earn
               </button>
             </div>
 
-            {/* General Portal Tools / Stats (Quick indicators in Sidebar) */}
+            {/* Ecosystem Links */}
             <div className="space-y-1">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Ecosystem Links</span>
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30 px-3">Ecosystem Links</span>
               <a 
                 href="/" 
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
               >
-                <Zap className="w-4 h-4 text-brand-orange" />
+                <Zap className="w-3.5 h-3.5 text-brand-orange" />
                 Ecosystem Home
               </a>
               <a 
                 href="/talent-cloud" 
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold text-white/60 hover:text-white hover:bg-white/5 transition-colors"
               >
-                <BookOpen className="w-4 h-4 text-brand-blue" />
+                <BookOpen className="w-3.5 h-3.5 text-brand-blue" />
                 Talent Cloud
               </a>
             </div>
           </div>
 
           {/* Bottom Actions */}
-          <div className="pt-6 border-t border-white/10 space-y-4">
+          <div className="pt-4 border-t border-white/10 space-y-2">
             <button
-              onClick={logout}
-              className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-red-500/10 hover:text-red-400 border border-white/10 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer"
+              onClick={() => { logout(); if (onClose) onClose(); }}
+              className="w-full flex items-center justify-center gap-1.5 bg-white/5 hover:bg-red-500/10 hover:text-red-400 border border-white/10 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
             >
-              <LogOut className="w-4 h-4" /> Sign Out
+              <LogOut className="w-3.5 h-3.5" /> Sign Out
             </button>
-            <div className="text-center text-[8px] text-white/20 font-mono">
+            <div className="text-center text-[7px] text-white/20 font-mono">
               Session: Secured Sandbox
             </div>
           </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="min-h-screen bg-[#080c14] text-white flex flex-col md:flex-row w-full relative">
+        {/* Mobile Dashboard Top Header */}
+        <div className="md:hidden flex justify-between items-center bg-[#0d1220] border-b border-white/10 px-6 py-3 shrink-0 sticky top-0 z-30">
+          <div className="flex items-center gap-2.5">
+            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-6 h-6 object-contain" />
+            <span className="font-display font-black text-sm uppercase tracking-tight text-white italic">
+              Alpha <span className="text-brand-orange">Academy</span>
+            </span>
+          </div>
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+            className="text-white hover:text-brand-orange transition-colors p-1.5 rounded-lg bg-white/5 border border-white/10 cursor-pointer"
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
+
+        {/* Mobile Side Drawer Menu (slides from left) */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileMenuOpen(false)}
+                className="md:hidden fixed inset-0 bg-black/60 z-40"
+              />
+              {/* Slide out drawer */}
+              <motion.aside
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                className="md:hidden fixed top-0 left-0 h-full w-[280px] max-w-[80vw] bg-brand-navy border-r border-white/10 z-50 p-5 overflow-y-auto flex flex-col"
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <span className="font-display font-black text-xs uppercase tracking-widest text-brand-orange italic">Navigation</span>
+                  <button 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-white/60 hover:text-white p-1 bg-white/5 rounded border border-white/10 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex-1">
+                  <SidebarContent isMobile onClose={() => setMobileMenuOpen(false)} />
+                </div>
+              </motion.aside>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Desktop/Tablet Sidebar */}
+        <aside className="hidden md:flex w-64 lg:w-72 bg-brand-navy border-r border-white/10 flex-col justify-between p-6 h-screen sticky top-0 shrink-0">
+          <SidebarContent />
         </aside>
 
         {/* Main Content Workspace */}

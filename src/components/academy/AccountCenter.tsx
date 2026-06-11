@@ -134,70 +134,70 @@ export default function AccountCenter() {
   const mockReferralList: any[] = [];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10">
       {/* Page Header */}
       <div>
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange">Account Center</p>
-        <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight mt-2">
+        <h2 className="font-display font-black text-2xl md:text-4xl uppercase italic tracking-tight mt-1.5">
           Profile & Account Management
         </h2>
-        <p className="text-white/40 text-sm mt-1 italic">Update your profile settings, security credentials, and view billing logs.</p>
+        <p className="text-white/40 text-xs md:text-sm mt-1 italic">Update your profile settings, security credentials, and view billing logs.</p>
       </div>
 
       {/* Udemy-style Sub-navigation Tabs */}
       <div className="flex border-b border-white/10 overflow-x-auto gap-2 sm:gap-6">
         <button
           onClick={() => setActiveSubTab("profile")}
-          className={`pb-4 px-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-1 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
             activeSubTab === "profile" 
               ? "border-brand-orange text-white" 
               : "border-transparent text-white/40 hover:text-white/80"
           }`}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5">
             <User className="w-3.5 h-3.5" /> Public Profile
           </span>
         </button>
         <button
           onClick={() => setActiveSubTab("security")}
-          className={`pb-4 px-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-1 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
             activeSubTab === "security" 
               ? "border-brand-orange text-white" 
               : "border-transparent text-white/40 hover:text-white/80"
           }`}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5" /> Security Settings
           </span>
         </button>
         <button
           onClick={() => setActiveSubTab("billing")}
-          className={`pb-4 px-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-1 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
             activeSubTab === "billing" 
               ? "border-brand-orange text-white" 
               : "border-transparent text-white/40 hover:text-white/80"
           }`}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5">
             <CreditCard className="w-3.5 h-3.5" /> Billing & Invoices
           </span>
         </button>
         <button
           onClick={() => setActiveSubTab("referrals")}
-          className={`pb-4 px-2 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
+          className={`pb-3 px-1 text-xs font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all cursor-pointer ${
             activeSubTab === "referrals" 
               ? "border-brand-orange text-white" 
               : "border-transparent text-white/40 hover:text-white/80"
           }`}
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5">
             <Gift className="w-3.5 h-3.5" /> Referrals Activity
           </span>
         </button>
       </div>
 
       {/* Main Tab Panels */}
-      <div className="bg-white/5 border border-white/10 rounded-[32px] p-6 md:p-10 shadow-2xl">
+      <div className="bg-white/5 border border-white/10 rounded-2xl md:rounded-[32px] p-4 md:p-10 shadow-2xl">
         {activeSubTab === "profile" && (
           <form onSubmit={handleProfileSave} className="space-y-8">
             <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white pb-2 border-b border-white/5 flex items-center gap-2">

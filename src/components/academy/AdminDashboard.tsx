@@ -253,37 +253,37 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
+      <div className="bg-white/5 border border-white/10 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange">Admin Terminal</p>
-        <h2 className="font-display font-black text-3xl uppercase italic mt-2">Executive Panel</h2>
-        <p className="text-white/40 text-sm mt-1 italic">Control operations, user rosters, billing databases, and verified certifications.</p>
+        <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic mt-1.5">Executive Panel</h2>
+        <p className="text-white/40 text-xs md:text-sm mt-1 italic">Control operations, user rosters, billing databases, and verified certifications.</p>
       </div>
 
 
       {/* Tab Contents */}
-      <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px]">
+      <div className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-2xl md:rounded-[32px]">
         {activeTab === "analytics" && (
-          <div className="space-y-8">
-            <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white mb-4">
+          <div className="space-y-6 md:space-y-8">
+            <h3 className="font-display font-black text-lg md:text-xl uppercase italic tracking-tight text-white mb-3">
               Core Performance Metrics
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 { label: "Total Students", val: students.length, desc: "Active in classroom db", icon: Users, color: "text-brand-blue" },
                 { label: "Total Instructors", val: instructors.length, desc: "Managing tracks", icon: Shield, color: "text-[#3bb75e]" },
                 { label: "Accrued Revenue", val: `₦${totalRevenue.toLocaleString()}`, desc: "From mock payments", icon: DollarSign, color: "text-brand-orange" },
                 { label: "Alpha Graduates", val: totalGraduates, desc: "Verified credentials", icon: Award, color: "text-purple-400" }
               ].map((stat, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl space-y-2">
+                <div key={i} className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl md:rounded-2xl space-y-2">
                   <div className="flex justify-between items-center text-white/30">
-                    <span className="text-[10px] font-black uppercase tracking-widest">{stat.label}</span>
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">{stat.label}</span>
+                    <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
                   </div>
-                  <h4 className="text-2xl font-black text-white">{stat.val}</h4>
-                  <p className="text-[10px] text-white/35 italic">{stat.desc}</p>
+                  <h4 className="text-xl md:text-2xl font-black text-white">{stat.val}</h4>
+                  <p className="text-[9px] md:text-[10px] text-white/35 italic">{stat.desc}</p>
                 </div>
               ))}
             </div>
