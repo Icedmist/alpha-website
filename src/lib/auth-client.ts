@@ -4,6 +4,9 @@ export const authClient = createAuthClient({
   // baseURL can be omitted to default to window.location.origin
   // but we explicitly pass it for clarity and proxy support
   baseURL: typeof window !== 'undefined' ? window.location.origin : undefined,
+  fetchOptions: {
+    credentials: 'include', // Send cookies with requests
+  },
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;
