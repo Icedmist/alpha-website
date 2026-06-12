@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   BarChart, Users, DollarSign, BookOpen, Award, Shield, 
   Trash2, UserPlus, RefreshCw, Layers, PlusCircle, Edit3, ShieldAlert
@@ -6,9 +6,75 @@ import {
 import { courses, Course } from "../../data/courses";
 import { useAuth, User } from "../../context/AuthContext";
 
-export default function AdminDashboard() {
-  const { allUsers, updateSpecificUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "certificates">("analytics");
+interface AdminDashboardProps {
+  activeView?: "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities";
+  onTabChange?: (tab: "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities") => void;
+}
+
+export default function AdminDashboard({ activeView, onTabChange }: AdminDashboardProps = {}) {
+  const { allUsers, updateSpecificUser, loadAllUsers, deleteUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities">("analytics");
+
+  useEffect(() => {
+    if (activeView) {
+      setActiveTab(activeView);
+    }
+  }, [activeView]);
+
+  // Activities & Subscribers states
+  const [activities, setActivities] = useState<any[]>([]);
+  const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
+
+  // Applications state
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loadingApplications, setLoadingApplications] = useState(false);
+
+  useEffect(() => {
+    // Reload user/student list from server
+    if (loadAllUsers) {
+      loadAllUsers();
+    }
+
+    if (activeTab === "system_activities") {
+      const fetchData = async () => {
+        setLoadingActivities(true);
+        try {
+          const actRes = await fetch("/api/admin/activities");
+          if (actRes.ok) {
+            const actData = await actRes.json();
+            setActivities(actData);
+          }
+          const subRes = await fetch("/api/admin/newsletter");
+          if (subRes.ok) {
+            const subData = await subRes.json();
+            setSubscribers(subData);
+          }
+        } catch (err) {
+          console.error("Failed to fetch admin activities data:", err);
+        } finally {
+          setLoadingActivities(false);
+        }
+      };
+      fetchData();
+    } else if (activeTab === "applications") {
+      const fetchApplications = async () => {
+        setLoadingApplications(true);
+        try {
+          const res = await fetch("/api/admin/applications");
+          if (res.ok) {
+            const data = await res.json();
+            setApplications(data);
+          }
+        } catch (err) {
+          console.error("Failed to fetch admin applications data:", err);
+        } finally {
+          setLoadingApplications(false);
+        }
+      };
+      fetchApplications();
+    }
+  }, [activeTab]);
 
   // Local state for Course CRUD
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
@@ -67,7 +133,7 @@ export default function AdminDashboard() {
       );
 
       // Attendance check
-      const attendanceDays = student.attendanceDates.length;
+      const attendanceDays = (student.attendanceDates || []).length;
       const attendancePercent = Math.min(
         100,
         Math.round(
@@ -187,59 +253,37 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
+      <div className="bg-white/5 border border-white/10 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange">Admin Terminal</p>
-        <h2 className="font-display font-black text-3xl uppercase italic mt-2">Executive Panel</h2>
-        <p className="text-white/40 text-sm mt-1 italic">Control operations, user rosters, billing databases, and verified certifications.</p>
+        <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic mt-1.5">Executive Panel</h2>
+        <p className="text-white/40 text-xs md:text-sm mt-1 italic">Control operations, user rosters, billing databases, and verified certifications.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-white/10 gap-6">
-        {[
-          { id: "analytics", label: "Analytics Summary", icon: BarChart },
-          { id: "users", label: "Access Controls", icon: Shield },
-          { id: "courses", label: "Course Inventory", icon: BookOpen },
-          { id: "certificates", label: "Credential Registry", icon: Award }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-4 text-xs font-black uppercase tracking-widest flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
-              activeTab === tab.id 
-                ? "border-brand-orange text-brand-orange" 
-                : "border-transparent text-white/40 hover:text-white"
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
-      </div>
 
       {/* Tab Contents */}
-      <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px]">
+      <div className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-2xl md:rounded-[32px]">
         {activeTab === "analytics" && (
-          <div className="space-y-8">
-            <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white mb-4">
+          <div className="space-y-6 md:space-y-8">
+            <h3 className="font-display font-black text-lg md:text-xl uppercase italic tracking-tight text-white mb-3">
               Core Performance Metrics
             </h3>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 { label: "Total Students", val: students.length, desc: "Active in classroom db", icon: Users, color: "text-brand-blue" },
                 { label: "Total Instructors", val: instructors.length, desc: "Managing tracks", icon: Shield, color: "text-[#3bb75e]" },
                 { label: "Accrued Revenue", val: `₦${totalRevenue.toLocaleString()}`, desc: "From mock payments", icon: DollarSign, color: "text-brand-orange" },
                 { label: "Alpha Graduates", val: totalGraduates, desc: "Verified credentials", icon: Award, color: "text-purple-400" }
               ].map((stat, i) => (
-                <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-2xl space-y-2">
+                <div key={i} className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-xl md:rounded-2xl space-y-2">
                   <div className="flex justify-between items-center text-white/30">
-                    <span className="text-[10px] font-black uppercase tracking-widest">{stat.label}</span>
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">{stat.label}</span>
+                    <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
                   </div>
-                  <h4 className="text-2xl font-black text-white">{stat.val}</h4>
-                  <p className="text-[10px] text-white/35 italic">{stat.desc}</p>
+                  <h4 className="text-xl md:text-2xl font-black text-white">{stat.val}</h4>
+                  <p className="text-[9px] md:text-[10px] text-white/35 italic">{stat.desc}</p>
                 </div>
               ))}
             </div>
@@ -296,19 +340,71 @@ export default function AdminDashboard() {
                           {user.role}
                         </span>
                       </td>
-                      <td className="py-4 pr-4 text-white/40">
-                        {user.enrolledCourses.length > 0 ? `${user.enrolledCourses.length} Courses` : "None"}
+                      <td className="py-4 pr-4">
+                        <div className="flex flex-col gap-1.5">
+                          {user.enrolledCourses && user.enrolledCourses.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {user.enrolledCourses.map((cid: string) => {
+                                const courseObj = courses.find((c) => c.id === cid);
+                                return (
+                                  <span key={cid} className="bg-brand-blue/10 text-brand-blue border border-brand-blue/20 px-2 py-0.5 rounded text-[10px] font-bold">
+                                    {courseObj?.title || cid}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <span className="text-white/20 italic text-[10px]">None Assigned</span>
+                          )}
+                          <select
+                            onChange={(e) => {
+                              if (e.target.value === "") return;
+                              const cid = e.target.value;
+                              const isEnrolled = (user.enrolledCourses || []).includes(cid);
+                              const updatedCourses = isEnrolled
+                                ? (user.enrolledCourses || []).filter((id: string) => id !== cid)
+                                : [...(user.enrolledCourses || []), cid];
+                              
+                              updateSpecificUser(user.id, {
+                                ...user,
+                                enrolledCourses: updatedCourses
+                              });
+                              e.target.value = "";
+                            }}
+                            className="bg-brand-navy border border-white/10 rounded-lg px-2 py-1 text-[9px] font-bold text-white/50 focus:outline-none w-fit cursor-pointer hover:text-white"
+                          >
+                            <option value="">+ Assign/Remove Track</option>
+                            {activeCourses.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {(user.enrolledCourses || []).includes(c.id) ? "✓ Remove: " : "+ Assign: "} {c.title}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </td>
                       <td className="py-4 text-right">
-                        <select
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
-                          className="bg-brand-navy border border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold text-white focus:outline-none"
-                        >
-                          <option value="student">Make Student</option>
-                          <option value="instructor">Make Instructor</option>
-                          <option value="admin">Make Admin</option>
-                        </select>
+                        <div className="flex items-center justify-end gap-2">
+                          <select
+                            value={user.role}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value as any)}
+                            className="bg-brand-navy border border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold text-white focus:outline-none"
+                          >
+                            <option value="student">Make Student</option>
+                            <option value="instructor">Make Instructor</option>
+                            <option value="admin">Make Admin</option>
+                          </select>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to permanently delete user "${user.name}"?`)) {
+                                deleteUser(user.id);
+                              }
+                            }}
+                            className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -560,6 +656,238 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "applications" && (
+          <div className="space-y-12">
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Student Applications</h2>
+              <p className="text-white/40 text-xs italic">Review admissions applications submitted through the registration and application portal.</p>
+            </div>
+
+            {loadingApplications ? (
+              <div className="flex justify-center items-center py-20 text-white/50 text-xs font-bold uppercase tracking-widest gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-brand-orange" />
+                Loading applications...
+              </div>
+            ) : applications.length === 0 ? (
+              <div className="bg-white/5 border border-white/10 p-12 rounded-3xl text-center">
+                <Users className="w-12 h-12 text-white/20 mx-auto mb-4 animate-pulse" />
+                <h3 className="font-bold text-white text-sm uppercase tracking-wider">No Applications Yet</h3>
+                <p className="text-white/40 text-xs mt-1">When students apply via the /apply page, their applications will show up here.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-6">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="text-white/40 font-bold border-b border-white/10 pb-3">
+                      <th className="pb-3 pr-4">Applicant</th>
+                      <th className="pb-3 pr-4">Program Applied</th>
+                      <th className="pb-3 pr-4">Location & Contact</th>
+                      <th className="pb-3 pr-4">Background & Experience</th>
+                      <th className="pb-3 pr-4">Reason for Applying</th>
+                      <th className="pb-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-white/70">
+                    {applications.map((app) => (
+                      <tr key={app.id} className="align-top hover:bg-white/[0.02] transition-colors">
+                        <td className="py-4 pr-4">
+                          <div className="font-bold text-white text-sm">{app.name}</div>
+                          <div className="text-white/40 font-mono text-[10px] mt-0.5">{app.email}</div>
+                          <div className="text-[10px] text-brand-orange uppercase tracking-wider font-bold mt-1">
+                            Applied: {new Date(app.submittedAt).toLocaleDateString()}
+                          </div>
+                        </td>
+                        <td className="py-4 pr-4 font-semibold text-white/90">
+                          {app.program}
+                          <span className="block text-[10px] text-white/40 font-mono mt-0.5">Course ID: {app.courseId}</span>
+                        </td>
+                        <td className="py-4 pr-4">
+                          <div className="text-white/80">{app.location || "N/A"}</div>
+                          <div className="text-white/40 font-mono text-[10px] mt-0.5">{app.phone || "N/A"}</div>
+                        </td>
+                        <td className="py-4 pr-4">
+                          <div className="capitalize font-semibold text-brand-blue">{app.background}</div>
+                          <div className="text-white/50 text-[11px] mt-1">{app.experience}</div>
+                        </td>
+                        <td className="py-4 pr-4 max-w-xs text-white/60 italic leading-relaxed whitespace-pre-wrap">
+                          "{app.reason || "No statement provided."}"
+                        </td>
+                        <td className="py-4">
+                          <span className="bg-green-500/10 text-green-400 border border-green-500/20 px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider">
+                            {app.status || "Approved"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === "system_activities" && (
+          <div className="space-y-12">
+            {/* Header */}
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">System Activities & Logs</h2>
+              <p className="text-white/40 text-xs italic">View entire system audits, newsletter subscriptions, and all assignment submissions.</p>
+            </div>
+
+            {loadingActivities ? (
+              <div className="flex justify-center items-center py-20 text-white/50 text-xs font-bold uppercase tracking-widest gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-brand-orange" />
+                Loading logs...
+              </div>
+            ) : (
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Left/Middle Columns: Activities Feed and Course Submissions */}
+                <div className="lg:col-span-2 space-y-12">
+                  {/* Global Activities */}
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-white">Global Audit Feed</h3>
+                    <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[350px] overflow-y-auto">
+                      {activities.length === 0 ? (
+                        <p className="text-white/30 text-xs italic py-4">No system activities recorded yet.</p>
+                      ) : (
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                              <th className="pb-2">Timestamp</th>
+                              <th className="pb-2">User</th>
+                              <th className="pb-2">Event</th>
+                              <th className="pb-2">Details</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 text-white/70">
+                            {activities.map((act) => (
+                              <tr key={act.id}>
+                                <td className="py-2.5 font-mono text-[10px] text-white/40">
+                                  {new Date(act.timestamp).toLocaleString()}
+                                </td>
+                                <td className="py-2.5 font-semibold text-white">
+                                  {act.userName || act.userId || 'System'}
+                                </td>
+                                <td className="py-2.5 font-bold uppercase tracking-wider text-[10px] text-brand-orange">
+                                  {act.action}
+                                </td>
+                                <td className="py-2.5 text-white/60 italic">{act.details}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* All Assignment Submissions */}
+                  <div className="space-y-4">
+                    <h3 className="font-bold text-xs uppercase tracking-wider text-white">All Assignment Submissions</h3>
+                    <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[350px] overflow-y-auto">
+                      {allUsers.flatMap(user => 
+                        (user.submissions || []).map(sub => ({
+                          userId: user.id,
+                          userName: user.name,
+                          userEmail: user.email,
+                          ...sub
+                        }))
+                      ).length === 0 ? (
+                        <p className="text-white/30 text-xs italic py-4">No student assignments submitted yet.</p>
+                      ) : (
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                              <th className="pb-2">Student</th>
+                              <th className="pb-2">Course / Assignment</th>
+                              <th className="pb-2">Submitted</th>
+                              <th className="pb-2">Status</th>
+                              <th className="pb-2">Grade / Feedback</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 text-white/70">
+                            {allUsers.flatMap(user => 
+                              (user.submissions || []).map(sub => ({
+                                userId: user.id,
+                                userName: user.name,
+                                userEmail: user.email,
+                                ...sub
+                              }))
+                            )
+                            .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())
+                            .map((sub, i) => (
+                              <tr key={i}>
+                                <td className="py-3">
+                                  <div className="font-semibold text-white">{sub.userName}</div>
+                                  <div className="text-[10px] text-white/40">{sub.userEmail}</div>
+                                </td>
+                                <td className="py-3">
+                                  <div className="font-bold text-[10px] uppercase text-brand-orange">{sub.courseId}</div>
+                                  <div className="text-white/60 italic">{sub.assignmentTitle}</div>
+                                </td>
+                                <td className="py-3 text-white/40 text-[10px]">
+                                  {new Date(sub.submittedAt).toLocaleDateString()}
+                                </td>
+                                <td className="py-3">
+                                  <span className={`px-2 py-0.5 rounded text-[9px] uppercase font-bold border ${
+                                    sub.status === 'graded' 
+                                      ? 'bg-green-500/10 text-green-400 border-green-500/10' 
+                                      : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/10'
+                                  }`}>
+                                    {sub.status}
+                                  </span>
+                                </td>
+                                <td className="py-3">
+                                  {sub.status === 'graded' ? (
+                                    <div>
+                                      <span className="font-bold text-white">{sub.score}%</span>
+                                      {sub.feedback && <p className="text-[10px] text-white/40 italic">{sub.feedback}</p>}
+                                    </div>
+                                  ) : (
+                                    <span className="text-white/30 italic">Not graded</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column: Newsletter Roster */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-white">Newsletter Roster</h3>
+                  <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[750px] overflow-y-auto">
+                    {subscribers.length === 0 ? (
+                      <p className="text-white/30 text-xs italic py-4">No subscribers registered yet.</p>
+                    ) : (
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                            <th className="pb-2">Email Address</th>
+                            <th className="pb-2">Subscribed At</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-white/70">
+                          {subscribers.map((sub) => (
+                            <tr key={sub.id}>
+                              <td className="py-2.5 font-semibold text-white">{sub.email}</td>
+                              <td className="py-2.5 font-mono text-[10px] text-white/40">
+                                {new Date(sub.subscribedAt).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

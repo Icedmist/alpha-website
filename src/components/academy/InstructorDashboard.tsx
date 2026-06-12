@@ -7,30 +7,50 @@ import {
 import { courses, Course } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
 
-export default function InstructorDashboard() {
-  const { allUsers, updateSpecificUser } = useAuth();
-  const [activeTab, setActiveTab] = useState<"grading" | "students" | "lessons">("grading");
+export default function InstructorDashboard({ 
+  activeView, 
+  onTabChange 
+}: { 
+  activeView?: "grading" | "students" | "lessons"; 
+  onTabChange?: (tab: "grading" | "students" | "lessons") => void;
+}) {
+  const { currentUser, allUsers, updateSpecificUser } = useAuth();
+  const [localActiveTab, setLocalActiveTab] = useState<"grading" | "students" | "lessons">("grading");
   
+  const activeTab = activeView || localActiveTab;
+  const setActiveTab = (tab: "grading" | "students" | "lessons") => {
+    setLocalActiveTab(tab);
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
+  
+  const assignedCourseIds = currentUser?.enrolledCourses || [];
+  const instructorCourses = courses.filter((c) => assignedCourseIds.includes(c.id));
+
   // Grading states
-  const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; submission: Submission } | null>(null);
+  const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; userName: string; submission: Submission } | null>(null);
   const [score, setScore] = useState<number>(85);
   const [feedback, setFeedback] = useState<string>("");
 
   // Lesson editor states
-  const [selectedCourseId, setSelectedCourseId] = useState(courses[0]?.id || "");
+  const [selectedCourseId, setSelectedCourseId] = useState(instructorCourses[0]?.id || "");
   const [moduleTitle, setModuleTitle] = useState("");
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonType, setLessonType] = useState<"video" | "pdf" | "quiz" | "assignment">("video");
   const [lessonDuration, setLessonDuration] = useState("15 mins");
   const [lessonPromptOrUrl, setLessonPromptOrUrl] = useState("");
 
-  const students = allUsers.filter((u) => u.role === "student");
+  // Filter students enrolled in at least one course assigned to the instructor
+  const students = allUsers.filter(
+    (u) => u.role === "student" && u.enrolledCourses.some((cid) => assignedCourseIds.includes(cid))
+  );
 
-  // Get all pending submissions across all students
+  // Get all pending submissions across assigned students/courses
   const pendingSubmissions: { userId: string; userName: string; submission: Submission }[] = [];
   students.forEach((student) => {
     student.submissions.forEach((sub) => {
-      if (sub.status === "pending") {
+      if (sub.status === "pending" && assignedCourseIds.includes(sub.courseId)) {
         pendingSubmissions.push({
           userId: student.id,
           userName: student.name,
@@ -133,65 +153,37 @@ export default function InstructorDashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header Panel */}
-      <div className="bg-white/5 border border-white/10 p-8 rounded-3xl relative overflow-hidden">
+      <div className="bg-white/5 border border-white/10 p-5 md:p-8 rounded-2xl md:rounded-3xl relative overflow-hidden">
         <p className="text-[10px] font-black uppercase tracking-[0.4em] text-brand-orange">Instructor Hub</p>
-        <h2 className="font-display font-black text-3xl uppercase italic mt-2">Classroom Dashboard</h2>
-        <p className="text-white/40 text-sm mt-1 italic">Review code projects, monitor cohorts, and push syllabus updates.</p>
+        <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic mt-1.5">Classroom Dashboard</h2>
+        <p className="text-white/40 text-xs md:text-sm mt-1 italic">Review code projects, monitor cohorts, and push syllabus updates.</p>
       </div>
 
-      {/* Tabs Selector */}
-      <div className="flex border-b border-white/10 gap-6">
-        {[
-          { id: "grading", label: "Grading Center", count: pendingSubmissions.length, icon: ClipboardCheck },
-          { id: "students", label: "Student Roster", count: students.length, icon: Users },
-          { id: "lessons", label: "Syllabus Builder", icon: PlusCircle }
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`pb-4 text-xs font-black uppercase tracking-widest flex items-center gap-2 border-b-2 transition-colors cursor-pointer ${
-              activeTab === tab.id 
-                ? "border-brand-orange text-brand-orange" 
-                : "border-transparent text-white/40 hover:text-white"
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-            {tab.count !== undefined && (
-              <span className={`px-1.5 py-0.5 rounded-full text-[9px] ${
-                tab.id === "grading" && tab.count > 0 ? "bg-brand-orange text-white" : "bg-white/10 text-white/60"
-              }`}>
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
 
       {/* Workspace Area */}
-      <div className="bg-white/5 border border-white/10 p-6 md:p-8 rounded-[32px]">
+      <div className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-2xl md:rounded-[32px]">
         {activeTab === "grading" && (
           <div className="space-y-6">
-            <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white">
+            <h3 className="font-display font-black text-lg md:text-xl uppercase italic tracking-tight text-white">
               Submissions Queue
             </h3>
             
             {pendingSubmissions.length === 0 ? (
-              <div className="bg-white/[0.02] border border-white/5 p-12 text-center rounded-2xl">
+              <div className="bg-white/[0.02] border border-white/5 p-8 md:p-12 text-center rounded-2xl">
                 <CheckCircle2 className="w-12 h-12 text-green-400 mx-auto mb-4" />
                 <p className="text-white/40 italic">Queue cleared. All submitted assignments are graded!</p>
               </div>
             ) : (
-              <div className="grid gap-6">
+              <div className="grid gap-4 md:gap-6">
                 {pendingSubmissions.map((item, idx) => {
                   const course = courses.find(c => c.id === item.submission.courseId);
 
                   return (
                     <div 
                       key={idx} 
-                      className="bg-white/5 border border-white/10 p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:bg-white/10 transition-colors"
+                      className="bg-white/5 border border-white/10 p-4 md:p-6 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 hover:bg-white/10 transition-colors"
                     >
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-3">
@@ -301,10 +293,15 @@ export default function InstructorDashboard() {
                   value={selectedCourseId}
                   onChange={(e) => setSelectedCourseId(e.target.value)}
                   className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none"
+                  disabled={instructorCourses.length === 0}
                 >
-                  {courses.map(c => (
-                    <option key={c.id} value={c.id}>{c.title}</option>
-                  ))}
+                  {instructorCourses.length > 0 ? (
+                    instructorCourses.map((c) => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))
+                  ) : (
+                    <option value="">No courses assigned</option>
+                  )}
                 </select>
               </div>
 

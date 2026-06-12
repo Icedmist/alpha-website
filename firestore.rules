@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if the user is an admin or instructor
+    function isStaff() {
+      return request.auth != null && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' || 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'instructor');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isStaff();
+      
+      // Nested user activities subcollection
+      match /activity/{activityId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read, write: if isStaff();
+      }
+    }
+
+    // Student Applications Collection
+    match /applications/{applicationId} {
+      allow read: if request.auth != null && (request.auth.uid == applicationId || isStaff());
+      allow write: if request.auth != null && request.auth.uid == applicationId;
+    }
+
+    // Global Activities Log Collection
+    match /activities/{activityId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == request.resource.data.userId || isStaff());
+    }
+
+    // Courses Collection
+    match /courses/{courseId} {
+      allow read: if true; // Courses catalog is public
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}
