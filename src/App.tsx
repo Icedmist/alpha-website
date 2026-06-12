@@ -81,31 +81,35 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
     ? (pathname === "/dashboard" || pathname === "/academy/dashboard") && !!currentUser
     : pathname.startsWith("/academy/dashboard") && !!currentUser;
 
+  const isLocal = typeof window !== "undefined" && (window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1'));
+  const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.icedmist.tech";
+  const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.icedmist.tech";
+
   const navLinks = isAcademy ? [
-    { name: "Ecosystem Home", href: "http://localhost:3000/" },
-    { name: "Talent Cloud", href: "http://localhost:3000/talent-cloud" },
+    { name: "Ecosystem Home", href: `${mainBaseUrl}/` },
+    { name: "Talent Cloud", href: `${mainBaseUrl}/talent-cloud` },
     { name: "Syllabus Tracks", href: "#cohorts" },
   ] : [
     { name: "About", href: "/about" },
-    { name: "Academy", href: "http://academy.localhost:3000/" },
+    { name: "Academy", href: `${academyBaseUrl}/` },
     { name: "Talent Cloud", href: "/talent-cloud" },
     { name: "Roadmap", href: "/roadmap" },
     { name: "Contact", href: "/contact" },
   ];
 
   const getLoginHref = () => {
-    return isAcademy ? "/dashboard" : "http://academy.localhost:3000/dashboard";
+    return isAcademy ? "/dashboard" : `${academyBaseUrl}/dashboard`;
   };
 
   const getCtaLinkProps = () => {
     if (currentUser) {
       return {
-        href: isAcademy ? "/dashboard" : "http://academy.localhost:3000/dashboard",
+        href: isAcademy ? "/dashboard" : `${academyBaseUrl}/dashboard`,
         label: "Portal Dashboard"
       };
     } else {
       return {
-        href: isAcademy ? "http://localhost:3000/apply" : "/apply",
+        href: isAcademy ? `${mainBaseUrl}/apply` : "/apply",
         label: "Join Academy"
       };
     }
@@ -121,7 +125,7 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
       {!isDashboard && (
         <nav id="navbar" className="fixed top-0 w-full z-40 bg-brand-navy/80 backdrop-blur-md border-b border-white/5">
           <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between text-white">
-            <a href={isAcademy ? "http://academy.localhost:3000/" : "http://localhost:3000/"} className="flex items-center gap-2 md:gap-3">
+            <a href={isAcademy ? `${academyBaseUrl}/` : `${mainBaseUrl}/`} className="flex items-center gap-2 md:gap-3">
               <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
               <span className="font-display font-black text-lg md:text-2xl tracking-tighter uppercase italic">
                 {isAcademy ? "ALPHA ACADEMY" : "ALPHA SPARK"}
@@ -294,9 +298,9 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
               <div>
                 <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Platform</h4>
                 <ul className="space-y-6 text-white/40 text-sm font-bold uppercase tracking-widest">
-                  <li><a href="http://academy.localhost:3000/" className="hover:text-white transition-colors">Academy</a></li>
-                  <li><a href="http://localhost:3000/talent-cloud" className="hover:text-white transition-colors">Talent Cloud</a></li>
-                  <li><a href="http://localhost:3000/apply" className="hover:text-white transition-colors">Enrollment</a></li>
+                  <li><a href={`${academyBaseUrl}/`} className="hover:text-white transition-colors">Academy</a></li>
+                  <li><a href={`${mainBaseUrl}/talent-cloud`} className="hover:text-white transition-colors">Talent Cloud</a></li>
+                  <li><a href={`${mainBaseUrl}/apply`} className="hover:text-white transition-colors">Enrollment</a></li>
                   <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
                 </ul>
               </div>
@@ -339,23 +343,29 @@ export default function App() {
       const host = window.location.hostname;
       const pathname = window.location.pathname;
       const search = window.location.search;
-      const isAcademy = host.startsWith("academy.");
+      const isAcademy = 
+        window.location.hostname.startsWith('academy.alphaspark.icedmist.tech') || 
+        window.location.hostname.startsWith('academy.localhost');
       
       setIsAcademySubdomain(isAcademy);
+
+      const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1');
+      const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.icedmist.tech";
+      const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.icedmist.tech";
 
       if (isAcademy) {
         // Redirect main site routes back to root domain
         const mainSiteRoutes = ["/about", "/talent-cloud", "/roadmap", "/contact", "/apply"];
         if (mainSiteRoutes.some(route => pathname.startsWith(route))) {
-          window.location.href = `http://localhost:3000${pathname}${search}`;
+          window.location.href = `${mainBaseUrl}${pathname}${search}`;
         }
       } else {
         // Redirect academy paths to academy subdomain
         if (pathname === "/academy") {
-          window.location.href = `http://academy.localhost:3000/${search}`;
+          window.location.href = `${academyBaseUrl}/${search}`;
         } else if (pathname.startsWith("/academy/")) {
           const subPath = pathname.replace(/^\/academy/, "");
-          window.location.href = `http://academy.localhost:3000${subPath}${search}`;
+          window.location.href = `${academyBaseUrl}${subPath}${search}`;
         }
       }
     }
