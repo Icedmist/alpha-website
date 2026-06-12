@@ -19,8 +19,8 @@ export const auth = betterAuth({
   ],
   advanced: {
     crossSubDomainCookies: {
-      enabled: process.env.NODE_ENV === "production",
-      domain: process.env.NODE_ENV === "production" ? ".icedmist.tech" : undefined,
+      enabled: true,
+      domain: ".icedmist.tech",
     },
   },
 });
