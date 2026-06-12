@@ -20,7 +20,7 @@ export const auth = betterAuth({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   advanced: {
     crossSubDomainCookies: {
-      enabled: true, // Enable for cross-subdomain sharing
+      enabled: process.env.NODE_ENV === "production", // Only enable in production to avoid localhost cookie rejection
     },
   },
 });
