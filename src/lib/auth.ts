@@ -20,7 +20,8 @@ export const auth = betterAuth({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   advanced: {
     crossSubDomainCookies: {
-      enabled: process.env.NODE_ENV === "production", // Only enable in production to avoid localhost cookie rejection
+      enabled: process.env.NODE_ENV === "production",
+      domain: process.env.NODE_ENV === "production" ? ".alphaspark.icedmist.tech" : undefined,
     },
   },
 });
