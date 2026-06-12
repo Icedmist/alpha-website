@@ -9,11 +9,22 @@ import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {
+    const reqHeaders = await headers();
+    const host = reqHeaders.get('host');
+    const cookie = reqHeaders.get('cookie');
+    
+    console.log('[GET /api/user/profile] Diagnostics:', {
+      host,
+      cookie: cookie ? cookie.substring(0, 50) + '...' : null,
+      baseURL: auth.options?.baseURL,
+    });
+
     const sessionData = await auth.api.getSession({
-      headers: await headers(),
+      headers: reqHeaders,
     });
 
     if (!sessionData) {
+      console.warn('[GET /api/user/profile] No session found.');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
