@@ -7,17 +7,9 @@ import { user as userTable } from '../../../../db/schema';
 import { eq } from 'drizzle-orm';
 
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const reqHeaders = await headers();
-    const host = reqHeaders.get('host');
-    const cookie = reqHeaders.get('cookie');
-    
-    console.log('[GET /api/user/profile] Diagnostics:', {
-      host,
-      cookie: cookie ? cookie.substring(0, 50) + '...' : null,
-      baseURL: (auth.options as any)?.baseURL,
-    });
 
     const sessionData = await auth.api.getSession({
       headers: reqHeaders,
