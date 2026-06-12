@@ -16,7 +16,7 @@ export async function GET() {
     console.log('[GET /api/user/profile] Diagnostics:', {
       host,
       cookie: cookie ? cookie.substring(0, 50) + '...' : null,
-      baseURL: auth.options?.baseURL,
+      baseURL: (auth.options as any)?.baseURL,
     });
 
     const sessionData = await auth.api.getSession({
