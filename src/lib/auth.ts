@@ -14,11 +14,13 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "http://academy.localhost:3000",
+    "https://alphaspark.icedmist.tech",
+    "https://academy.alphaspark.icedmist.tech",
   ],
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   advanced: {
     crossSubDomainCookies: {
-      enabled: process.env.NODE_ENV === "production",
+      enabled: true, // Enable for cross-subdomain sharing
     },
   },
 });
