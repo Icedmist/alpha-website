@@ -17,11 +17,10 @@ export const auth = betterAuth({
     "https://alphaspark.icedmist.tech",
     "https://academy.alphaspark.icedmist.tech",
   ],
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || (process.env.NODE_ENV === "production" ? "https://alphaspark.icedmist.tech" : "http://localhost:3000"),
   advanced: {
     crossSubDomainCookies: {
       enabled: process.env.NODE_ENV === "production",
-      domain: process.env.NODE_ENV === "production" ? ".alphaspark.icedmist.tech" : undefined,
+      domain: process.env.NODE_ENV === "production" ? ".icedmist.tech" : undefined,
     },
   },
 });
