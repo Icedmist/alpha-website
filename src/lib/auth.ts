@@ -11,7 +11,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   trustedOrigins: [
     "http://localhost:3000",
     "http://academy.localhost:3000",
@@ -23,7 +22,12 @@ export const auth = betterAuth({
       enabled: true,
       domain: ".icedmist.tech",
     },
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+    },
   },
 });
+
 export type Session = typeof auth.$Infer.Session.session;
 export type User = typeof auth.$Infer.Session.user;
