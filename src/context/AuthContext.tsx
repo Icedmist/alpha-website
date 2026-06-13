@@ -20,15 +20,15 @@ export interface User {
   email: string;
   phone: string;
   role: 'student' | 'instructor' | 'admin';
-  enrolledCourses: string[]; // Course IDs
-  completedLessons: string[]; // Lesson IDs
-  quizScores: Record<string, number>; // quizId -> score (percentage)
+  enrolledCourses: string[];
+  completedLessons: string[];
+  quizScores: Record<string, number>;
   submissions: Submission[];
-  attendanceDates: string[]; // YYYY-MM-DD
+  attendanceDates: string[];
   employmentStatus?: string;
   portfolioLinks?: string[];
   projectShowcase?: string;
-  issuedCertificates?: string[]; // Course IDs that have been issued certificates
+  issuedCertificates?: string[];
   headline?: string;
   biography?: string;
   website?: string;
@@ -63,10 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch the current logged-in user profile from Firestore
   const loadProfile = async () => {
     try {
-      const res = await fetch('/api/user/profile');
+      const res = await fetch('/api/user/profile', {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data);
@@ -82,10 +83,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Fetch all user profiles for admins and instructors
   const loadAllUsers = async () => {
     try {
-      const res = await fetch('/api/admin/users');
+      const res = await fetch('/api/admin/users', {
+        credentials: 'include',
+      });
       if (res.ok) {
         const data = await res.json();
         setAllUsers(data);
@@ -114,7 +116,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(error.message || 'Invalid email or password');
     }
 
-    const res = await fetch('/api/user/profile');
+    const res = await fetch('/api/user/profile', {
+      credentials: 'include',
+    });
     if (!res.ok) {
       throw new Error('Failed to load user profile');
     }
@@ -135,7 +139,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     role: 'student' | 'instructor' | 'admin' = 'student'
   ): Promise<User> => {
-    // 1. Create account in Better Auth / Postgres
     const { error } = await authClient.signUp.email({
       email,
       password,
@@ -146,9 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error(error.message || 'Email already registered');
     }
 
-    // 2. Initialize profile document in custom tenant Firestore
     const res = await fetch('/api/user/profile', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,
@@ -159,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         completedLessons: [],
         quizScores: {},
         submissions: [],
-        attendanceDates: [new Date().toISOString().split('T')[0]], // Checked in for today
+        attendanceDates: [new Date().toISOString().split('T')[0]],
       }),
     });
 
@@ -183,7 +186,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string): Promise<string> => {
-    // Simulated reset response
     return 'A password reset link has been simulated. Please check your inbox (simulated email sent successfully).';
   };
 
@@ -191,6 +193,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch('/api/user/profile', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedUser),
       });
@@ -211,6 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch('/api/user/profile', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...updatedUser,
@@ -234,6 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch(`/api/admin/users?userId=${userId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
       if (res.ok) {
