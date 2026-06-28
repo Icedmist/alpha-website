@@ -12,7 +12,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ activeView, onTabChange }: AdminDashboardProps = {}) {
-  const { allUsers, updateSpecificUser, loadAllUsers, deleteUser } = useAuth();
+  const { allUsers, updateSpecificUser, loadAllUsers, deleteUser, getAuthHeaders } = useAuth();
   const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities">("analytics");
 
   useEffect(() => {
@@ -40,12 +40,13 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
       const fetchData = async () => {
         setLoadingActivities(true);
         try {
-          const actRes = await fetch("/api/admin/activities");
+          const authHeaders = await getAuthHeaders();
+          const actRes = await fetch("/api/admin/activities", { headers: authHeaders });
           if (actRes.ok) {
             const actData = await actRes.json();
             setActivities(actData);
           }
-          const subRes = await fetch("/api/admin/newsletter");
+          const subRes = await fetch("/api/admin/newsletter", { headers: authHeaders });
           if (subRes.ok) {
             const subData = await subRes.json();
             setSubscribers(subData);
@@ -61,7 +62,8 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
       const fetchApplications = async () => {
         setLoadingApplications(true);
         try {
-          const res = await fetch("/api/admin/applications");
+          const authHeaders = await getAuthHeaders();
+          const res = await fetch("/api/admin/applications", { headers: authHeaders });
           if (res.ok) {
             const data = await res.json();
             setApplications(data);

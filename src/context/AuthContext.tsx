@@ -60,6 +60,7 @@ interface AuthContextType {
   updateSpecificUser: (userId: string, updatedUser: User) => void;
   loadAllUsers: () => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
+  getAuthHeaders: () => Promise<Record<string, string>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -278,6 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateSpecificUser,
         loadAllUsers,
         deleteUser,
+        getAuthHeaders,
       }}
     >
       {!loading && children}
