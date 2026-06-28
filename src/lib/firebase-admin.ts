@@ -171,10 +171,16 @@ function initMock() {
 }
 
 if (!projectId || !clientEmail || !privateKey) {
-  console.warn(
-    '⚠️ Missing Firebase Admin SDK environment variables. Booting with Mock client.'
-  );
-  initMock();
+  if (process.env.NODE_ENV === 'production') {
+    console.error(
+      '🚨 CRITICAL: Missing Firebase Admin SDK environment variables in production. Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.'
+    );
+  } else {
+    console.warn(
+      '⚠️ Missing Firebase Admin SDK environment variables. Booting with Mock client (dev only).'
+    );
+    initMock();
+  }
 } else {
   try {
     // Format private key correctly (replace literal \n with actual newlines)
@@ -209,11 +215,10 @@ if (!projectId || !clientEmail || !privateKey) {
         ? getStorage(app).bucket(customBucket)
         : getStorage(app).bucket();
   } catch (error) {
-    console.warn(
-      '⚠️ Firebase Admin SDK failed to initialize. Falling back to Mock client.',
+    console.error(
+      '🚨 Firebase Admin SDK failed to initialize.',
       error
     );
-    initMock();
   }
 }
 
