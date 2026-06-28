@@ -70,7 +70,7 @@ export default function AcademyDashboard() {
           <div className="space-y-6">
             {/* Branding */}
             <div className="flex items-center gap-3">
-              <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-8 h-8 object-contain" />
+              <img src="/assets/logo.png" alt="Alpha Spark Logo" className="w-8 h-8 object-contain" />
               <div>
                 <h2 className="font-display font-black text-sm tracking-tighter uppercase italic leading-none text-white">ALPHA SPARK</h2>
                 <span className="text-[8px] font-black uppercase tracking-[0.3em] text-brand-orange">ACADEMY PORTAL</span>
@@ -296,7 +296,7 @@ export default function AcademyDashboard() {
         {/* Mobile Dashboard Top Header */}
         <div className="md:hidden flex justify-between items-center bg-[#0d1220] border-b border-white/10 px-6 py-3 shrink-0 sticky top-0 z-30">
           <div className="flex items-center gap-2.5">
-            <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-6 h-6 object-contain" />
+            <img src="/assets/logo.png" alt="Alpha Spark Logo" className="w-6 h-6 object-contain" />
             <span className="font-display font-black text-sm uppercase tracking-tight text-white italic">
               Alpha <span className="text-brand-orange">Academy</span>
             </span>

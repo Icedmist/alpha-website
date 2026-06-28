@@ -150,7 +150,7 @@ function CertificateContent({
       {/* Top Header */}
       <div className="w-full flex justify-between items-center border-b border-gray-100 pb-6">
         <div className="flex items-center gap-2">
-          <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 object-contain filter invert" onError={(e) => {
+          <img src="/assets/logo.png" alt="Alpha Spark Logo" className="w-10 h-10 object-contain filter invert" onError={(e) => {
             // Fallback if logo not found
             e.currentTarget.style.display = "none";
           }} />

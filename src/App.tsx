@@ -126,7 +126,7 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
         <nav id="navbar" className="fixed top-0 w-full z-40 bg-brand-navy/80 backdrop-blur-md border-b border-white/5">
           <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between text-white">
             <a href={isAcademy ? `${academyBaseUrl}/` : `${mainBaseUrl}/`} className="flex items-center gap-2 md:gap-3">
-              <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
+              <img src="/assets/logo.png" alt="Alpha Spark Logo" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
               <span className="font-display font-black text-lg md:text-2xl tracking-tighter uppercase italic">
                 {isAcademy ? "ALPHA ACADEMY" : "ALPHA SPARK"}
               </span>
@@ -258,7 +258,7 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
             <div className="grid lg:grid-cols-4 gap-12 lg:gap-20 mb-20 md:mb-32">
               <div className="lg:col-span-2 space-y-10">
                 <div className="flex items-center gap-3 md:gap-4">
-                  <img src="/assets/logo.svg" alt="Alpha Spark Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+                  <img src="/assets/logo.png" alt="Alpha Spark Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
                   <span className="font-display font-black text-2xl md:text-3xl tracking-tighter text-white uppercase italic">alpha spark.</span>
                 </div>
                 <p className="text-white/30 text-base md:text-lg max-w-sm leading-relaxed italic">
