@@ -1,19 +1,82 @@
 import React, { useState, useEffect } from "react";
 import { 
   BarChart, Users, DollarSign, BookOpen, Award, Shield, 
-  Trash2, UserPlus, RefreshCw, Layers, PlusCircle, Edit3, ShieldAlert
+  Trash2, UserPlus, RefreshCw, Layers, PlusCircle, Edit3, ShieldAlert,
+  Plus, Edit, Loader2, Download
 } from "lucide-react";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { CertificateTemplate, CertificateProps } from "./CertificateTemplate";
 import { courses, Course } from "../../data/courses";
 import { useAuth, User } from "../../context/AuthContext";
 
+interface Partner {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl: string | null;
+  createdAt: string;
+}
+
+type AdminTab = "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities" | "partners";
+
 interface AdminDashboardProps {
-  activeView?: "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities";
-  onTabChange?: (tab: "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities") => void;
+  activeView?: AdminTab;
+  onTabChange?: (tab: AdminTab) => void;
 }
 
 export default function AdminDashboard({ activeView, onTabChange }: AdminDashboardProps = {}) {
   const { allUsers, updateSpecificUser, loadAllUsers, deleteUser, getAuthHeaders } = useAuth();
-  const [activeTab, setActiveTab] = useState<"analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities">("analytics");
+  const [activeTab, setActiveTab] = useState<AdminTab>("analytics");
+
+  // Partners state
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [isLoadingPartners, setIsLoadingPartners] = useState(false);
+  const [isSubmittingPartner, setIsSubmittingPartner] = useState(false);
+  const [editingPartnerId, setEditingPartnerId] = useState<string | null>(null);
+  const [partnerForm, setPartnerForm] = useState({ name: "", logoUrl: "", websiteUrl: "" });
+
+  // PDF Generation state
+  const [printData, setPrintData] = useState<CertificateProps | null>(null);
+  const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const certificateRef = React.useRef<HTMLDivElement>(null);
+
+  const handleDownloadCertificate = async (data: CertificateProps) => {
+    setIsGenerating(data.certId);
+    setPrintData(data);
+    
+    // Wait for React to render the hidden component
+    setTimeout(async () => {
+      if (certificateRef.current) {
+        try {
+          const canvas = await html2canvas(certificateRef.current, {
+            scale: 2, 
+            useCORS: true,
+            backgroundColor: '#1a1b2e'
+          });
+          
+          const imgData = canvas.toDataURL('image/png');
+          
+          const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'mm',
+            format: 'a4'
+          });
+          
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = pdf.internal.pageSize.getHeight();
+          
+          pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`AlphaSpark_Cert_${data.studentName.replace(/\\s+/g, '_')}.pdf`);
+        } catch (error) {
+          console.error("Failed to generate PDF", error);
+          alert("Failed to generate certificate PDF.");
+        }
+      }
+      setIsGenerating(null);
+      setPrintData(null);
+    }, 500); 
+  };
 
   useEffect(() => {
     if (activeView) {
@@ -75,6 +138,8 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
         }
       };
       fetchApplications();
+    } else if (activeTab === "partners") {
+      fetchPartners();
     }
   }, [activeTab]);
 
@@ -252,6 +317,76 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
     alert(`Graduation certificate issued to ${studentObj.name} for "${courseObj.title}"!`);
     setSelectedStudentId("");
     setSelectedCourseId("");
+  };
+
+  // --- Partner CRUD ---
+  const fetchPartners = async () => {
+    setIsLoadingPartners(true);
+    try {
+      const res = await fetch("/api/partners");
+      if (res.ok) {
+        const data = await res.json();
+        setPartners(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch partners:", error);
+    } finally {
+      setIsLoadingPartners(false);
+    }
+  };
+
+  const handlePartnerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingPartner(true);
+    try {
+      const method = editingPartnerId ? "PUT" : "POST";
+      const body = editingPartnerId ? { id: editingPartnerId, ...partnerForm } : partnerForm;
+      const res = await fetch("/api/partners", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        setPartnerForm({ name: "", logoUrl: "", websiteUrl: "" });
+        setEditingPartnerId(null);
+        await fetchPartners();
+      } else {
+        alert("Failed to save partner.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error saving partner.");
+    } finally {
+      setIsSubmittingPartner(false);
+    }
+  };
+
+  const handlePartnerEdit = (partner: Partner) => {
+    setEditingPartnerId(partner.id);
+    setPartnerForm({
+      name: partner.name,
+      logoUrl: partner.logoUrl,
+      websiteUrl: partner.websiteUrl || ""
+    });
+  };
+
+  const handlePartnerDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this partner?")) return;
+    try {
+      const res = await fetch(`/api/partners?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setPartners(partners.filter(p => p.id !== id));
+      } else {
+        alert("Failed to delete.");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const resetPartnerForm = () => {
+    setEditingPartnerId(null);
+    setPartnerForm({ name: "", logoUrl: "", websiteUrl: "" });
   };
 
   return (
@@ -646,9 +781,27 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                             <td className="py-3 font-semibold text-white">{student.name}</td>
                             <td className="py-3">{course.title}</td>
                             <td className="py-3">
-                              <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-[9px] uppercase font-bold border border-green-500/10">
-                                Active & Verified
-                              </span>
+                              <div className="flex items-center gap-3">
+                                <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-[9px] uppercase font-bold border border-green-500/10">
+                                  Active & Verified
+                                </span>
+                                <button
+                                  onClick={() => handleDownloadCertificate({
+                                    studentName: student.name,
+                                    courseName: course.title,
+                                    cohort: "Cohort 1", 
+                                    duration: course.duration || "12 Weeks",
+                                    score: "100%", // Ideally dynamic
+                                    date: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+                                    certId: certId
+                                  })}
+                                  disabled={isGenerating === certId}
+                                  className="p-1.5 rounded bg-brand-orange/10 text-brand-orange hover:bg-brand-orange hover:text-white transition-colors disabled:opacity-50"
+                                  title="Download PDF"
+                                >
+                                  {isGenerating === certId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -891,6 +1044,135 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
               </div>
             )}
           </div>
+        )}
+
+        {activeTab === "partners" && (
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Partners & Sponsors</h2>
+              <p className="text-white/40 text-xs italic">Add, edit, or remove partners shown in the scrolling marquee on the landing page.</p>
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Form Section */}
+              <div className="lg:col-span-1">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange mb-6">
+                    {editingPartnerId ? "Edit Partner" : "Add New Partner"}
+                  </h4>
+                  <form onSubmit={handlePartnerSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Company Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={partnerForm.name}
+                        onChange={e => setPartnerForm({ ...partnerForm, name: e.target.value })}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                        placeholder="e.g. Google"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Logo URL *</label>
+                      <input
+                        type="url"
+                        required
+                        value={partnerForm.logoUrl}
+                        onChange={e => setPartnerForm({ ...partnerForm, logoUrl: e.target.value })}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                        placeholder="https://..."
+                      />
+                      <p className="text-[10px] text-white/30 mt-1">Direct URL to a greyscale PNG or SVG.</p>
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Website URL</label>
+                      <input
+                        type="url"
+                        value={partnerForm.websiteUrl}
+                        onChange={e => setPartnerForm({ ...partnerForm, websiteUrl: e.target.value })}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                        placeholder="https://..."
+                      />
+                    </div>
+                    <div className="pt-4 flex gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSubmittingPartner}
+                        className="flex-1 bg-brand-orange hover:bg-brand-orange/90 disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors flex justify-center items-center gap-2 cursor-pointer"
+                      >
+                        {isSubmittingPartner && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {editingPartnerId ? "Save Changes" : "Add Partner"}
+                      </button>
+                      {editingPartnerId && (
+                        <button
+                          type="button"
+                          onClick={resetPartnerForm}
+                          className="px-4 py-3 rounded-xl border border-white/10 text-white hover:bg-white/5 font-bold text-xs uppercase transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* List Section */}
+              <div className="lg:col-span-2">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 min-h-[400px]">
+                  {isLoadingPartners ? (
+                    <div className="flex items-center justify-center h-full py-20">
+                      <Loader2 className="w-8 h-8 text-brand-orange animate-spin" />
+                    </div>
+                  ) : partners.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center text-white/30 py-20">
+                      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                        <Plus className="w-6 h-6" />
+                      </div>
+                      <p className="font-bold text-sm">No partners added yet.</p>
+                      <p className="text-[10px] text-white/20 mt-1">Use the form on the left to add your first partner.</p>
+                    </div>
+                  ) : (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {partners.map(partner => (
+                        <div key={partner.id} className="bg-black/20 border border-white/5 rounded-xl p-4 flex items-center gap-4 group">
+                          <div className="w-16 h-16 rounded-lg bg-white/10 shrink-0 flex items-center justify-center p-2">
+                            <img src={partner.logoUrl} alt={partner.name} className="max-w-full max-h-full object-contain" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-white text-sm truncate">{partner.name}</h3>
+                            {partner.websiteUrl && (
+                              <a href={partner.websiteUrl} target="_blank" rel="noreferrer" className="text-[10px] text-brand-orange hover:underline truncate block mt-1">
+                                {partner.websiteUrl}
+                              </a>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => handlePartnerEdit(partner)} className="p-2 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-md transition-colors cursor-pointer">
+                              <Edit className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handlePartnerDelete(partner.id)} className="p-2 text-red-400/50 hover:text-red-400 bg-red-400/5 hover:bg-red-400/10 rounded-md transition-colors cursor-pointer">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Hidden Certificate Container for PDF Generation */}
+      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none' }}>
+        {printData && (
+          <CertificateTemplate 
+            ref={certificateRef}
+            {...printData}
+          />
         )}
       </div>
     </div>

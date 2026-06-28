@@ -185,25 +185,69 @@ export default function Home() {
               }}
               className="flex gap-16 items-center whitespace-nowrap"
             >
-              {partners.map((partner, i) => (
-                <div key={i} className="shrink-0 group">
-                  <img 
-                    src={partner.logoUrl} 
-                    alt={partner.name} 
-                    className="h-16 md:h-20 object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                  />
-                </div>
-              ))}
+              {partners.map((partner, i) => {
+                const content = (
+                  <>
+                    <img 
+                      src={partner.logoUrl} 
+                      alt={partner.name} 
+                      className="h-16 md:h-20 object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                    />
+                    <span className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase tracking-widest group-hover:text-white transition-colors">
+                      {partner.name}
+                    </span>
+                  </>
+                );
+                const formatUrl = (url: string) => url.startsWith('http') ? url : `https://${url}`;
+                
+                return partner.websiteUrl ? (
+                  <a 
+                    key={i} 
+                    href={formatUrl(partner.websiteUrl)} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="shrink-0 flex flex-col items-center gap-3 group cursor-pointer"
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <div key={i} className="shrink-0 flex flex-col items-center gap-3 group">
+                    {content}
+                  </div>
+                );
+              })}
               {/* Duplicate for seamless loop */}
-              {partners.map((partner, i) => (
-                <div key={`dup-${i}`} className="shrink-0 group">
-                  <img 
-                    src={partner.logoUrl} 
-                    alt={partner.name} 
-                    className="h-16 md:h-20 object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
-                  />
-                </div>
-              ))}
+              {partners.map((partner, i) => {
+                const content = (
+                  <>
+                    <img 
+                      src={partner.logoUrl} 
+                      alt={partner.name} 
+                      className="h-16 md:h-20 object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                    />
+                    <span className="text-[9px] md:text-[10px] font-bold text-white/30 uppercase tracking-widest group-hover:text-white transition-colors">
+                      {partner.name}
+                    </span>
+                  </>
+                );
+                const formatUrl = (url: string) => url.startsWith('http') ? url : `https://${url}`;
+                
+                return partner.websiteUrl ? (
+                  <a 
+                    key={`dup-${i}`} 
+                    href={formatUrl(partner.websiteUrl)} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="shrink-0 flex flex-col items-center gap-3 group cursor-pointer"
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <div key={`dup-${i}`} className="shrink-0 flex flex-col items-center gap-3 group">
+                    {content}
+                  </div>
+                );
+              })}
             </motion.div>
           ) : (
             <div className="w-full text-center text-white/30 text-sm font-bold uppercase tracking-widest py-10">
