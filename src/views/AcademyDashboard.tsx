@@ -284,7 +284,7 @@ export default function AcademyDashboard() {
               <LogOut className="w-3.5 h-3.5" /> Sign Out
             </button>
             <div className="text-center text-[7px] text-white/20 font-mono">
-              Session: Secured Sandbox
+              Session: Secure Login
             </div>
           </div>
         </div>
@@ -485,7 +485,7 @@ export default function AcademyDashboard() {
                 disabled={loading}
                 className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-colors cursor-pointer"
               >
-                {loading ? "Processing..." : showForgot ? "Reset Sandbox" : "Sign In"}
+                {loading ? "Processing..." : showForgot ? "Reset Password" : "Sign In"}
               </button>
             </form>
 

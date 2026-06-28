@@ -313,7 +313,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
           lessonId: a.id,
           assignmentTitle: a.title,
           content: "System generated graduation record.",
-          portfolioLink: "https://talentcloud.alphaspark.tech",
+          portfolioLink: "https://talentcloud.alphaspark.ng",
           submittedAt: new Date().toISOString(),
           status: "graded",
           score: 85,
