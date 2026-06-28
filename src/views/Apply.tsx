@@ -6,7 +6,6 @@ import { useAuth } from "../context/AuthContext";
 export default function Apply() {
   const { currentUser, register } = useAuth();
   const [step, setStep] = useState(1);
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
@@ -31,22 +30,11 @@ export default function Apply() {
     setLoading(true);
 
     try {
-      // 1. If not logged in, register first
+      // 1. Validate personal details
       if (!currentUser) {
-        if (!password || password.length < 6) {
-          throw new Error("Password must be at least 6 characters long.");
-        }
-        const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
         if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email || !formData.phone) {
           throw new Error("Please fill out all personal details in step 1.");
         }
-        await register(
-          fullName,
-          formData.email,
-          formData.phone,
-          password,
-          "student"
-        );
       }
 
       // 2. Submit application & auto-enroll
@@ -194,20 +182,6 @@ export default function Apply() {
                       disabled={!!currentUser}
                     />
                   </div>
-                  {!currentUser && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-white/40 ml-4">Account Password (min 6 chars)</label>
-                      <div className="relative">
-                        <input 
-                          type="password" 
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 md:px-6 md:py-4 text-white outline-none focus:border-brand-orange pl-12"
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <Lock className="absolute left-4 top-3.5 md:top-5 text-white/20 w-4 h-4" />
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
@@ -365,10 +339,10 @@ export default function Apply() {
                 </div>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <button 
-                    onClick={() => window.location.href = "http://academy.localhost:3000/dashboard"}
+                    onClick={() => window.location.href = "https://academy.alphaspark.ng"}
                     className="bg-brand-orange hover:bg-brand-orange/90 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
                   >
-                    Go to Academy Dashboard
+                    Go to Academy
                   </button>
                   <button 
                     onClick={() => window.location.href = "/"}

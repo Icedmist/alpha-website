@@ -61,6 +61,13 @@ interface AuthContextType {
   loadAllUsers: () => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
   getAuthHeaders: () => Promise<Record<string, string>>;
+  adminCreateUser: (
+    name: string,
+    email: string,
+    phone: string,
+    password: string,
+    role: 'student' | 'instructor' | 'admin'
+  ) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -266,6 +273,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const adminCreateUser = async (
+    name: string,
+    email: string,
+    phone: string,
+    password: string,
+    role: 'student' | 'instructor' | 'admin'
+  ): Promise<User> => {
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          password,
+          role,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to create user');
+      }
+
+      const data = await res.json();
+      await loadAllUsers();
+      return data.user;
+    } catch (err: any) {
+      throw new Error(err.message || 'Failed to create user');
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -280,6 +321,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loadAllUsers,
         deleteUser,
         getAuthHeaders,
+        adminCreateUser,
       }}
     >
       {!loading && children}

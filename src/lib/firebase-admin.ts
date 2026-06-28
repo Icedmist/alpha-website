@@ -154,7 +154,7 @@ function initMock() {
           console.log(`[Mock Cloud Storage Save] ${fileName}`);
         },
         getSignedUrl: async () => [
-          `https://mock-storage-bucket.alphaspark.tech/${fileName}`,
+          `https://mock-storage-bucket.alphaspark.ng/${fileName}`,
         ],
       }),
     }),
@@ -163,7 +163,7 @@ function initMock() {
   (global as any).__mockAdminAuth = {
     verifyIdToken: async (token: string) => {
       if (token === 'mock-admin-token') {
-        return { uid: 'mock-admin-id', email: 'admin@alphaspark.tech' };
+        return { uid: 'mock-admin-id', email: 'admin@alphaspark.ng' };
       }
       return { uid: 'mock-user-id', email: 'mock@example.com' };
     }

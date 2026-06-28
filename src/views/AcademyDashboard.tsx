@@ -26,16 +26,11 @@ export default function AcademyDashboard() {
     }
   }, [currentUser]);
 
-  // Form toggles
-  const [isLogin, setIsLogin] = useState(true);
   const [showForgot, setShowForgot] = useState(false);
   
   // Form fields
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"student" | "instructor" | "admin">("student");
   
   // Feedback messages
   const [error, setError] = useState("");
@@ -53,10 +48,8 @@ export default function AcademyDashboard() {
         const msg = await resetPassword(email);
         setSuccess(msg);
         setShowForgot(false);
-      } else if (isLogin) {
-        await login(email, password);
       } else {
-        await register(name, email, phone, password, selectedRole);
+        await login(email, password);
       }
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
@@ -405,14 +398,12 @@ export default function AcademyDashboard() {
               Academy Workspace
             </span>
             <h1 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight text-white">
-              {showForgot ? "Reset Password" : isLogin ? "Welcome Back" : "Register Profile"}
+              {showForgot ? "Reset Password" : "Welcome Back"}
             </h1>
             <p className="text-sm text-white/45 italic leading-relaxed">
               {showForgot 
                 ? "Enter your email to request sandbox reset details." 
-                : isLogin 
-                  ? "Access student, instructor, or admin portal views." 
-                  : "Create an account to enroll in technical tracks."}
+                : "Access student, instructor, or admin portal views."}
             </p>
           </div>
 
@@ -456,52 +447,6 @@ export default function AcademyDashboard() {
               ) : (
                 /* Standard Forms */
                 <>
-                  {!isLogin && (
-                    <>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-white/40 ml-4">Full Name</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            required
-                            placeholder="Mustapha Yusuf"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 pl-12 text-sm text-white focus:border-brand-orange outline-none"
-                          />
-                          <User className="absolute left-4 top-3.5 w-4 h-4 text-white/20" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-white/40 ml-4">Phone Number</label>
-                        <div className="relative">
-                          <input
-                            type="tel"
-                            required
-                            placeholder="+234..."
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 pl-12 text-sm text-white focus:border-brand-orange outline-none"
-                          />
-                          <Phone className="absolute left-4 top-3.5 w-4 h-4 text-white/20" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-wider text-white/40 ml-4">Register As Role (For Testing)</label>
-                        <select
-                          value={selectedRole}
-                          onChange={(e) => setSelectedRole(e.target.value as any)}
-                          className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none"
-                        >
-                          <option value="student">Student Scholar</option>
-                          <option value="instructor">Cohort Instructor</option>
-                          <option value="admin">System Admin</option>
-                        </select>
-                      </div>
-                    </>
-                  )}
 
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-wider text-white/40 ml-4">Email Address</label>
@@ -540,7 +485,7 @@ export default function AcademyDashboard() {
                 disabled={loading}
                 className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-colors cursor-pointer"
               >
-                {loading ? "Processing..." : showForgot ? "Reset Sandbox" : isLogin ? "Sign In" : "Create Account"}
+                {loading ? "Processing..." : showForgot ? "Reset Sandbox" : "Sign In"}
               </button>
             </form>
 
@@ -556,10 +501,10 @@ export default function AcademyDashboard() {
               ) : (
                 <>
                   <button 
-                    onClick={() => { window.location.href = "http://localhost:3000/apply"; }}
+                    onClick={() => { window.location.href = "https://alphaspark.ng/apply"; }}
                     className="hover:text-white transition-colors cursor-pointer text-brand-orange"
                   >
-                    Need an Account? Register & Apply
+                    Need an Account? Apply Here
                   </button>
                   <button 
                     onClick={() => { setShowForgot(true); setError(""); setSuccess(""); }}
@@ -572,13 +517,7 @@ export default function AcademyDashboard() {
             </div>
           </motion.div>
 
-          {/* Test Credentials Box */}
-          <div className="bg-white/2 border border-white/5 p-4 rounded-2xl text-[10px] font-mono text-white/35 space-y-2 leading-relaxed text-center">
-            <p className="font-bold text-white/50 uppercase">Sandbox Account Logins:</p>
-            <p>Admin: <span className="text-white">admin@alphaspark.tech</span> / <span className="text-white">admin123</span></p>
-            <p>Instructor: <span className="text-white">instructor@alphaspark.tech</span> / <span className="text-white">instructor123</span></p>
-            <p>Student: <span className="text-white">student@alphaspark.tech</span> / <span className="text-white">student123</span></p>
-          </div>
+
         </div>
       </div>
     </div>

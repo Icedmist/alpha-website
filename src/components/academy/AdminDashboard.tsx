@@ -26,8 +26,28 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ activeView, onTabChange }: AdminDashboardProps = {}) {
-  const { allUsers, updateSpecificUser, loadAllUsers, deleteUser, getAuthHeaders } = useAuth();
+  const { allUsers, updateSpecificUser, loadAllUsers, deleteUser, getAuthHeaders, adminCreateUser } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("analytics");
+
+  // User creation state
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [newUserForm, setNewUserForm] = useState({ name: "", email: "", phone: "", password: "", role: "student" as const });
+
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsCreatingUser(true);
+    try {
+      await adminCreateUser(newUserForm.name, newUserForm.email, newUserForm.phone, newUserForm.password, newUserForm.role);
+      alert(`User ${newUserForm.name} created successfully!`);
+      setShowAddUser(false);
+      setNewUserForm({ name: "", email: "", phone: "", password: "", role: "student" });
+    } catch (error: any) {
+      alert(error.message || "Failed to create user");
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
 
   // Partners state
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -450,9 +470,91 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
 
         {activeTab === "users" && (
           <div className="space-y-6">
-            <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white mb-4">
-              Role-Based Access Management
-            </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white">
+                Role-Based Access Management
+              </h3>
+              <button
+                onClick={() => setShowAddUser(!showAddUser)}
+                className="bg-brand-orange hover:bg-brand-orange/90 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <PlusCircle className="w-4 h-4" /> Create User
+              </button>
+            </div>
+
+            {showAddUser && (
+              <form onSubmit={handleCreateUser} className="bg-white/5 p-6 rounded-2xl border border-white/10 space-y-4 max-w-2xl mb-6">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange">New User Registration</h4>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold text-white/40">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newUserForm.name}
+                      onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
+                      className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold text-white/40">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      value={newUserForm.email}
+                      onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                      className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold text-white/40">Phone Number *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newUserForm.phone}
+                      onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })}
+                      className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold text-white/40">Initial Password *</label>
+                    <input
+                      type="text"
+                      required
+                      minLength={6}
+                      value={newUserForm.password}
+                      onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
+                      className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase font-bold text-white/40">Assign Role *</label>
+                    <select
+                      value={newUserForm.role}
+                      onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value as any })}
+                      className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
+                    >
+                      <option value="student">Student</option>
+                      <option value="instructor">Instructor</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isCreatingUser}
+                  className="bg-brand-orange text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isCreatingUser && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Register User
+                </button>
+              </form>
+            )}
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">

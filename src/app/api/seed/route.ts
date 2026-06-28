@@ -5,7 +5,7 @@ import { courses } from '../../../data/courses';
 const SEED_USERS = [
   {
     name: 'Alpha Admin',
-    email: 'admin@alphaspark.tech',
+    email: 'admin@alphaspark.ng',
     password: 'admin123',
     phone: '+2348011223344',
     role: 'admin',
@@ -17,7 +17,7 @@ const SEED_USERS = [
   },
   {
     name: 'Dr. Gabriel Okafor',
-    email: 'instructor@alphaspark.tech',
+    email: 'instructor@alphaspark.ng',
     password: 'instructor123',
     phone: '+2348055667788',
     role: 'instructor',
@@ -29,7 +29,7 @@ const SEED_USERS = [
   },
   {
     name: 'Mustapha Yusuf',
-    email: 'student@alphaspark.tech',
+    email: 'student@alphaspark.ng',
     password: 'student123',
     phone: '+2349075444148',
     role: 'student',

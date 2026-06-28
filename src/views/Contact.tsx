@@ -46,7 +46,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-white uppercase tracking-widest text-xs mb-2">Email Us</h3>
-                    <p className="text-white/60 font-medium font-mono">hello@alphaspark.tech</p>
+                    <p className="text-white/60 font-medium font-mono">hello@alphaspark.ng</p>
                   </div>
                 </div>
 

@@ -29,9 +29,9 @@ export async function GET(req: Request) {
     if (!userDoc.exists) {
       // Automatic role/profile recovery map for sandbox seed accounts
       const SEED_PROFILES: Record<string, any> = {
-        'admin@alphaspark.tech': {
+        'admin@alphaspark.ng': {
           name: 'Alpha Admin',
-          email: 'admin@alphaspark.tech',
+          email: 'admin@alphaspark.ng',
           phone: '+2348011223344',
           role: 'admin',
           enrolledCourses: [],
@@ -40,9 +40,9 @@ export async function GET(req: Request) {
           submissions: [],
           attendanceDates: [],
         },
-        'instructor@alphaspark.tech': {
+        'instructor@alphaspark.ng': {
           name: 'Dr. Gabriel Okafor',
-          email: 'instructor@alphaspark.tech',
+          email: 'instructor@alphaspark.ng',
           phone: '+2348055667788',
           role: 'instructor',
           enrolledCourses: [],
@@ -51,9 +51,9 @@ export async function GET(req: Request) {
           submissions: [],
           attendanceDates: [],
         },
-        'student@alphaspark.tech': {
+        'student@alphaspark.ng': {
           name: 'Mustapha Yusuf',
-          email: 'student@alphaspark.tech',
+          email: 'student@alphaspark.ng',
           phone: '+2349075444148',
           role: 'student',
           enrolledCourses: [],

@@ -24,7 +24,7 @@ export default function ReferralModal({ onClose }: ReferralModalProps) {
   if (!currentUser) return null;
 
   const referralCode = currentUser.id.toUpperCase().substring(2);
-  const referralLink = `https://academy.alphaspark.tech/join?ref=${referralCode}`;
+  const referralLink = `https://academy.alphaspark.ng/join?ref=${referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);

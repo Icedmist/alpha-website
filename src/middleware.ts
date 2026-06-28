@@ -6,17 +6,17 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
 
   // Define your domain contexts
-  const isProdAcademy = hostname === 'academy.alphaspark.icedmist.tech'
+  const isProdAcademy = hostname === 'academy.alphaspark.ng'
   const isLocalAcademy = hostname.startsWith('academy.localhost')
   const isAcademyContext = isProdAcademy || isLocalAcademy
 
-  const isProdMain = hostname === 'alphaspark.icedmist.tech'
+  const isProdMain = hostname === 'alphaspark.ng'
   const isLocalMain = hostname === 'localhost:3000' || hostname.startsWith('127.0.0.1')
   const isMainContext = isProdMain || isLocalMain
 
   // 1. If on Main Site context, but trying to hit academy paths -> Redirect to Academy Subdomain
   if (isMainContext && (url.pathname.startsWith('/academy') || url.pathname.startsWith('/dashboard'))) {
-    const targetHost = isLocalMain ? 'academy.localhost:3000' : 'academy.alphaspark.icedmist.tech'
+    const targetHost = isLocalMain ? 'academy.localhost:3000' : 'academy.alphaspark.ng'
     const protocol = request.headers.get('x-forwarded-proto') || 'http'
     return NextResponse.redirect(`${protocol}://${targetHost}${url.pathname}${url.search}`)
   }
@@ -24,7 +24,7 @@ export function middleware(request: NextRequest) {
   // 2. If on Academy context, but trying to hit public main site paths -> Redirect to Main Site
   const publicMainPaths = ['/about', '/roadmap', '/apply', '/talent-cloud', '/contact']
   if (isAcademyContext && publicMainPaths.some(path => url.pathname.startsWith(path))) {
-    const targetHost = isLocalAcademy ? 'localhost:3000' : 'alphaspark.icedmist.tech'
+    const targetHost = isLocalAcademy ? 'localhost:3000' : 'alphaspark.ng'
     const protocol = request.headers.get('x-forwarded-proto') || 'http'
     return NextResponse.redirect(`${protocol}://${targetHost}${url.pathname}${url.search}`)
   }

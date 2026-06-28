@@ -82,8 +82,8 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
     : pathname.startsWith("/academy/dashboard") && !!currentUser;
 
   const isLocal = typeof window !== "undefined" && (window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1'));
-  const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.icedmist.tech";
-  const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.icedmist.tech";
+  const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.ng";
+  const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.ng";
 
   const navLinks = isAcademy ? [
     { name: "Ecosystem Home", href: `${mainBaseUrl}/` },
@@ -308,7 +308,7 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
               <div>
                 <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-brand-orange mb-10">Connect</h4>
                 <ul className="space-y-4 text-white/40 text-[10px] font-black uppercase tracking-widest">
-                  <li><a href="mailto:hello@alphaspark.tech" className="hover:text-white transition-colors">hello@alphaspark.tech</a></li>
+                  <li><a href="mailto:hello@alphaspark.ng" className="hover:text-white transition-colors">hello@alphaspark.ng</a></li>
                   <li><a href="tel:09075444148" className="hover:text-white transition-colors">09075444148</a></li>
                   <li className="text-brand-orange">Gombe State, Nigeria</li>
                   <li className="pt-6 flex gap-8">
@@ -344,14 +344,14 @@ export default function App() {
       const pathname = window.location.pathname;
       const search = window.location.search;
       const isAcademy = 
-        window.location.hostname.startsWith('academy.alphaspark.icedmist.tech') || 
+        window.location.hostname.startsWith('academy.alphaspark.ng') || 
         window.location.hostname.startsWith('academy.localhost');
       
       setIsAcademySubdomain(isAcademy);
 
       const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1');
-      const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.icedmist.tech";
-      const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.icedmist.tech";
+      const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.ng";
+      const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.ng";
 
       if (isAcademy) {
         // Redirect main site routes back to root domain

@@ -120,3 +120,71 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const reqHeaders = await headers();
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+
+    const callerDoc = await db.collection('users').doc(userId).get();
+    const callerData = callerDoc.data();
+
+    if (!callerData || callerData.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Forbidden: Admin privileges required' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const { name, email, password, role } = body;
+
+    if (!email || !password || !name) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // 1. Create in Firebase Auth
+    const userRecord = await adminAuth.createUser({
+      email,
+      password,
+      displayName: name,
+    });
+
+    // 2. Create in Firestore
+    const userProfile = {
+      name,
+      email,
+      phone: body.phone || '',
+      role: role || 'student',
+      enrolledCourses: role === 'student' ? [] : ['ai-ml', 'fullstack-web'],
+      completedLessons: [],
+      quizScores: {},
+      submissions: [],
+      attendanceDates: [new Date().toISOString().split('T')[0]],
+      createdAt: new Date().toISOString(),
+    };
+
+    await db.collection('users').doc(userRecord.uid).set(userProfile);
+
+    return NextResponse.json({ success: true, user: { id: userRecord.uid, ...userProfile } });
+  } catch (error: any) {
+    console.error('Error creating user:', error);
+    return NextResponse.json(
+      { error: error?.message || 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
