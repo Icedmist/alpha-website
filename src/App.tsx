@@ -26,6 +26,7 @@ import Roadmap from "./views/Roadmap";
 import Contact from "./views/Contact";
 import Apply from "./views/Apply";
 import AcademyDashboard from "./views/AcademyDashboard";
+import AdminPartners from "./views/AdminPartners";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -393,6 +394,7 @@ export default function App() {
                 <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/apply" element={<Apply />} />
+                <Route path="/admin/partners" element={<AdminPartners />} />
                 <Route path="*" element={<Home />} />
               </>
             )}

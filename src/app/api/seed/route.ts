@@ -1,8 +1,4 @@
-import { auth } from '../../../lib/auth';
-import { db } from '../../../lib/firebase-admin';
-import { db as pgDb } from '../../../db';
-import { user as userTable } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { db, adminAuth } from '../../../lib/firebase-admin';
 import { NextResponse } from 'next/server';
 import { courses } from '../../../data/courses';
 
@@ -48,6 +44,10 @@ const SEED_USERS = [
 export async function GET() {
   const results: string[] = [];
 
+  if (!adminAuth) {
+    return NextResponse.json({ error: 'Firebase adminAuth not initialized' }, { status: 500 });
+  }
+
   try {
     // 1. Seed courses collection
     for (const course of courses) {
@@ -65,32 +65,20 @@ export async function GET() {
     try {
       let userId: string | null = null;
 
-      // 2. Create in Better Auth (Postgres)
+      // 2. Create in Firebase Auth
       try {
-        const res = await auth.api.signUpEmail({
-          body: {
-            email: user.email,
-            password: user.password,
-            name: user.name,
-          },
+        const userRecord = await adminAuth.createUser({
+          email: user.email,
+          password: user.password,
+          displayName: user.name,
         });
-        if (res && res.user) {
-          userId = res.user.id;
-          results.push(`Successfully created credentials for ${user.email} (ID: ${userId})`);
-        }
+        userId = userRecord.uid;
+        results.push(`Successfully created credentials for ${user.email} (ID: ${userId})`);
       } catch (authErr: any) {
-        const isDuplicate = authErr?.message?.includes('already exists') || authErr?.code === '23505';
-        if (isDuplicate) {
-          const existing = await pgDb
-            .select()
-            .from(userTable)
-            .where(eq(userTable.email, user.email))
-            .limit(1);
-
-          if (existing.length > 0) {
-            userId = existing[0].id;
-            results.push(`Recovered existing credentials for ${user.email} (ID: ${userId})`);
-          }
+        if (authErr?.code === 'auth/email-already-exists') {
+          const userRecord = await adminAuth.getUserByEmail(user.email);
+          userId = userRecord.uid;
+          results.push(`Recovered existing credentials for ${user.email} (ID: ${userId})`);
         } else {
           results.push(`Auth Error for ${user.email}: ${authErr?.message || authErr}`);
         }

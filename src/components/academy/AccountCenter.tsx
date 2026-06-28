@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { courses } from "../../data/courses";
-import { authClient } from "../../lib/auth-client";
+import { auth } from "../../lib/firebase";
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { 
   User, Lock, CreditCard, Gift, Github, Linkedin, 
   Check, Save, Eye, EyeOff, AlertCircle, Calendar, Receipt, FileText
@@ -87,20 +88,15 @@ export default function AccountCenter() {
     setLoading(true);
 
     try {
-      const { error } = await authClient.changePassword({
-        currentPassword,
-        newPassword,
-        revokeOtherSessions: true,
-      });
+      if (!auth.currentUser) throw new Error("No user logged in");
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(auth.currentUser, credential);
+      await updatePassword(auth.currentUser, newPassword);
 
-      if (error) {
-        setSecurityMessage({ type: "error", text: error.message || "Incorrect current password or update failed." });
-      } else {
-        setSecurityMessage({ type: "success", text: "Password updated successfully!" });
-        setCurrentPassword("");
-        setNewPassword("");
-        setConfirmPassword("");
-      }
+      setSecurityMessage({ type: "success", text: "Password updated successfully!" });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (err: any) {
       setSecurityMessage({ type: "error", text: err.message || "Could not update credentials." });
     } finally {

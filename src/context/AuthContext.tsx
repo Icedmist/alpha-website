@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authClient } from '../lib/auth-client';
+import { auth } from '../lib/firebase';
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut as firebaseSignOut,
+  onAuthStateChanged 
+} from 'firebase/auth';
 
 export interface Submission {
   courseId: string;
@@ -63,11 +69,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    if (!auth.currentUser) return {};
+    const token = await auth.currentUser.getIdToken();
+    return {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  };
+
   const loadProfile = async () => {
     try {
-      const res = await fetch('/api/user/profile', {
-        credentials: 'include',
-      });
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/user/profile', { headers });
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data);
@@ -85,9 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadAllUsers = async () => {
     try {
-      const res = await fetch('/api/admin/users', {
-        credentials: 'include',
-      });
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/admin/users', { headers });
       if (res.ok) {
         const data = await res.json();
         setAllUsers(data);
@@ -98,38 +111,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const checkSession = async () => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
-      await loadProfile();
+      if (user) {
+        await loadProfile();
+      } else {
+        setCurrentUser(null);
+        setAllUsers([]);
+      }
       setLoading(false);
-    };
-    checkSession();
+    });
+    
+    return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
-    const { error } = await authClient.signIn.email({
-      email,
-      password,
-    });
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // onAuthStateChanged will handle loading the profile, but we can load it here to return it immediately
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/user/profile', { headers });
+      if (!res.ok) {
+        throw new Error('Failed to load user profile');
+      }
 
-    if (error) {
+      const profile = await res.json();
+      setCurrentUser(profile);
+
+      if (profile.role === 'admin' || profile.role === 'instructor') {
+        await loadAllUsers();
+      }
+      return profile;
+    } catch (error: any) {
       throw new Error(error.message || 'Invalid email or password');
     }
-
-    const res = await fetch('/api/user/profile', {
-      credentials: 'include',
-    });
-    if (!res.ok) {
-      throw new Error('Failed to load user profile');
-    }
-
-    const profile = await res.json();
-    setCurrentUser(profile);
-
-    if (profile.role === 'admin' || profile.role === 'instructor') {
-      await loadAllUsers();
-    }
-    return profile;
   };
 
   const register = async (
@@ -139,48 +154,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     password: string,
     role: 'student' | 'instructor' | 'admin' = 'student'
   ): Promise<User> => {
-    const { error } = await authClient.signUp.email({
-      email,
-      password,
-      name,
-    });
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          role,
+          enrolledCourses: role === 'student' ? [] : ['ai-ml', 'fullstack-web'],
+          completedLessons: [],
+          quizScores: {},
+          submissions: [],
+          attendanceDates: [new Date().toISOString().split('T')[0]],
+        }),
+      });
 
-    if (error) {
+      if (!res.ok) {
+        throw new Error('Account created, but failed to initialize user profile.');
+      }
+
+      const profile = await res.json();
+      setCurrentUser(profile);
+
+      if (profile.role === 'admin' || profile.role === 'instructor') {
+        await loadAllUsers();
+      }
+      return profile;
+    } catch (error: any) {
       throw new Error(error.message || 'Email already registered');
     }
-
-    const res = await fetch('/api/user/profile', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        email,
-        phone,
-        role,
-        enrolledCourses: role === 'student' ? [] : ['ai-ml', 'fullstack-web'],
-        completedLessons: [],
-        quizScores: {},
-        submissions: [],
-        attendanceDates: [new Date().toISOString().split('T')[0]],
-      }),
-    });
-
-    if (!res.ok) {
-      throw new Error('Account created, but failed to initialize user profile.');
-    }
-
-    const profile = await res.json();
-    setCurrentUser(profile);
-
-    if (profile.role === 'admin' || profile.role === 'instructor') {
-      await loadAllUsers();
-    }
-    return profile;
   };
 
   const logout = async () => {
-    await authClient.signOut();
+    await firebaseSignOut(auth);
     setCurrentUser(null);
     setAllUsers([]);
   };
@@ -191,10 +202,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUser = async (updatedUser: User) => {
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/user/profile', {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(updatedUser),
       });
 
@@ -212,10 +223,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateSpecificUser = async (userId: string, updatedUser: User) => {
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch('/api/user/profile', {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           ...updatedUser,
           targetUserId: userId,
@@ -236,9 +247,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const deleteUser = async (userId: string) => {
     try {
+      const headers = await getAuthHeaders();
       const res = await fetch(`/api/admin/users?userId=${userId}`, {
         method: 'DELETE',
-        credentials: 'include',
+        headers,
       });
 
       if (res.ok) {

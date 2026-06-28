@@ -19,9 +19,26 @@ import {
   BarChart3
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { courses as academyCourses } from "../data/courses";
 
+interface Partner {
+  id: string;
+  name: string;
+  logoUrl: string;
+  websiteUrl: string | null;
+}
+
 export default function Home() {
+  const [partners, setPartners] = useState<Partner[]>([]);
+
+  useEffect(() => {
+    fetch("/api/partners")
+      .then(res => res.json())
+      .then(data => setPartners(data))
+      .catch(console.error);
+  }, []);
+
   const pillars = [
     {
       title: "Digital Skills Academy",
@@ -82,23 +99,22 @@ export default function Home() {
             transition={{ duration: 0.6 }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-[10px] font-black uppercase tracking-[0.4em] mb-10 shadow-lg shadow-brand-orange/10">
-              Future-Proofing Africa
+              THE VERIFICATION STANDARD FOR AFRICA'S DIGITAL TALENT
             </div>
-            <h1 className="font-display font-black text-4xl md:text-7xl lg:text-7xl leading-[0.8] mb-8 md:mb-10 uppercase italic tracking-tighter text-white">
-              BUILDING <br />
-              <span className="text-brand-orange">THE BASE.</span>
+            <h1 className="font-display font-extrabold text-4xl md:text-6xl lg:text-7xl leading-[1.1] mb-8 md:mb-10 uppercase tracking-tighter text-white">
+              Don't Just Learn. <br />
+              <span className="text-brand-orange">Get Verified & Hired.</span>
             </h1>
-            <p className="text-white/60 text-base md:text-lg lg:text-2xl max-w-lg mb-10 md:mb-14 leading-relaxed font-medium italic">
-              Alpha Spark is Africa's workforce infrastructure partner—redefining how talent is verified, 
-              trained, and deployed in the digital economy.
+            <p className="text-white/60 text-base md:text-lg lg:text-xl max-w-lg mb-10 md:mb-14 leading-relaxed font-medium">
+              Alpha Spark is the continent-wide infrastructure connecting verified digital builders with the global employers who need them. Execution over theory.
             </p>
             <div className="flex flex-wrap gap-6">
               <Link to="/apply" className="bg-brand-orange hover:bg-brand-orange/90 text-white px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm flex items-center gap-3 md:gap-4 group transition-all shadow-2xl shadow-brand-orange/30 hover:scale-105 active:scale-95">
-                Join Academy
+                Apply for Cohort 1
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
               </Link>
-              <Link to="/about" className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm transition-all backdrop-blur-md">
-                Learn More
+              <Link to="/talent-cloud" className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-8 py-4 md:px-12 md:py-6 rounded-full font-black uppercase tracking-widest text-xs md:text-sm transition-all backdrop-blur-md">
+                Hire Talent
               </Link>
             </div>
           </motion.div>
@@ -109,145 +125,91 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative lg:h-[600px] flex items-center justify-center"
           >
-            <div className="relative w-full aspect-square max-w-lg">
-              <div className="absolute inset-0 bg-gradient-to-tr from-brand-orange/20 to-brand-blue/20 blur-3xl animate-pulse" />
-              
-              <div className="relative bg-white/5 border border-white/10 rounded-[32px] md:rounded-[48px] p-8 md:p-12 backdrop-blur-3xl shadow-2xl overflow-hidden group">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-                <div className="flex justify-center mb-10 md:mb-16 relative">
-                    <div className="w-24 h-24 md:w-32 md:h-32 bg-brand-orange rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-transform duration-500 shadow-2xl shadow-brand-orange/40">
-                        <Zap className="w-12 h-12 md:w-16 md:h-16 text-white fill-white" />
-                    </div>
-                    <div className="absolute -top-4 -right-4 w-10 h-10 md:w-12 md:h-12 bg-brand-blue rounded-full flex items-center justify-center shadow-lg">
-                        <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
-                    </div>
-                </div>
-                <div className="space-y-8">
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-orange">Verified Skills</p>
-                    <div className="h-1 bg-gradient-to-r from-brand-orange to-transparent w-full rounded-full" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Status</p>
-                      <p className="text-xs font-bold text-white uppercase italic">Active</p>
-                    </div>
-                    <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
-                      <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Cohort</p>
-                      <p className="text-xs font-bold text-white uppercase italic">Alpha-01</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Abstract Tech Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] rounded-full"></div>
+            
+            <div className="relative w-full max-w-lg aspect-square">
+               <div className="absolute inset-0 bg-gradient-to-tr from-brand-orange/20 to-brand-blue/20 blur-3xl animate-pulse" />
+               <div className="relative w-full h-full rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 shadow-2xl group">
+                 <div className="absolute inset-0 bg-brand-navy/60 backdrop-blur-md z-10" />
+                 <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" alt="Coding Environment" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-110" />
+                 
+                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12 bg-gradient-to-t from-brand-navy via-brand-navy/50 to-transparent">
+                   <div className="w-16 h-16 bg-brand-orange rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-brand-orange/40 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500">
+                     <Code className="w-8 h-8 text-white" />
+                   </div>
+                   <h3 className="font-display font-extrabold text-2xl md:text-3xl text-white uppercase tracking-tighter mb-2">Build The Future</h3>
+                   <p className="text-white/60 font-medium">Real-world projects. Real-world impact.</p>
+                 </div>
+               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section id="stats" className="py-12 md:py-16 bg-white/2 border-y border-white/10">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <section id="stats" className="py-20 md:py-32 bg-white/2 border-y border-white/10">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
           {[
-            { label: "Verified Talent", value: "5,000+", icon: Users },
-            { label: "Institutions", value: "20+", icon: Building2 },
-            { label: "Growth Goal", value: "Africa-wide", icon: Target },
-            { label: "Innovation", value: "Leader", icon: Lightbulb },
+            { label: "Global Tech Job Shortage", value: "85M+", icon: Users },
+            { label: "Youth Entering Africa's Workforce Annually", value: "12M", icon: Building2 },
+            { label: "Verification Standard", value: "01", icon: Target },
           ].map((stat, i) => (
             <div key={i} className="text-center group border-r border-white/5 last:border-none">
-              <div className="text-3xl md:text-5xl font-display font-black mb-3 text-white uppercase italic tracking-tighter">{stat.value}</div>
-              <div className="text-brand-orange text-[9px] md:text-[10px] uppercase tracking-[0.3em] font-black">{stat.label}</div>
+              <div className="text-4xl md:text-6xl font-display font-extrabold mb-3 text-white uppercase tracking-tighter">{stat.value}</div>
+              <div className="text-brand-orange text-[9px] md:text-[11px] uppercase tracking-[0.3em] font-black">{stat.label}</div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Founders / Leadership Section */}
+      {/* Partners Section */}
       <section className="py-20 md:py-32 lg:py-40 overflow-hidden bg-brand-navy">
-        <div className="max-w-7xl mx-auto px-6 mb-20 md:mb-32">
-          <div className="grid lg:grid-cols-2 gap-12 md:gap-16 lg:gap-24 items-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="absolute inset-0 bg-brand-orange/20 blur-[100px] rounded-full" />
-              <div className="relative aspect-[4/5] rounded-[32px] md:rounded-[48px] lg:rounded-[64px] overflow-hidden border border-white/10 group shadow-2xl">
-                <img 
-                  src="/assets/ishaq.jpg" 
-                  alt="Ishaq Sulaiman" 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-0 left-0 p-6 md:p-12">
-                   <p className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.5em] text-brand-orange mb-2">Founder & Executive Director</p>
-                   <h3 className="font-display font-black text-2xl md:text-4xl text-white uppercase italic tracking-tighter">Ishaq Sulaiman</h3>
-                </div>
-              </div>
-            </motion.div>
-            
-            <div className="space-y-12">
-              <div className="space-y-6">
-                <p className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange">The Vision</p>
-                <h2 className="font-display font-black text-4xl md:text-6xl lg:text-6xl text-white uppercase italic tracking-tighter leading-[0.85]">
-                  Pioneering <br />Digital <br /><span className="text-brand-orange">Verification.</span>
-                </h2>
-              </div>
-              <p className="text-white/50 text-lg md:text-xl leading-relaxed italic font-medium max-w-lg">
-                "We aren't just teaching people how to code or design; we are building the registry that validates 
-                Africa's potential for the global digital economy."
-              </p>
-              <div className="flex gap-4 items-center pt-8">
-                 <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
-                    <Zap className="w-6 h-6 text-brand-orange" />
-                 </div>
-                 <p className="text-sm font-black uppercase tracking-widest text-white/40">Established 2025</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 mb-12 md:mb-16">
-          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">The People Behind Alpha Spark</p>
-          <h2 className="font-display font-black text-4xl md:text-5xl lg:text-6xl text-white uppercase italic tracking-tighter leading-none">
-            Meet the <span className="text-brand-orange">Team.</span>
+        <div className="max-w-7xl mx-auto px-6 mb-12 md:mb-16 text-center">
+          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.4em] font-black text-brand-orange mb-4">Trusted By</p>
+          <h2 className="font-display font-extrabold text-4xl md:text-5xl lg:text-6xl text-white uppercase tracking-tighter leading-none">
+            OUR PARTNERSHIP <span className="text-brand-orange">ECOSYSTEM.</span>
           </h2>
         </div>
         
         <div className="relative flex overflow-hidden">
-          <motion.div 
-            animate={{ 
-              x: ["0%", "-50%"] 
-            }}
-            transition={{ 
-              duration: 30, 
-              ease: "linear", 
-              repeat: Infinity 
-            }}
-            className="flex gap-8 whitespace-nowrap"
-          >
-            {[...Array(15)].map((_, i) => (
-              <div key={i} className="w-56 h-72 md:w-64 md:h-80 shrink-0 rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 relative group">
-                <img 
-                  src={`/assets/team/member-${i + 1}.jpg`} 
-                  alt={`Team Member ${i + 1}`} 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
-              </div>
-            ))}
-            {/* Duplicate for seamless loop */}
-            {[...Array(15)].map((_, i) => (
-              <div key={`dup-${i}`} className="w-56 h-72 md:w-64 md:h-80 shrink-0 rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 relative group">
-                <img 
-                  src={`/assets/team/member-${i + 1}.jpg`} 
-                  alt={`Team Member ${i + 1}`} 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-navy to-transparent opacity-60 group-hover:opacity-20 transition-opacity" />
-              </div>
-            ))}
-          </motion.div>
+          {partners.length > 0 ? (
+            <motion.div 
+              animate={{ 
+                x: ["0%", "-50%"] 
+              }}
+              transition={{ 
+                duration: Math.max(30, partners.length * 5), 
+                ease: "linear", 
+                repeat: Infinity 
+              }}
+              className="flex gap-16 items-center whitespace-nowrap"
+            >
+              {partners.map((partner, i) => (
+                <div key={i} className="shrink-0 group">
+                  <img 
+                    src={partner.logoUrl} 
+                    alt={partner.name} 
+                    className="h-16 md:h-20 object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                  />
+                </div>
+              ))}
+              {/* Duplicate for seamless loop */}
+              {partners.map((partner, i) => (
+                <div key={`dup-${i}`} className="shrink-0 group">
+                  <img 
+                    src={partner.logoUrl} 
+                    alt={partner.name} 
+                    className="h-16 md:h-20 object-contain grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                  />
+                </div>
+              ))}
+            </motion.div>
+          ) : (
+            <div className="w-full text-center text-white/30 text-sm font-bold uppercase tracking-widest py-10">
+              Partners ecosystem is expanding...
+            </div>
+          )}
         </div>
       </section>
 
@@ -372,29 +334,74 @@ export default function Home() {
 
       {/* Talent Cloud Section Preview */}
       <section id="talent-cloud" className="py-20 md:py-32 lg:py-40 px-6">
-        <div className="max-w-7xl mx-auto rounded-[40px] md:rounded-[64px] lg:rounded-[80px] bg-gradient-to-br from-brand-orange to-brand-amber p-8 md:p-20 lg:p-32 overflow-hidden relative group shadow-[0_0_100px_rgba(244,162,97,0.2)]">
+        <div className="max-w-7xl mx-auto rounded-[40px] md:rounded-[64px] lg:rounded-[80px] bg-gradient-to-br from-brand-orange to-brand-amber p-8 md:p-16 lg:p-24 overflow-hidden relative group shadow-[0_0_100px_rgba(244,162,97,0.2)]">
           <div className="absolute top-0 right-0 p-16 opacity-10 scale-150 rotate-12 group-hover:rotate-0 transition-transform duration-[2s]">
             <Cloud className="w-[30rem] h-[30rem] text-white" />
           </div>
           
-          <div className="relative z-10 max-w-3xl space-y-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.4em]">
-              Talent Analytics
+          <div className="relative z-10 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <div className="space-y-12">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-[0.4em]">
+                Talent Analytics
+              </div>
+              <h2 className="font-display font-extrabold text-5xl md:text-7xl lg:text-7xl text-white uppercase leading-[0.85] tracking-tighter">
+                THE TALENT <br />CLOUD.
+              </h2>
+              <p className="text-white text-lg md:text-xl lg:text-2xl leading-relaxed font-medium max-w-2xl">
+                Africa's most advanced registry of verified digital talent. 
+                Connecting job-ready professionals with global opportunities.
+              </p>
+              <div className="flex flex-wrap gap-6">
+                  <Link to="/talent-cloud" className="bg-white text-brand-orange px-10 py-5 rounded-full font-black uppercase tracking-widest text-xs shadow-xl hover:scale-105 transition-transform active:scale-95">
+                      Launch Platform
+                  </Link>
+                  <div className="hidden md:flex items-center gap-4 text-white/80 font-black text-[10px] uppercase tracking-widest">
+                      <CheckCircle2 className="w-5 h-5 text-white" /> Verified Profiles
+                  </div>
+              </div>
             </div>
-            <h2 className="font-display font-black text-5xl md:text-7xl lg:text-7xl text-white uppercase italic leading-[0.85] tracking-tighter">
-              THE TALENT <br />CLOUD.
-            </h2>
-            <p className="text-white text-lg md:text-xl lg:text-2xl leading-relaxed font-medium italic max-w-2xl">
-              Africa's most advanced registry of verified digital talent. 
-              Connecting job-ready professionals with global opportunities.
-            </p>
-            <div className="flex gap-6">
-                <Link to="/talent-cloud" className="bg-white text-brand-orange px-12 py-6 rounded-full font-black uppercase tracking-widest text-sm shadow-xl hover:scale-105 transition-transform active:scale-95">
-                    Launch Platform
-                </Link>
-                <div className="hidden md:flex items-center gap-4 text-white/80 font-black text-[10px] uppercase tracking-widest">
-                    <CheckCircle2 className="w-5 h-5 text-white" /> 5,000+ Profiles Verified
+
+            {/* Profile Card Mockup */}
+            <div className="relative w-full max-w-md mx-auto">
+              <div className="absolute inset-0 bg-white/20 blur-2xl rounded-[32px] transform rotate-3" />
+              <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-[32px] p-8 shadow-2xl">
+                <div className="flex justify-between items-start mb-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-brand-navy/20 border-2 border-white/30 p-1 flex items-center justify-center overflow-hidden">
+                      <img src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?q=80&w=150&auto=format&fit=crop" alt="Student" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                    <div>
+                      <h4 className="font-display font-extrabold text-xl text-white">David O.</h4>
+                      <p className="text-white/70 text-sm font-medium">Full-Stack Engineer</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-green-400/20 text-green-100 border border-green-400/30 px-3 py-1 rounded-full">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="text-[9px] font-black uppercase tracking-wider">Alpha Verified</span>
+                  </div>
                 </div>
+
+                <div className="space-y-4 mb-8">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Tech Stack</p>
+                  <div className="flex flex-wrap gap-2">
+                    {["React", "Node.js", "Python", "TypeScript", "PostgreSQL"].map(tech => (
+                      <span key={tech} className="px-3 py-1.5 rounded-lg bg-black/20 text-white text-xs font-bold border border-white/10">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/10 flex justify-between items-center">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50">Availability</p>
+                    <p className="text-white font-bold text-sm">Immediate</p>
+                  </div>
+                  <button className="bg-white text-brand-orange px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform">
+                    Hire Talent
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

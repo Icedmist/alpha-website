@@ -1,23 +1,24 @@
-import { auth } from '../../../../lib/auth';
-import { db } from '../../../../lib/firebase-admin';
+import { db, adminAuth } from '../../../../lib/firebase-admin';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { db as pgDb } from '../../../../db';
-import { user as userTable } from '../../../../db/schema';
-import { eq } from 'drizzle-orm';
 
 export async function GET() {
   try {
-    const sessionData = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!sessionData) {
+    const reqHeaders = await headers();
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+
     // Fetch caller's profile to verify role (admin or instructor)
-    const callerDoc = await db.collection('users').doc(sessionData.user.id).get();
+    const callerDoc = await db.collection('users').doc(userId).get();
     const callerData = callerDoc.data();
 
     if (
@@ -62,16 +63,21 @@ export async function GET() {
 
 export async function DELETE(request: Request) {
   try {
-    const sessionData = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!sessionData) {
+    const reqHeaders = await headers();
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+
     // Fetch caller's profile to verify role (must be admin)
-    const callerDoc = await db.collection('users').doc(sessionData.user.id).get();
+    const callerDoc = await db.collection('users').doc(userId).get();
     const callerData = callerDoc.data();
 
     if (!callerData || callerData.role !== 'admin') {
@@ -92,7 +98,7 @@ export async function DELETE(request: Request) {
     }
 
     // Do not allow admin to delete themselves
-    if (targetUserId === sessionData.user.id) {
+    if (targetUserId === userId) {
       return NextResponse.json(
         { error: 'Cannot delete your own admin account' },
         { status: 400 }
@@ -102,8 +108,8 @@ export async function DELETE(request: Request) {
     // 1. Delete from Firestore
     await db.collection('users').doc(targetUserId).delete();
 
-    // 2. Delete from Postgres
-    await pgDb.delete(userTable).where(eq(userTable.id, targetUserId));
+    // 2. Delete from Firebase Auth
+    await adminAuth.deleteUser(targetUserId);
 
     return NextResponse.json({ success: true, message: 'User deleted successfully' });
   } catch (error: any) {

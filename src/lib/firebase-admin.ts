@@ -1,7 +1,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-
+import { getAuth } from 'firebase-admin/auth';
 const projectId = process.env.FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 const privateKey = process.env.FIREBASE_PRIVATE_KEY;
@@ -159,6 +159,15 @@ function initMock() {
       }),
     }),
   };
+
+  (global as any).__mockAdminAuth = {
+    verifyIdToken: async (token: string) => {
+      if (token === 'mock-admin-token') {
+        return { uid: 'mock-admin-id', email: 'admin@alphaspark.tech' };
+      }
+      return { uid: 'mock-user-id', email: 'mock@example.com' };
+    }
+  };
 }
 
 if (!projectId || !clientEmail || !privateKey) {
@@ -208,4 +217,6 @@ if (!projectId || !clientEmail || !privateKey) {
   }
 }
 
-export { db, storage };
+const adminAuth = app ? getAuth(app) : (global as any).__mockAdminAuth;
+
+export { db, storage, adminAuth };

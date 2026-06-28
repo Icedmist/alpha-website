@@ -1,5 +1,4 @@
-import { auth } from '../../../lib/auth';
-import { db } from '../../../lib/firebase-admin';
+import { db, adminAuth } from '../../../lib/firebase-admin';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -24,15 +23,21 @@ const mapProgramToCourseId = (program: string): string => {
 
 export async function POST(req: Request) {
   try {
-    const sessionData = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!sessionData) {
+    const reqHeaders = await headers();
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = sessionData.user.id;
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+    const userEmail = decodedToken.email || '';
+    const userName = decodedToken.name || userEmail.split('@')[0];
+    
     const body = await req.json();
 
     const { phone, location, program, background, experience, reason } = body;
@@ -46,8 +51,8 @@ export async function POST(req: Request) {
 
     const application = {
       userId,
-      name: sessionData.user.name,
-      email: sessionData.user.email,
+      name: userName,
+      email: userEmail,
       phone: phone || '',
       location: location || '',
       program,
@@ -73,8 +78,8 @@ export async function POST(req: Request) {
 
     const updatedProfile = {
       ...userData,
-      name: sessionData.user.name,
-      email: sessionData.user.email,
+      name: userName,
+      email: userEmail,
       phone: phone || userData.phone || '',
       enrolledCourses: enrolled,
       role: userData.role || 'student',
@@ -86,7 +91,7 @@ export async function POST(req: Request) {
     // Log the enrollment activity
     await db.collection('activities').add({
       userId,
-      userName: sessionData.user.name,
+      userName: userName,
       action: 'Course Enrollment',
       details: `Enrolled in course: ${courseId} via Academy Application`,
       timestamp,

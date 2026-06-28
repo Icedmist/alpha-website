@@ -1,27 +1,27 @@
-import { auth } from '../../../../lib/auth';
-import { db } from '../../../../lib/firebase-admin';
+import { db, adminAuth } from '../../../../lib/firebase-admin';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { db as pgDb } from '../../../../db';
-import { user as userTable } from '../../../../db/schema';
-import { eq } from 'drizzle-orm';
 
 
 export async function GET(req: Request) {
   try {
     const reqHeaders = await headers();
-
-    const sessionData = await auth.api.getSession({
-      headers: reqHeaders,
-    });
-
-    if (!sessionData) {
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
       console.warn('[GET /api/user/profile] No session found.');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = sessionData.user.id;
-    const userEmail = sessionData.user.email;
+    const token = authHeader.split('Bearer ')[1];
+    
+    if (!adminAuth) {
+      throw new Error('Firebase adminAuth not initialized');
+    }
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+    const userEmail = decodedToken.email || '';
 
     // Fetch the tenant-isolated Firestore profile document
     const userDoc = await db.collection('users').doc(userId).get();
@@ -68,8 +68,8 @@ export async function GET(req: Request) {
       const defaultProfile = seedProfile
         ? { ...seedProfile, createdAt: new Date().toISOString() }
         : {
-            name: sessionData.user.name,
-            email: sessionData.user.email,
+            name: decodedToken.name || userEmail.split('@')[0],
+            email: userEmail,
             phone: '',
             role: 'student',
             enrolledCourses: [],
@@ -104,15 +104,19 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const sessionData = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!sessionData) {
+    const reqHeaders = await headers();
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = sessionData.user.id;
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+    
     const body = await req.json();
 
     let targetUserId = userId;
@@ -131,7 +135,6 @@ export async function POST(req: Request) {
       targetUserId = body.targetUserId;
     }
 
-    // Prevent overwriting core identity fields managed by Better Auth in postgres
     const { id, email, targetUserId: _, ...updatableFields } = body;
 
     // Fetch existing data for comparison and logging
@@ -216,14 +219,6 @@ export async function POST(req: Request) {
         details: `Checked in for today: ${date}`,
         timestamp,
       });
-    }
-
-    // If name is being updated, sync it with Postgres user table for Better Auth consistency
-    if (updatableFields.name) {
-      await pgDb
-        .update(userTable)
-        .set({ name: updatableFields.name, updatedAt: new Date() })
-        .where(eq(userTable.id, targetUserId));
     }
 
     // Save/update the fields in the isolated custom Firestore instance

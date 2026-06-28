@@ -1,19 +1,21 @@
-import { auth } from '../../../../lib/auth';
-import { db } from '../../../../lib/firebase-admin';
+import { db, adminAuth } from '../../../../lib/firebase-admin';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const sessionData = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!sessionData) {
+    const reqHeaders = await headers();
+    const authHeader = reqHeaders.get('Authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = sessionData.user.id;
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+    
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
 
     // Fetch the caller's profile to verify they are an Admin
     const userDoc = await db.collection('users').doc(userId).get();
