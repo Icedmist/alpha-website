@@ -79,10 +79,12 @@ export const CertificateTemplate = forwardRef<HTMLDivElement, CertificateProps>(
           <h2 className="text-4xl font-bold text-brand-orange mb-16 drop-shadow-sm">
             {courseName}
           </h2>
+        </div>
 
-          {/* Details Table */}
-          <div className="w-full max-w-4xl border-t-[3px] border-brand-orange pt-5 pb-4">
-            <div className="grid grid-cols-4 gap-4 text-left">
+        {/* Details Table */}
+        <div className="w-full absolute left-0 flex flex-col items-center" style={{ top: '60%' }}>
+          <div className="w-full bg-black/20 border-t-[3px] border-brand-orange py-4">
+            <div className="max-w-4xl mx-auto grid grid-cols-4 gap-4 text-left px-12">
               <div>
                 <p className="text-brand-orange text-[10px] font-black uppercase tracking-widest mb-1">Cohort</p>
                 <p className="text-white font-bold text-lg">{cohort}</p>
@@ -104,7 +106,7 @@ export const CertificateTemplate = forwardRef<HTMLDivElement, CertificateProps>(
         </div>
 
         {/* Footer Signatures */}
-        <div className="grid grid-cols-3 gap-16 mt-16 px-12 text-center pb-8">
+        <div className="absolute bottom-20 left-0 right-0 max-w-4xl mx-auto grid grid-cols-3 gap-16 px-12 text-center">
           <div>
             <div className="h-[2px] bg-white/20 w-full mb-3"></div>
             <p className="text-white font-bold text-[13px]">Ishaq Sulaiman</p>
@@ -123,10 +125,10 @@ export const CertificateTemplate = forwardRef<HTMLDivElement, CertificateProps>(
         </div>
 
         {/* Verification Info */}
-        <div className="absolute bottom-10 left-0 right-0 text-center flex justify-center items-center gap-4 text-[9px] font-mono text-white/30 uppercase tracking-[0.2em] z-30">
+        <div className="absolute bottom-6 left-0 right-0 text-center flex justify-center items-center gap-4 text-[9px] font-mono text-white/30 uppercase tracking-[0.2em] z-30">
           <span>Certificate ID: {certId}</span>
           <span className="w-1 h-1 rounded-full bg-brand-orange"></span>
-          <span>Verified: talentcloud.alphaspark.tech</span>
+          <span>Verified: talentcloud.alphaspark.ng</span>
         </div>
       </div>
     </div>
