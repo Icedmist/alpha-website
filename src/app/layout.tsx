@@ -5,7 +5,11 @@ export const metadata = {
   title: 'Alpha Spark',
   description: 'Empowering individuals and institutions with practical digital capabilities.',
   icons: {
-    icon: '/assets/logo.png',
+    icon: [
+      { url: '/favicon.ico', sizes: '64x64' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
   },
 };
 
