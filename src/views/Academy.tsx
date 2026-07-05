@@ -29,9 +29,27 @@ export default function Academy() {
 
   useEffect(() => {
     fetch("/api/courses")
-      .then(res => res.json())
-      .then(data => setCoursesList(data))
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) throw new Error('API fetch failed');
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setCoursesList(data);
+        } else {
+          throw new Error('Empty data');
+        }
+      })
+      .catch((err) => {
+        console.log('Falling back to local courses', err);
+        const localCourses = localStorage.getItem('alpha_custom_courses');
+        if (localCourses) {
+          setCoursesList(JSON.parse(localCourses));
+        } else {
+          // Fallback to imported courses
+          import('../data/courses').then(m => setCoursesList(m.courses));
+        }
+      });
   }, []);
 
   const formats = [

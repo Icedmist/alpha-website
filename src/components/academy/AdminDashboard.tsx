@@ -176,6 +176,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
   const [courseLearnText, setCourseLearnText] = useState("");
   const [courseToolsText, setCourseToolsText] = useState("");
   const [courseIcon, setCourseIcon] = useState("Code");
+  const [courseImageUrl, setCourseImageUrl] = useState("");
 
   // Certificate generation states
   const [selectedStudentId, setSelectedStudentId] = useState("");
@@ -185,11 +186,27 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
   const instructors = allUsers.filter(u => u.role === "instructor");
 
   // Custom courses logic to pull dynamic additions
-  const getCoursesList = (): Course[] => {
-    const local = localStorage.getItem("alpha_custom_courses");
-    return local ? JSON.parse(local) : courses;
+  const [activeCourses, setActiveCourses] = useState<Course[]>(courses);
+  
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch("/api/courses");
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setActiveCourses(data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+    }
   };
-  const activeCourses = getCoursesList();
+
+  useEffect(() => {
+    if (activeTab === "courses" || activeTab === "certificates" || activeTab === "analytics") {
+      fetchCourses();
+    }
+  }, [activeTab]);
 
   // Helper: calculate total revenue
   // We sum up the fee of all enrolled courses for all students
@@ -244,12 +261,12 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
     alert(`Role updated successfully for ${userObj.name}!`);
   };
 
-  const handleCreateCourse = (e: React.FormEvent) => {
+  const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!courseTitle || !courseSubtitle) return;
 
     const newCourseId = `c-${Math.random().toString(36).substring(2, 9)}`;
-    const newCourse: Course = {
+    const newCourse = {
       id: newCourseId,
       title: courseTitle,
       subtitle: courseSubtitle,
@@ -265,27 +282,50 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
       accentColor: "#0099CC",
       tools: courseToolsText.split(",").map(t => t.trim()).filter(Boolean),
       iconName: courseIcon,
+      imageUrl: courseImageUrl,
       modules: []
     };
 
-    const updatedCourses = [...activeCourses, newCourse];
-    localStorage.setItem("alpha_custom_courses", JSON.stringify(updatedCourses));
-
-    alert(`Course "${courseTitle}" created successfully!`);
-    setShowAddCourse(false);
-    setCourseTitle("");
-    setCourseSubtitle("");
-    setCourseOutcome("");
-    setCourseLearnText("");
-    setCourseToolsText("");
+    try {
+      const res = await fetch("/api/courses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCourse)
+      });
+      if (res.ok) {
+        alert(`Course "${courseTitle}" created successfully!`);
+        setShowAddCourse(false);
+        setCourseTitle("");
+        setCourseSubtitle("");
+        setCourseOutcome("");
+        setCourseLearnText("");
+        setCourseToolsText("");
+        setCourseImageUrl("");
+        await fetchCourses();
+      } else {
+        alert("Failed to create course.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error creating course.");
+    }
   };
 
-  const handleDeleteCourse = (courseId: string) => {
+  const handleDeleteCourse = async (courseId: string) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
 
-    const updatedCourses = activeCourses.filter(c => c.id !== courseId);
-    localStorage.setItem("alpha_custom_courses", JSON.stringify(updatedCourses));
-    alert("Course deleted from database.");
+    try {
+      const res = await fetch(`/api/courses?id=${courseId}`, { method: "DELETE" });
+      if (res.ok) {
+        alert("Course deleted from database.");
+        await fetchCourses();
+      } else {
+        alert("Failed to delete course.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting course.");
+    }
   };
 
   const handleIssueCertificate = (e: React.FormEvent) => {
@@ -760,6 +800,17 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                     placeholder="Docker, Kubernetes, AWS"
                     value={courseToolsText}
                     onChange={(e) => setCourseToolsText(e.target.value)}
+                    className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-bold text-white/40">Cover Image URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://images.unsplash.com/photo-..."
+                    value={courseImageUrl}
+                    onChange={(e) => setCourseImageUrl(e.target.value)}
                     className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white outline-none"
                   />
                 </div>

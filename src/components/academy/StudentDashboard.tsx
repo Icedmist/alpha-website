@@ -27,12 +27,27 @@ export default function StudentDashboard() {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
+  const [activeCourses, setActiveCourses] = useState<Course[]>([]);
+
+  useEffect(() => {
+    fetch("/api/courses")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) setActiveCourses(data);
+        else {
+          const localStr = localStorage.getItem("alpha_custom_courses");
+          setActiveCourses(localStr ? JSON.parse(localStr) : courses);
+        }
+      })
+      .catch(() => setActiveCourses(courses));
+  }, []);
+
   if (!currentUser) return null;
 
-  const enrolled = courses.filter((c) => currentUser.enrolledCourses.includes(c.id));
-  const available = courses.filter((c) => !currentUser.enrolledCourses.includes(c.id));
+  const enrolled = activeCourses.filter((c) => currentUser.enrolledCourses.includes(c.id));
+  const available = activeCourses.filter((c) => !currentUser.enrolledCourses.includes(c.id));
 
-  const activeCourse = courses.find((c) => c.id === activeCourseId);
+  const activeCourse = activeCourses.find((c) => c.id === activeCourseId);
   const activeLesson = activeCourse?.modules
     .flatMap((m) => m.lessons)
     .find((l) => l.id === activeLessonId);

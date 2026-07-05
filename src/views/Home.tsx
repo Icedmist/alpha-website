@@ -40,9 +40,27 @@ export default function Home() {
       .catch(console.error);
 
     fetch("/api/courses")
-      .then(res => res.json())
-      .then(data => setAcademyCourses(data))
-      .catch(console.error);
+      .then(res => {
+        if (!res.ok) throw new Error('API fetch failed');
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.length > 0) {
+          setAcademyCourses(data);
+        } else {
+          throw new Error('Empty data');
+        }
+      })
+      .catch((err) => {
+        console.log('Falling back to local courses', err);
+        const localCourses = localStorage.getItem('alpha_custom_courses');
+        if (localCourses) {
+          setAcademyCourses(JSON.parse(localCourses));
+        } else {
+          // Fallback to imported courses if we import them
+          import('../data/courses').then(m => setAcademyCourses(m.courses));
+        }
+      });
   }, []);
 
   const pillars = [

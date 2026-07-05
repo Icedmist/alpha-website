@@ -86,12 +86,14 @@ export default function CourseCard({
       />
 
       {/* Course Image */}
-      {course.imageUrl && (
-        <div className="w-full h-24 md:h-32 overflow-hidden relative border-b border-white/5">
-          <img src={course.imageUrl} alt={course.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-        </div>
-      )}
+      <div className="w-full h-24 md:h-32 overflow-hidden relative border-b border-white/5 bg-brand-navy/50">
+        <img 
+          src={course.imageUrl || "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1000&auto=format&fit=crop"} 
+          alt={course.title} 
+          className="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+      </div>
 
       <div className="relative z-10 p-4 md:p-5 lg:p-6 space-y-4">
         {/* Header - Always Visible */}
