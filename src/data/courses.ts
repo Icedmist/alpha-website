@@ -39,6 +39,7 @@ export interface Course {
   tools: string[];
   iconName: string;
   imageUrl?: string;
+  imageUrl?: string;
   modules: Module[];
 }
 
@@ -65,6 +66,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Python", "PyTorch", "OpenAI API", "Jupyter Notebooks", "HuggingFace"],
     iconName: "BrainCircuit",
+    imageUrl: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?q=80&w=800",
     modules: [
       {
         id: "ai-ml-m1",
@@ -160,6 +162,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["VS Code", "GitHub", "Vercel", "React", "Tailwind"],
     iconName: "Code",
+    imageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800",
     modules: [
       {
         id: "fsw-m1",
@@ -245,6 +248,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Canva", "Adobe Photoshop", "Illustrator", "Figma"],
     iconName: "Palette",
+    imageUrl: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=800",
     modules: [
       {
         id: "gd-m1",
@@ -317,6 +321,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Wireshark", "Nmap", "Metasploit", "Kali Linux"],
     iconName: "ShieldCheck",
+    imageUrl: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?q=80&w=800",
     modules: [
       {
         id: "cyber-m1",
@@ -389,6 +394,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Meta Ads Manager", "Google Analytics", "Mailchimp", "SEMrush"],
     iconName: "Megaphone",
+    imageUrl: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?q=80&w=800",
     modules: [
       {
         id: "dm-m1",
@@ -461,6 +467,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Excel", "MySQL", "Power BI", "Tableau"],
     iconName: "BarChart3",
+    imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800",
     modules: [
       {
         id: "da-m1",
@@ -533,6 +540,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Figma", "FigJam", "Miro", "Maze"],
     iconName: "Layout",
+    imageUrl: "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?q=80&w=800",
     modules: [
       {
         id: "ui-ux-m1",
@@ -605,6 +613,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["ChatGPT", "Claude AI", "Zapier", "Midjourney", "Gamma App"],
     iconName: "Zap",
+    imageUrl: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=800",
     modules: [
       {
         id: "aip-m1",
@@ -677,6 +686,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["Notion", "Slack", "Trello", "Pitch.com", "LinkedIn"],
     iconName: "Rocket",
+    imageUrl: "https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=800",
     modules: [
       {
         id: "ent-m1",
@@ -749,6 +759,7 @@ export const courses: Course[] = [
     talentCloud: "Graduates get added to our African verified talent database",
     tools: ["AWS", "Docker", "Kubernetes", "GitHub Actions", "Terraform"],
     iconName: "Cloud",
+    imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800",
     modules: [
       {
         id: "cloud-m1",
