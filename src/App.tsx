@@ -328,7 +328,7 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
             
             <div className="pt-16 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-10 text-center md:text-left">
               <div className="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
-                © 2025 Alpha Spark. Ignite Africa.
+                © {new Date().getFullYear()} Alpha Spark. Ignite Africa.
               </div>
               <div className="flex gap-10 text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">
                 #ALPHASPARK #IGNITE #FUTURE

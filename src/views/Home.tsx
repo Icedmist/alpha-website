@@ -45,18 +45,21 @@ export default function Home() {
       desc: "Structured training programs for students, professionals, and institutions focusing on practical digital capabilities.",
       icon: BookOpen,
       color: "brand-orange",
+      imageUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=2070&auto=format&fit=crop"
     },
     {
       title: "Alpha Talent Cloud",
       desc: "A verified talent database that tracks skills, certifications, and capabilities to build a workforce intelligence database.",
       icon: Database,
       color: "brand-blue",
+      imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop"
     },
     {
       title: "Workforce Transformation",
       desc: "Upskilling programs and institutional partnerships helping organizations adapt to rapid technological disruption.",
       icon: Building2,
       color: "brand-amber",
+      imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop"
     },
   ];
 
@@ -131,10 +134,10 @@ export default function Home() {
             <div className="relative w-full max-w-lg aspect-square">
                <div className="absolute inset-0 bg-gradient-to-tr from-brand-orange/20 to-brand-blue/20 blur-3xl animate-pulse" />
                <div className="relative w-full h-full rounded-[32px] md:rounded-[48px] overflow-hidden border border-white/10 shadow-2xl group">
-                 <div className="absolute inset-0 bg-brand-navy/60 backdrop-blur-md z-10" />
-                 <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop" alt="Coding Environment" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-110" />
+                 <div className="absolute inset-0 bg-brand-navy/30 group-hover:bg-transparent transition-colors duration-500 z-10" />
+                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop" alt="Students Coding Environment" className="w-full h-full object-cover transition-all duration-1000 scale-105 group-hover:scale-110" />
                  
-                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12 bg-gradient-to-t from-brand-navy via-brand-navy/50 to-transparent">
+                 <div className="absolute inset-0 z-20 flex flex-col justify-end p-8 md:p-12 bg-gradient-to-t from-brand-navy via-brand-navy/40 to-transparent">
                    <div className="w-16 h-16 bg-brand-orange rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-brand-orange/40 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500">
                      <Code className="w-8 h-8 text-white" />
                    </div>
@@ -278,17 +281,21 @@ export default function Home() {
               <motion.div
                 key={i}
                 whileHover={{ y: -12, scale: 1.02 }}
-                className="bg-white/5 border border-white/10 p-8 md:p-12 rounded-[32px] md:rounded-[48px] lg:rounded-[56px] hover:bg-white/[0.08] transition-all group relative overflow-hidden backdrop-blur-sm"
+                className="bg-white/5 border border-white/10 p-8 md:p-12 rounded-[32px] md:rounded-[48px] lg:rounded-[56px] hover:bg-white/[0.08] transition-all group relative overflow-hidden backdrop-blur-sm flex flex-col"
               >
-                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-3xl rounded-full -mr-24 -mt-24 group-hover:bg-brand-orange/20 transition-all duration-700" />
-                <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-12 bg-white/5 group-hover:bg-brand-orange transition-all duration-500 shadow-lg`}>
-                  <pillar.icon className="text-brand-orange group-hover:text-white w-10 h-10 transition-transform duration-500 group-hover:scale-110" />
+                <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-3xl rounded-full -mr-24 -mt-24 group-hover:bg-brand-orange/20 transition-all duration-700 z-0" />
+                <div className="w-full h-40 md:h-48 mb-8 md:mb-10 rounded-3xl overflow-hidden relative z-10 border border-white/10 shadow-2xl">
+                   <div className="absolute inset-0 bg-brand-navy/40 group-hover:bg-brand-navy/10 transition-colors duration-500 z-10 pointer-events-none" />
+                   <img src={pillar.imageUrl} alt={pillar.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
+                   <div className="absolute top-4 right-4 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center bg-brand-navy/80 backdrop-blur-md group-hover:bg-brand-orange transition-all duration-500 border border-white/10 z-20">
+                     <pillar.icon className="text-brand-orange group-hover:text-white w-6 h-6 md:w-7 md:h-7 transition-transform duration-500 group-hover:scale-110" />
+                   </div>
                 </div>
-                <h3 className="font-display font-black text-2xl md:text-3xl mb-4 md:mb-6 uppercase italic tracking-tight text-white leading-tight">{pillar.title}</h3>
-                <p className="text-white/40 text-sm md:text-base leading-relaxed italic font-medium">
+                <h3 className="font-display font-black text-2xl md:text-3xl mb-4 md:mb-6 uppercase italic tracking-tight text-white leading-tight relative z-10">{pillar.title}</h3>
+                <p className="text-white/40 text-sm md:text-base leading-relaxed italic font-medium relative z-10">
                   {pillar.desc}
                 </p>
-                <div className="mt-10 h-1 w-12 bg-brand-orange/20 group-hover:w-24 group-hover:bg-brand-orange transition-all duration-500" />
+                <div className="mt-10 h-1 w-12 bg-brand-orange/20 group-hover:w-24 group-hover:bg-brand-orange transition-all duration-500 relative z-10" />
               </motion.div>
             ))}
           </div>
@@ -341,13 +348,23 @@ export default function Home() {
                     to={`/academy?course=${course.id}`}
                     className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
                   >
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity z-0">
                       <Icon className="w-12 h-12 text-white" />
                     </div>
-                    <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500">
-                      <Icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
-                    </div>
-                    <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight">{course.title}</span>
+                    {course.imageUrl ? (
+                      <div className="w-full h-32 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden relative z-10 border border-white/10">
+                        <div className="absolute inset-0 bg-brand-navy/50 group-hover:bg-brand-navy/20 transition-colors duration-500 z-10 pointer-events-none" />
+                        <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
+                        <div className="absolute top-3 right-3 w-10 h-10 rounded-xl bg-brand-navy/90 backdrop-blur-md flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500 border border-white/10 shadow-lg z-20">
+                          <Icon className="w-5 h-5 text-brand-orange group-hover:text-white" />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500 relative z-10">
+                        <Icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
+                      </div>
+                    )}
+                    <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight relative z-10">{course.title}</span>
                   </Link>
                 );
               })}
