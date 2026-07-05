@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, useRef } from "react";
 import { motion } from "motion/react";
 import { X, Printer, Award, ShieldCheck, Download, Loader2 } from "lucide-react";
 import { Course } from "../../data/courses";
@@ -21,17 +23,18 @@ export default function CertificateGenerator({
   onClose
 }: CertificateGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
   
   const handlePrint = async () => {
     setIsGenerating(true);
     try {
-      const printArea = document.getElementById("print-area");
-      if (!printArea) return;
+      if (!printRef.current) return;
       
-      const canvas = await html2canvas(printArea, {
+      const canvas = await html2canvas(printRef.current, {
         scale: 2, // higher resolution
         useCORS: true,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#111322",
+        logging: false,
       });
       
       const imgData = canvas.toDataURL("image/png");
@@ -44,9 +47,6 @@ export default function CertificateGenerator({
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // The print area is 960x640, which is an aspect ratio of 1.5
-      // A4 landscape is 297x210, aspect ratio of ~1.414
-      // We scale to fit
       const imgProps = pdf.getImageProperties(imgData);
       const imgRatio = imgProps.width / imgProps.height;
       const pdfRatio = pdfWidth / pdfHeight;
@@ -75,17 +75,17 @@ export default function CertificateGenerator({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/95 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white print:static print:block">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/95 backdrop-blur-md overflow-y-auto print:p-0 print:bg-transparent print:static print:block">
       {/* Hide surrounding UI during browser print */}
       <style>{`
         @media print {
           body * {
             visibility: hidden;
           }
-          #print-area, #print-area * {
+          #print-container, #print-container * {
             visibility: visible;
           }
-          #print-area {
+          #print-container {
             position: absolute;
             left: 0;
             top: 0;
@@ -95,8 +95,8 @@ export default function CertificateGenerator({
             padding: 0;
             margin: 0;
             box-shadow: none;
-            background: white !important;
-            color: black !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           .no-print {
             display: none !important;
@@ -126,7 +126,7 @@ export default function CertificateGenerator({
                 </>
               ) : (
                 <>
-                  <Printer className="w-4 h-4" /> Print / PDF
+                  <Download className="w-4 h-4" /> Download PDF
                 </>
               )}
             </button>
@@ -140,8 +140,8 @@ export default function CertificateGenerator({
         </div>
 
         {/* Certificate Wrapper for screen */}
-        <div className="bg-white/5 border border-white/10 p-4 rounded-[36px] overflow-x-auto">
-          <div className="min-w-[800px]">
+        <div className="bg-[#111322] border border-white/10 p-8 rounded-[36px] overflow-x-auto shadow-2xl flex justify-center">
+          <div id="print-container" ref={printRef} className="shrink-0 bg-[#111322]">
             <CertificateContent
               studentName={studentName}
               courseTitle={courseTitle}
@@ -150,17 +150,6 @@ export default function CertificateGenerator({
             />
           </div>
         </div>
-      </div>
-
-      {/* Hidden print block that takes over when window.print() is called */}
-      <div className="hidden print:block absolute inset-0 bg-white text-black">
-        <CertificateContent
-          studentName={studentName}
-          courseTitle={courseTitle}
-          certificateId={certificateId}
-          issueDate={issueDate}
-          isPrinting={true}
-        />
       </div>
     </div>
   );
@@ -171,7 +160,6 @@ interface CertificateContentProps {
   courseTitle: string;
   certificateId: string;
   issueDate: string;
-  isPrinting?: boolean;
 }
 
 function CertificateContent({
@@ -179,113 +167,113 @@ function CertificateContent({
   courseTitle,
   certificateId,
   issueDate,
-  isPrinting = false
 }: CertificateContentProps) {
-  // Generate verification URL
-  const verifyUrl = `${window.location.origin}/academy/verify/${certificateId}`;
-  
   return (
     <div
-      id="print-area"
-      className={`relative w-[960px] h-[640px] mx-auto border-[16px] p-16 flex flex-col justify-between items-center bg-white text-[#1A1A2E] select-none shadow-2xl overflow-hidden ${
-        isPrinting 
-          ? "border-[#1A1A2E]" 
-          : "border-brand-navy rounded-[28px]"
-      }`}
+      className="relative w-[960px] h-[640px] bg-[#111322] text-white flex flex-col justify-between overflow-hidden"
       style={{
-        backgroundImage: `radial-gradient(circle at 50% 50%, rgba(232, 93, 4, 0.03) 0%, transparent 80%)`
+        backgroundImage: `radial-gradient(circle at 70% 30%, rgba(232, 93, 4, 0.08) 0%, transparent 60%)`
       }}
     >
-      {/* Corner Borders */}
-      <div className="absolute top-4 left-4 w-12 h-12 border-t-4 border-l-4 border-brand-orange" />
-      <div className="absolute top-4 right-4 w-12 h-12 border-t-4 border-r-4 border-brand-orange" />
-      <div className="absolute bottom-4 left-4 w-12 h-12 border-b-4 border-l-4 border-brand-orange" />
-      <div className="absolute bottom-4 right-4 w-12 h-12 border-b-4 border-r-4 border-brand-orange" />
-
-      {/* Watermark Logo */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none">
-        <Award className="w-[400px] h-[400px]" />
+      {/* Accent Borders */}
+      <div className="absolute top-0 left-0 bottom-0 w-4 bg-brand-orange z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-4 flex z-10">
+        <div className="w-[50%] h-full bg-brand-orange" />
+        <div className="w-[50%] h-full bg-[#00A3FF]" />
       </div>
+
+      {/* Decorative background shapes */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-brand-orange/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-[#00A3FF]/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Header */}
-      <div className="w-full flex justify-between items-center border-b border-gray-100 pb-6">
-        <div className="flex items-center gap-2">
-          <img src="/assets/logo.png" alt="Alpha Spark Logo" className="w-10 h-10 object-contain filter invert" onError={(e) => {
-            // Fallback if logo not found
+      <div className="flex justify-between items-start pt-12 pl-16 pr-12 relative z-20">
+        <div className="flex items-center gap-3">
+          <img src="/assets/logo.png" alt="Alpha Spark" className="w-10 h-10 object-contain filter invert" onError={(e) => {
             e.currentTarget.style.display = "none";
           }} />
-          <span className="font-sans font-black text-xl tracking-tighter uppercase italic text-brand-navy">
-            ALPHA <span className="text-brand-orange">SPARK</span>
-          </span>
+          <div className="flex flex-col">
+            <span className="font-sans font-black text-2xl tracking-tighter uppercase italic text-white leading-none">
+              ALPHA <span className="text-brand-orange">SPARK</span>
+            </span>
+            <span className="text-[11px] text-brand-orange font-medium mt-1">Digital Workforce Development</span>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-brand-orange">Verified Graduate</p>
-          <p className="text-[10px] font-bold text-gray-500 font-mono">ID: {certificateId}</p>
+        <div className="bg-brand-orange px-8 py-3 rounded-sm">
+          <h2 className="text-[11px] font-black uppercase tracking-widest text-white text-center leading-relaxed">
+            CERTIFICATE<br/>OF COMPLETION
+          </h2>
         </div>
       </div>
 
-      {/* Certificate Core Body */}
-      <div className="text-center space-y-6 my-auto">
-        <p className="font-serif italic text-base text-gray-400">This is to certify that</p>
+      {/* Center Body */}
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-16 relative z-20">
+        <p className="font-serif italic text-base text-gray-400 mb-6">Awarded to</p>
         
-        <h2 className="font-sans font-black text-4xl uppercase tracking-tight text-brand-navy italic border-b-2 border-brand-orange pb-2 px-10 inline-block">
+        <h1 className="font-sans font-bold text-5xl text-white mb-2 tracking-tight">
           {studentName}
-        </h2>
-
-        <p className="font-serif italic text-base text-gray-400 max-w-xl mx-auto leading-relaxed">
-          has successfully completed all assignments, examinations, and attendance requirements to graduate from the professional track
+        </h1>
+        
+        <div className="w-[480px] h-1 flex my-6 mx-auto">
+          <div className="w-1/2 h-full bg-brand-orange" />
+          <div className="w-1/2 h-full bg-gray-600" />
+        </div>
+        
+        <p className="font-serif italic text-sm text-gray-400 mb-4">
+          For successfully completing
         </p>
-
-        <h3 className="font-sans font-black text-2xl uppercase tracking-wide text-brand-navy italic">
+        
+        <h2 className="font-sans font-black text-3xl text-brand-orange tracking-wide uppercase">
           {courseTitle}
-        </h3>
+        </h2>
       </div>
 
-      {/* Bottom Signatures & QR Code */}
-      <div className="w-full flex justify-between items-end border-t border-gray-100 pt-6">
-        {/* Left: Issued Date & Authority */}
-        <div className="space-y-1">
-          <p className="font-mono text-[10px] font-bold text-brand-navy">DATE OF ISSUANCE</p>
-          <p className="font-sans font-black text-sm uppercase text-gray-700">{issueDate}</p>
-          <div className="w-32 h-0.5 bg-gray-200 mt-4" />
-          <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Alpha Spark Admissions</p>
+      {/* Stats Columns */}
+      <div className="grid grid-cols-4 gap-4 px-16 mx-8 pb-6 border-b border-white/10 relative z-20">
+        <div className="text-center">
+          <p className="text-[10px] text-brand-orange uppercase tracking-widest mb-1 font-bold">COHORT</p>
+          <p className="text-sm font-bold text-white">#1.0</p>
         </div>
+        <div className="text-center">
+          <p className="text-[10px] text-brand-orange uppercase tracking-widest mb-1 font-bold">DURATION</p>
+          <p className="text-sm font-bold text-white">12 Weeks</p>
+        </div>
+        <div className="text-center">
+          <p className="text-[10px] text-brand-orange uppercase tracking-widest mb-1 font-bold">ASSESSMENT SCORE</p>
+          <p className="text-sm font-bold text-white">Excellent</p>
+        </div>
+        <div className="text-center">
+          <p className="text-[10px] text-brand-orange uppercase tracking-widest mb-1 font-bold">DATE</p>
+          <p className="text-sm font-bold text-white">{issueDate}</p>
+        </div>
+      </div>
 
-        {/* Center: Stamp/Badge */}
-        <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="w-16 h-16 rounded-full bg-brand-orange/10 flex items-center justify-center border-2 border-brand-orange/30">
-            <Award className="w-8 h-8 text-brand-orange" />
-          </div>
-          <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">OFFICIAL SEAL</p>
+      {/* Signatures */}
+      <div className="flex justify-between items-end px-24 pb-16 relative z-20">
+        <div className="text-center w-40">
+          <div className="w-full border-b border-gray-500 mb-2"></div>
+          <p className="text-xs font-bold text-white">Ishaq Sulaiman</p>
+          <p className="text-[9px] text-gray-400 font-medium">Founder & CEO</p>
         </div>
+        <div className="text-center w-40">
+          <div className="w-full border-b border-gray-500 mb-2"></div>
+          <p className="text-xs font-bold text-white">COO Signature</p>
+          <p className="text-[9px] text-gray-400 font-medium">Chief Operating Officer</p>
+        </div>
+        <div className="text-center w-40">
+          <div className="w-full border-b border-gray-500 mb-2"></div>
+          <p className="text-xs font-bold text-white">Academy Director</p>
+          <p className="text-[9px] text-gray-400 font-medium">Alpha Spark Academy</p>
+        </div>
+      </div>
 
-        {/* Right: Verification QR Code & Signature */}
-        <div className="flex items-end gap-6">
-          <div className="space-y-1 text-right">
-            <p className="font-mono text-[10px] font-bold text-brand-navy">AUTHORIZED SIGNATURE</p>
-            <p className="font-serif italic text-base text-brand-orange font-bold">Icedmist</p>
-            <div className="w-32 h-0.5 bg-gray-200 mt-4 ml-auto" />
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Director of Education</p>
-          </div>
-          
-          {/* Mock QR Code for Verification */}
-          <div className="flex flex-col items-center justify-center space-y-1 bg-white p-2 border border-gray-100 rounded-xl">
-            <div className="w-14 h-14 bg-gray-100 flex flex-wrap p-1 gap-[2px]">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className={`w-2.5 h-2.5 ${
-                    (i % 3 === 0 || i % 4 === 1 || i === 0 || i === 2 || i === 13 || i === 15) 
-                      ? "bg-brand-navy" 
-                      : "bg-transparent"
-                  }`} 
-                />
-              ))}
-            </div>
-            <span className="text-[6px] font-mono font-bold text-gray-400 uppercase">SCAN TO VERIFY</span>
-          </div>
-        </div>
+      {/* Footer ID */}
+      <div className="absolute bottom-6 left-0 right-0 text-center z-20">
+        <p className="text-[8px] text-gray-500 font-mono tracking-wider">
+          Certificate ID: {certificateId} - Verify: verify.alphaspark.ng
+        </p>
       </div>
     </div>
   );
 }
+
