@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { motion } from "motion/react";
 import { X, Printer, Award, ShieldCheck, Download, Loader2 } from "lucide-react";
 import { Course } from "../../data/courses";
-import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeSVG, QRCodeCanvas } from "qrcode.react";
 
 interface CertificateGeneratorProps {
   studentName: string;
@@ -25,19 +24,203 @@ export default function CertificateGenerator({
 }: CertificateGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+  const qrCanvasRef = useRef<HTMLDivElement>(null);
+
+  const getVerifyUrl = () => {
+    if (typeof window !== 'undefined' && window.location.hostname.includes('localhost')) {
+      return `http://${window.location.host}/verify/${certificateId}`;
+    }
+    return `https://verify.alphaspark.ng/${certificateId}`;
+  };
   
   const handlePrint = async () => {
     setIsGenerating(true);
     try {
-      if (!printRef.current) return;
-      
-      const canvas = await html2canvas(printRef.current, {
-        scale: 2, // higher resolution
-        useCORS: true,
-        backgroundColor: "#111322",
-        logging: false,
-      });
-      
+      // ── Draw certificate directly on a native canvas (bypasses html2canvas + oklab issues) ──
+      const W = 1920;        // canvas width  (2× of 960 for retina)
+      const H = 1280;        // canvas height (2× of 640)
+      const canvas = document.createElement("canvas");
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext("2d")!;
+
+      // Colors
+      const BG        = "#111322";
+      const ORANGE    = "#E85D04";
+      const BLUE      = "#00A3FF";
+      const WHITE     = "#FFFFFF";
+      const GRAY400   = "#9CA3AF";
+      const GRAY500   = "#6B7280";
+      const GRAY600   = "#4B5563";
+      const DIVIDER   = "rgba(255,255,255,0.1)";
+
+      // ── Background ──
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, W, H);
+
+      // Radial glow top-right
+      const grad = ctx.createRadialGradient(W * 0.7, H * 0.3, 0, W * 0.7, H * 0.3, W * 0.5);
+      grad.addColorStop(0, "rgba(232,93,4,0.08)");
+      grad.addColorStop(1, "transparent");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // ── Accent left stripe ──
+      ctx.fillStyle = ORANGE;
+      ctx.fillRect(0, 0, 8, H);
+
+      // ── Bottom accent bar ──
+      ctx.fillStyle = ORANGE;
+      ctx.fillRect(0, H - 8, W / 2, 8);
+      ctx.fillStyle = BLUE;
+      ctx.fillRect(W / 2, H - 8, W / 2, 8);
+
+      // ── Logo text (top-left) ──
+      ctx.textBaseline = "top";
+      ctx.fillStyle = WHITE;
+      ctx.font = "900 italic 48px Arial, Helvetica, sans-serif";
+      ctx.fillText("ALPHA", 64, 46);
+      const alphaW = ctx.measureText("ALPHA ").width;
+      ctx.fillStyle = ORANGE;
+      ctx.fillText("SPARK", 64 + alphaW, 46);
+      ctx.fillStyle = ORANGE;
+      ctx.font = "500 22px Arial, Helvetica, sans-serif";
+      ctx.fillText("Digital Workforce Development", 64, 100);
+
+      // ── Certificate of Completion badge (top-right) ──
+      const badgeW = 220;
+      const badgeH = 64;
+      const badgeX = W - 80 - badgeW;
+      const badgeY = 46;
+      ctx.fillStyle = ORANGE;
+      ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
+      ctx.fillStyle = WHITE;
+      ctx.font = "900 18px Arial, Helvetica, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("CERTIFICATE", badgeX + badgeW / 2, badgeY + 14);
+      ctx.fillText("OF COMPLETION", badgeX + badgeW / 2, badgeY + 38);
+      ctx.textAlign = "left";
+
+      // ── Center body ──
+      ctx.textAlign = "center";
+
+      // "Awarded to"
+      ctx.fillStyle = GRAY400;
+      ctx.font = "italic 28px Georgia, 'Times New Roman', serif";
+      ctx.fillText("Awarded to", W / 2, H * 0.32);
+
+      // Student Name
+      ctx.fillStyle = WHITE;
+      ctx.font = "bold 84px Arial, Helvetica, sans-serif";
+      ctx.fillText(studentName, W / 2, H * 0.43);
+
+      // Divider line
+      const divY = H * 0.48;
+      ctx.fillStyle = ORANGE;
+      ctx.fillRect(W / 2 - 240, divY, 240, 3);
+      ctx.fillStyle = GRAY600;
+      ctx.fillRect(W / 2, divY, 240, 3);
+
+      // "For successfully completing"
+      ctx.fillStyle = GRAY400;
+      ctx.font = "italic 24px Georgia, 'Times New Roman', serif";
+      ctx.fillText("For successfully completing", W / 2, H * 0.55);
+
+      // Course Title
+      ctx.fillStyle = ORANGE;
+      ctx.font = "900 52px Arial, Helvetica, sans-serif";
+      // Wrap if too long
+      const maxTitleW = W - 200;
+      if (ctx.measureText(courseTitle.toUpperCase()).width > maxTitleW) {
+        ctx.font = "900 40px Arial, Helvetica, sans-serif";
+      }
+      ctx.fillText(courseTitle.toUpperCase(), W / 2, H * 0.63);
+
+      // ── Stats row ──
+      const statsY = H * 0.72;
+      const statsLabels = ["COHORT", "DURATION", "ASSESSMENT SCORE", "DATE"];
+      const statsValues = ["#1.0", "12 Weeks", "Excellent", issueDate];
+      const statsCols = 4;
+      const statsStartX = 180;
+      const statsColW = (W - 360) / statsCols;
+
+      ctx.textBaseline = "top";
+      for (let i = 0; i < statsCols; i++) {
+        const cx = statsStartX + statsColW * i + statsColW / 2;
+        ctx.fillStyle = ORANGE;
+        ctx.font = "bold 16px Arial, Helvetica, sans-serif";
+        ctx.fillText(statsLabels[i], cx, statsY);
+        ctx.fillStyle = WHITE;
+        ctx.font = "bold 24px Arial, Helvetica, sans-serif";
+        ctx.fillText(statsValues[i], cx, statsY + 26);
+      }
+
+      // Stats bottom divider
+      ctx.strokeStyle = DIVIDER;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(100, statsY + 70);
+      ctx.lineTo(W - 100, statsY + 70);
+      ctx.stroke();
+
+      // ── Signatures ──
+      const sigY = H * 0.82;
+      const sigPositions = [W * 0.18, W * 0.5, W * 0.82];
+      const sigNames = ["Ishaq Sulaiman", "COO Signature", "Academy Director"];
+      const sigTitles = ["Founder & CEO", "Chief Operating Officer", "Alpha Spark Academy"];
+
+      for (let i = 0; i < 3; i++) {
+        const sx = sigPositions[i];
+        // Line
+        ctx.strokeStyle = GRAY500;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(sx - 100, sigY);
+        ctx.lineTo(sx + 100, sigY);
+        ctx.stroke();
+        // Name
+        ctx.fillStyle = WHITE;
+        ctx.font = "bold 20px Arial, Helvetica, sans-serif";
+        ctx.fillText(sigNames[i], sx, sigY + 10);
+        // Title
+        ctx.fillStyle = GRAY400;
+        ctx.font = "500 15px Arial, Helvetica, sans-serif";
+        ctx.fillText(sigTitles[i], sx, sigY + 36);
+      }
+
+      // ── QR Code (grab from hidden QRCodeCanvas in DOM) ──
+      const qrContainer = qrCanvasRef.current;
+      if (qrContainer) {
+        const qrCanvas = qrContainer.querySelector("canvas");
+        if (qrCanvas) {
+          const qrSize = 88;
+          const qrX = W / 2 - 140;
+          const qrY = H - 100;
+          // White background for QR
+          ctx.fillStyle = WHITE;
+          ctx.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8);
+          ctx.drawImage(qrCanvas, qrX, qrY, qrSize, qrSize);
+          
+          // Cert ID text
+          ctx.textAlign = "left";
+          ctx.fillStyle = GRAY400;
+          ctx.font = "16px 'Courier New', monospace";
+          ctx.fillText(`Certificate ID:`, qrX + qrSize + 16, qrY + 20);
+          ctx.fillStyle = WHITE;
+          ctx.font = "bold 16px 'Courier New', monospace";
+          ctx.fillText(certificateId, qrX + qrSize + 16, qrY + 42);
+          ctx.fillStyle = ORANGE;
+          ctx.font = "14px 'Courier New', monospace";
+          const verifyHost = typeof window !== 'undefined' && window.location.hostname.includes('localhost')
+            ? `${window.location.host}/verify`
+            : 'verify.alphaspark.ng';
+          ctx.fillText(`Verify at: ${verifyHost}`, qrX + qrSize + 16, qrY + 64);
+        }
+      }
+
+      ctx.textAlign = "left";
+
+      // ── Generate PDF ──
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: "landscape",
@@ -68,8 +251,7 @@ export default function CertificateGenerator({
       pdf.save(`AlphaSpark_Certificate_${certificateId}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
-      // Fallback to print
-      window.print();
+      alert("There was a problem generating your certificate. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -151,6 +333,15 @@ export default function CertificateGenerator({
             />
           </div>
         </div>
+      </div>
+
+      {/* Hidden QR canvas for PDF renderer to grab pixels from */}
+      <div ref={qrCanvasRef} style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+        <QRCodeCanvas 
+          value={getVerifyUrl()}
+          size={128}
+          level="M"
+        />
       </div>
     </div>
   );
