@@ -38,6 +38,7 @@ export interface Course {
   accentColor: string;
   tools: string[];
   iconName: string;
+  imageUrl?: string;
   modules: Module[];
 }
 

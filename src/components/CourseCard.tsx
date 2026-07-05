@@ -76,16 +76,24 @@ export default function CourseCard({
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className={`group relative bg-white/5 border border-white/10 rounded-[32px] md:rounded-[40px] overflow-hidden hover:bg-white/10 transition-all duration-500 cursor-pointer ${isExpanded ? 'ring-2 ring-brand-orange/30' : ''}`}
+      className={`group relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:bg-white/10 transition-all duration-500 cursor-pointer ${isExpanded ? 'ring-2 ring-brand-orange/30' : ''}`}
       onClick={() => setIsExpanded(!isExpanded)}
     >
       {/* Decorative Glow */}
       <div 
-        className="absolute top-0 right-0 w-64 h-64 blur-[120px] opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none"
+        className="absolute top-0 right-0 w-64 h-64 blur-[120px] opacity-0 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none z-10"
         style={{ backgroundColor: course.accentColor }}
       />
 
-      <div className="p-6 md:p-8 lg:p-10 space-y-8">
+      {/* Course Image */}
+      {course.imageUrl && (
+        <div className="w-full h-32 md:h-48 overflow-hidden relative border-b border-white/5">
+          <img src={course.imageUrl} alt={course.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+        </div>
+      )}
+
+      <div className="relative z-10 p-5 md:p-6 lg:p-8 space-y-6">
         {/* Header - Always Visible */}
         <div className="flex items-start justify-between gap-6">
           <div className="flex items-start gap-6">
