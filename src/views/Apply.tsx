@@ -68,7 +68,7 @@ export default function Apply() {
 
     } catch (err: any) {
       console.error("Application submission failed:", err);
-      setSubmitError(err.message || "An unexpected error occurred during submission.");
+      setSubmitError(err.message || "Something went wrong while submitting your application. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -6,6 +6,7 @@ import { X, Printer, Award, ShieldCheck, Download, Loader2 } from "lucide-react"
 import { Course } from "../../data/courses";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
+import { QRCodeSVG } from "qrcode.react";
 
 interface CertificateGeneratorProps {
   studentName: string;
@@ -267,11 +268,29 @@ function CertificateContent({
         </div>
       </div>
 
-      {/* Footer ID */}
-      <div className="absolute bottom-6 left-0 right-0 text-center z-20">
-        <p className="text-[8px] text-gray-500 font-mono tracking-wider">
-          Certificate ID: {certificateId} - Verify: verify.alphaspark.ng
-        </p>
+      {/* Footer ID and QR */}
+      <div className="absolute bottom-5 left-0 right-0 flex justify-center z-20">
+        <div className="flex items-center gap-4">
+          <div className="bg-white p-1 rounded-sm shadow-sm">
+            <QRCodeSVG 
+              value={typeof window !== 'undefined' && window.location.hostname.includes('localhost') 
+                ? `http://${window.location.host}/verify/${certificateId}` 
+                : `https://verify.alphaspark.ng/${certificateId}`}
+              size={44}
+              level="M"
+            />
+          </div>
+          <div className="text-left">
+            <p className="text-[9px] text-gray-400 font-mono tracking-wider mb-1">
+              Certificate ID: <span className="text-white font-bold">{certificateId}</span>
+            </p>
+            <p className="text-[8px] text-brand-orange font-mono tracking-wider uppercase">
+              Verify at: {typeof window !== 'undefined' && window.location.hostname.includes('localhost') 
+                ? `${window.location.host}/verify` 
+                : 'verify.alphaspark.ng'}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

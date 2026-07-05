@@ -349,6 +349,10 @@ export default function App() {
         window.location.hostname.startsWith('academy.localhost');
       
       setIsAcademySubdomain(isAcademy);
+      
+      if (isAcademy) {
+        document.title = "Alpha Spark Academy";
+      }
 
       const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1');
       const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.ng";

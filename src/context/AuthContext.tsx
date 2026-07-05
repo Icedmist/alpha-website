@@ -181,7 +181,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return profile;
     } catch (error: any) {
-      throw new Error(error.message || 'Invalid email or password');
+      let friendlyMessage = 'Invalid email or password. Please try again.';
+      if (error.code === 'auth/user-not-found') friendlyMessage = "We couldn't find an account with that email.";
+      if (error.code === 'auth/wrong-password') friendlyMessage = "The password you entered is incorrect.";
+      if (error.code === 'auth/invalid-email') friendlyMessage = "The email address is not valid.";
+      if (error.code === 'auth/invalid-credential') friendlyMessage = "The email or password you entered is incorrect.";
+      if (error.code === 'auth/too-many-requests') friendlyMessage = "Too many failed login attempts. Please try again later.";
+      if (error.code === 'auth/network-request-failed') friendlyMessage = "Network error. Please check your internet connection.";
+      
+      throw new Error(friendlyMessage);
     }
   };
 
@@ -224,7 +232,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return profile;
     } catch (error: any) {
-      throw new Error(error.message || 'Email already registered');
+      let friendlyMessage = 'An error occurred during registration. Please try again.';
+      if (error.code === 'auth/email-already-in-use') friendlyMessage = "This email is already registered. Please log in instead.";
+      if (error.code === 'auth/invalid-email') friendlyMessage = "The email address is not valid.";
+      if (error.code === 'auth/weak-password') friendlyMessage = "The password is too weak. Please use at least 6 characters.";
+      if (error.code === 'auth/network-request-failed') friendlyMessage = "Network error. Please check your internet connection.";
+      
+      throw new Error(friendlyMessage);
     }
   };
 
