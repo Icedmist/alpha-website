@@ -49,7 +49,7 @@ export const NewsletterEmail = ({
 
             <Section className="bg-[#1f2833] p-6 rounded-xl border border-white/5">
               {content.map((paragraph, idx) => (
-                <Text key={idx} className="text-[#c5c6c7] text-[15px] leading-[26px] mb-4 last:mb-0">
+                <Text key={idx} className={`text-[#c5c6c7] text-[15px] leading-[26px] ${idx === content.length - 1 ? 'mb-0' : 'mb-4'}`}>
                   {paragraph}
                 </Text>
               ))}

@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       const batch = emails.slice(i, i + MAX_BATCH_SIZE);
       
       await resend.emails.send({
-        from: 'Alpha Spark Academy <no-reply@resend.dev>', // In production, use a verified domain
+        from: 'Alpha Spark Academy <no-reply@alphaspark.ng>',
         to: batch,
         subject: emailType === 'referral' 
           ? `${referrerName} invited you to Alpha Spark Academy!` 

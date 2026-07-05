@@ -1634,7 +1634,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
 
                   {/* Mailbox Header Mockup */}
                   <div className="text-[10px] space-y-1 bg-black/40 border border-white/5 rounded-xl p-3 text-white/60">
-                    <div><span className="font-bold text-white/40">From:</span> Alpha Spark Academy &lt;no-reply@resend.dev&gt;</div>
+                    <div><span className="font-bold text-white/40">From:</span> Alpha Spark Academy &lt;no-reply@alphaspark.ng&gt;</div>
                     <div>
                       <span className="font-bold text-white/40">To:</span>{" "}
                       {commTab === "newsletter" && (subscribers.length > 0 ? `${subscribers[0].email} (+${subscribers.length - 1} others)` : "No subscribers yet")}

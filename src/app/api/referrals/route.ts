@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     const emailHtml = await render(React.createElement(ReferralEmail, { friendName: friendName || 'Friend', referrerName }));
 
     await resend.emails.send({
-      from: 'Alpha Spark Academy <no-reply@resend.dev>', // In production, use a verified domain
+      from: 'Alpha Spark Academy <no-reply@alphaspark.ng>',
       to: friendEmail,
       subject: `${referrerName} invited you to Alpha Spark Academy!`,
       html: emailHtml,

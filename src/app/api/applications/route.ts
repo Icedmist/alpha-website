@@ -96,7 +96,7 @@ export async function POST(req: Request) {
 
         // Email to applicant
         await resend.emails.send({
-          from: 'Alpha Spark Academy <no-reply@resend.dev>', // Will need verified domain in production
+          from: 'Alpha Spark Academy <no-reply@alphaspark.ng>',
           to: userEmail,
           subject: 'Welcome to Alpha Spark Academy',
           html: emailHtml
@@ -104,8 +104,8 @@ export async function POST(req: Request) {
 
         // Email to admin
         await resend.emails.send({
-          from: 'Alpha Spark Notifications <no-reply@resend.dev>',
-          to: 'admissions@alphaspark.com', // Change to actual admin email
+          from: 'Alpha Spark Notifications <no-reply@alphaspark.ng>',
+          to: process.env.ADMIN_EMAIL || 'ibrahimimamnasir@gmail.com',
           subject: `New Academy Application: ${program}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
