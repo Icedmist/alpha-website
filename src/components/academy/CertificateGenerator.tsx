@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
-import { X, Printer, Award, ShieldCheck, Download } from "lucide-react";
+import { X, Printer, Award, ShieldCheck, Download, Loader2 } from "lucide-react";
 import { Course } from "../../data/courses";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 interface CertificateGeneratorProps {
   studentName: string;
@@ -18,9 +20,58 @@ export default function CertificateGenerator({
   issueDate,
   onClose
 }: CertificateGeneratorProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
   
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    setIsGenerating(true);
+    try {
+      const printArea = document.getElementById("print-area");
+      if (!printArea) return;
+      
+      const canvas = await html2canvas(printArea, {
+        scale: 2, // higher resolution
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4"
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      // The print area is 960x640, which is an aspect ratio of 1.5
+      // A4 landscape is 297x210, aspect ratio of ~1.414
+      // We scale to fit
+      const imgProps = pdf.getImageProperties(imgData);
+      const imgRatio = imgProps.width / imgProps.height;
+      const pdfRatio = pdfWidth / pdfHeight;
+      
+      let finalWidth = pdfWidth;
+      let finalHeight = pdfHeight;
+      
+      if (imgRatio > pdfRatio) {
+        finalHeight = pdfWidth / imgRatio;
+      } else {
+        finalWidth = pdfHeight * imgRatio;
+      }
+      
+      const x = (pdfWidth - finalWidth) / 2;
+      const y = (pdfHeight - finalHeight) / 2;
+
+      pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
+      pdf.save(`AlphaSpark_Certificate_${certificateId}.pdf`);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      // Fallback to print
+      window.print();
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -66,9 +117,18 @@ export default function CertificateGenerator({
           <div className="flex items-center gap-4">
             <button
               onClick={handlePrint}
-              className="bg-brand-orange hover:bg-brand-orange/90 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
+              disabled={isGenerating}
+              className="bg-brand-orange hover:bg-brand-orange/90 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Printer className="w-4 h-4" /> Print / PDF
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" /> Generating...
+                </>
+              ) : (
+                <>
+                  <Printer className="w-4 h-4" /> Print / PDF
+                </>
+              )}
             </button>
             <button
               onClick={onClose}

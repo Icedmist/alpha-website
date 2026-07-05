@@ -119,10 +119,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
       if (user) {
+        // Check session expiry (10 hours)
+        const TEN_HOURS_MS = 10 * 60 * 60 * 1000;
+        const lastSignInTime = user.metadata.lastSignInTime;
+        const lastSignIn = lastSignInTime ? new Date(lastSignInTime).getTime() : Date.now();
+        const now = Date.now();
+        
+        if (now - lastSignIn > TEN_HOURS_MS) {
+          // Session expired
+          await firebaseSignOut(auth);
+          setCurrentUser(null);
+          setAllUsers([]);
+          setLoading(false);
+          return;
+        }
+
         await loadProfile();
+
+        // Set timer for the remaining time until expiry
+        const timeUntilExpiry = TEN_HOURS_MS - (now - lastSignIn);
+        timeoutId = setTimeout(async () => {
+          await firebaseSignOut(auth);
+          setCurrentUser(null);
+          setAllUsers([]);
+          window.location.href = '/dashboard'; // Redirect to login
+        }, timeUntilExpiry);
+
       } else {
         setCurrentUser(null);
         setAllUsers([]);
@@ -130,7 +157,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
     
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
