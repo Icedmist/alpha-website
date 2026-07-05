@@ -185,6 +185,17 @@ export default function AcademyDashboard() {
                     <Users className="w-3.5 h-3.5 text-pink-400" />
                     Partners & Sponsors
                   </button>
+                  <button 
+                    onClick={() => handleTabClick("admin_communications")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
+                      activeTab === "admin_communications" 
+                        ? "text-white bg-white/10" 
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <Mail className="w-3.5 h-3.5 text-[#0099CC]" />
+                    Communications
+                  </button>
                 </>
               ) : currentUser.role === "instructor" ? (
                 <>

@@ -10,7 +10,7 @@ import PaymentSimulator from "./PaymentSimulator";
 import CertificateGenerator from "./CertificateGenerator";
 
 export default function StudentDashboard() {
-  const { currentUser, updateUser } = useAuth();
+  const { currentUser, updateUser, getAuthHeaders } = useAuth();
   if (!currentUser) return null;
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
@@ -26,6 +26,42 @@ export default function StudentDashboard() {
   const [assignmentLink, setAssignmentLink] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // Referral states
+  const [friendName, setFriendName] = useState("");
+  const [friendEmail, setFriendEmail] = useState("");
+  const [isReferring, setIsReferring] = useState(false);
+  const [referralSuccess, setReferralSuccess] = useState(false);
+
+  const handleReferralSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!friendEmail) return;
+
+    setIsReferring(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/referrals', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ friendEmail, friendName }),
+      });
+
+      if (res.ok) {
+        setReferralSuccess(true);
+        setFriendEmail("");
+        setFriendName("");
+        setTimeout(() => setReferralSuccess(false), 5000);
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || 'Failed to send referral');
+      }
+    } catch (err) {
+      console.error('Error sending referral:', err);
+      alert('Failed to send referral');
+    } finally {
+      setIsReferring(false);
+    }
+  };
 
   const [activeCourses, setActiveCourses] = useState<Course[]>([]);
 
@@ -411,6 +447,49 @@ export default function StudentDashboard() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Refer a Friend Section */}
+          <div className="bg-gradient-to-br from-brand-navy to-black border border-white/10 p-6 md:p-8 rounded-[32px] space-y-6 relative overflow-hidden">
+            <div className="absolute -top-24 -right-24 w-64 h-64 bg-brand-orange/20 rounded-full blur-[80px] pointer-events-none" />
+            <h3 className="font-display font-black text-xl md:text-2xl uppercase italic tracking-tight text-white flex items-center gap-3 relative z-10">
+              <Link2 className="text-brand-orange w-5 h-5 md:w-6 md:h-6" /> Invite a Friend
+            </h3>
+            <p className="text-sm text-white/50 relative z-10 max-w-xl">
+              Know someone who would benefit from Alpha Spark Academy? Refer them and help them launch their tech career.
+            </p>
+            
+            {referralSuccess ? (
+              <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-2xl flex items-center gap-3 relative z-10">
+                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <p className="text-xs font-bold text-green-400">Referral sent successfully! Thank you for sharing Alpha Spark Academy.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleReferralSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+                <input 
+                  type="text" 
+                  placeholder="Friend's Name" 
+                  value={friendName}
+                  onChange={(e) => setFriendName(e.target.value)}
+                  className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-brand-orange transition-colors w-full"
+                />
+                <input 
+                  type="email" 
+                  required
+                  placeholder="Friend's Email" 
+                  value={friendEmail}
+                  onChange={(e) => setFriendEmail(e.target.value)}
+                  className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-brand-orange transition-colors w-full"
+                />
+                <button 
+                  type="submit" 
+                  disabled={isReferring || !friendEmail}
+                  className="bg-brand-orange hover:bg-brand-orange/90 disabled:opacity-50 text-white rounded-xl px-4 py-3 text-xs font-black uppercase tracking-wider transition-colors w-full"
+                >
+                  {isReferring ? 'Sending...' : 'Send Invitation'}
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Available Courses */}

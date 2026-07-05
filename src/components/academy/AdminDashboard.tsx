@@ -18,7 +18,7 @@ interface Partner {
   createdAt: string;
 }
 
-type AdminTab = "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities" | "partners";
+type AdminTab = "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities" | "partners" | "communications";
 
 interface AdminDashboardProps {
   activeView?: AdminTab;
@@ -60,6 +60,70 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
   const [printData, setPrintData] = useState<CertificateProps | null>(null);
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const certificateRef = React.useRef<HTMLDivElement>(null);
+
+  // Communications state
+  const [commTab, setCommTab] = useState<"newsletter" | "manual" | "referral">("newsletter");
+  const [commForm, setCommForm] = useState({ subject: "", title: "", content: "", emails: "" });
+  const [referralForm, setReferralForm] = useState({ friendName: "", referrerName: "", email: "" });
+  const [isSendingComm, setIsSendingComm] = useState(false);
+
+  const handleSendCommunications = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingComm(true);
+    try {
+      let payload: any = {};
+      
+      if (commTab === "newsletter") {
+        if (subscribers.length === 0) {
+          alert("No subscribers found!");
+          setIsSendingComm(false);
+          return;
+        }
+        payload = {
+          emailType: "newsletter",
+          subject: commForm.subject,
+          title: commForm.title,
+          content: commForm.content.split('\n').filter(Boolean),
+          emails: subscribers.map(s => s.email)
+        };
+      } else if (commTab === "manual") {
+        payload = {
+          emailType: "manual",
+          subject: commForm.subject,
+          title: commForm.title,
+          content: commForm.content.split('\n').filter(Boolean),
+          emails: commForm.emails.split(',').map(e => e.trim()).filter(Boolean)
+        };
+      } else if (commTab === "referral") {
+        payload = {
+          emailType: "referral",
+          friendName: referralForm.friendName,
+          referrerName: referralForm.referrerName,
+          emails: [referralForm.email]
+        };
+      }
+
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/admin/communications", {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      if (res.ok) {
+        alert("Emails sent successfully!");
+        setCommForm({ subject: "", title: "", content: "", emails: "" });
+        setReferralForm({ friendName: "", referrerName: "", email: "" });
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to send emails.");
+      }
+    } catch (err: any) {
+      alert("Error sending emails: " + err.message);
+    } finally {
+      setIsSendingComm(false);
+    }
+  };
 
   const handleDownloadCertificate = async (data: CertificateProps) => {
     setIsGenerating(data.certId);

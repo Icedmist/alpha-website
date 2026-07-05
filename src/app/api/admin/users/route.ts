@@ -1,6 +1,7 @@
 import { db, adminAuth } from '../../../../lib/firebase-admin';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { resend } from '../../../../lib/resend';
 
 export async function GET() {
   try {
@@ -178,6 +179,35 @@ export async function POST(request: Request) {
     };
 
     await db.collection('users').doc(userRecord.uid).set(userProfile);
+
+    // Send Welcome Email
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: 'Alpha Spark Academy <onboarding@resend.dev>', // Will need verified domain in production
+          to: email,
+          subject: 'Welcome to Alpha Spark Academy!',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2>Welcome to Alpha Spark Academy!</h2>
+              <p>Hi ${name},</p>
+              <p>An administrator has created an account for you at Alpha Spark Academy.</p>
+              <p><strong>Your Role:</strong> ${role.charAt(0).toUpperCase() + role.slice(1)}</p>
+              <p><strong>Your Login Email:</strong> ${email}</p>
+              <br/>
+              <p>Please log in using the credentials provided to you by your administrator, or use the "Forgot Password" link on the login page if you need to set a new password.</p>
+              <p><a href="https://alpha-spark-academy.vercel.app/academy" style="display:inline-block; padding:10px 20px; background-color:#F4A261; color:#fff; text-decoration:none; border-radius:5px;">Go to Dashboard</a></p>
+              <br/>
+              <p>We are thrilled to have you onboard!</p>
+              <p>Best regards,</p>
+              <p><strong>Alpha Spark Academy Team</strong></p>
+            </div>
+          `
+        });
+      } catch (err) {
+        console.error('Error sending welcome email via Resend:', err);
+      }
+    }
 
     return NextResponse.json({ success: true, user: { id: userRecord.uid, ...userProfile } });
   } catch (error: any) {
