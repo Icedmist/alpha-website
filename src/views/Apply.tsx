@@ -57,6 +57,15 @@ export default function Apply() {
       }
 
       setStep(4); // Success step
+      
+      // Auto-redirect to WhatsApp
+      setTimeout(() => {
+        const applicantName = currentUser ? currentUser.name : `${formData.firstName} ${formData.lastName}`.trim();
+        const applicantEmail = currentUser ? currentUser.email : formData.email;
+        const message = `Hello! I am registering for Alpha Spark Academy.\nName: ${applicantName}\nEmail: ${applicantEmail}\nProgram: ${formData.program}\nReference Mail: ishaqsultan7541@gmail.com`;
+        window.location.href = `https://wa.me/2349117514707?text=${encodeURIComponent(message)}`;
+      }, 2500);
+
     } catch (err: any) {
       console.error("Application submission failed:", err);
       setSubmitError(err.message || "An unexpected error occurred during submission.");
@@ -328,21 +337,26 @@ export default function Apply() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-12 space-y-8 relative z-10"
               >
-                <div className="w-32 h-32 bg-brand-orange rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-brand-orange/40">
+                <div className="w-32 h-32 bg-[#25D366] rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-[#25D366]/40">
                   <CheckCircle2 className="w-16 h-16 text-white" />
                 </div>
                 <div className="space-y-4">
-                  <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight">Application & Enrollment Successful!</h2>
+                  <h2 className="font-display font-black text-3xl md:text-4xl uppercase italic tracking-tight">Redirecting to WhatsApp...</h2>
                   <p className="text-white/40 max-w-sm mx-auto italic text-sm md:text-base">
-                    Welcome to the academy! Your student account has been created/updated, and you are automatically enrolled in the {formData.program} track.
+                    Your application is submitted! You are being redirected to WhatsApp to finalize your registration.
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <button 
-                    onClick={() => window.location.href = "https://academy.alphaspark.ng"}
-                    className="bg-brand-orange hover:bg-brand-orange/90 text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
+                    onClick={() => {
+                      const applicantName = currentUser ? currentUser.name : `${formData.firstName} ${formData.lastName}`.trim();
+                      const applicantEmail = currentUser ? currentUser.email : formData.email;
+                      const message = `Hello! I am registering for Alpha Spark Academy.\nName: ${applicantName}\nEmail: ${applicantEmail}\nProgram: ${formData.program}\nReference Mail: ishaqsultan7541@gmail.com`;
+                      window.location.href = `https://wa.me/2349117514707?text=${encodeURIComponent(message)}`;
+                    }}
+                    className="bg-[#25D366] hover:bg-[#20bd5a] text-white px-8 py-4 rounded-full text-xs font-black uppercase tracking-widest transition-colors cursor-pointer"
                   >
-                    Go to Academy
+                    Open WhatsApp Now
                   </button>
                   <button 
                     onClick={() => window.location.href = "/"}
