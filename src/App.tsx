@@ -26,6 +26,7 @@ import Roadmap from "./views/Roadmap";
 import Contact from "./views/Contact";
 import Apply from "./views/Apply";
 import AcademyDashboard from "./views/AcademyDashboard";
+import TrackDetail from "./views/TrackDetail";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -366,6 +367,8 @@ export default function App() {
         } else if (pathname.startsWith("/academy/")) {
           const subPath = pathname.replace(/^\/academy/, "");
           window.location.href = `${academyBaseUrl}${subPath}${search}`;
+        } else if (pathname.startsWith("/track/")) {
+          window.location.href = `${academyBaseUrl}${pathname}${search}`;
         }
       }
     }
@@ -383,6 +386,7 @@ export default function App() {
                 <Route path="/dashboard" element={<AcademyDashboard />} />
                 <Route path="/academy/dashboard" element={<AcademyDashboard />} />
                 <Route path="/academy" element={<Academy />} />
+                <Route path="/track/:slug" element={<TrackDetail />} />
                 <Route path="*" element={<AcademyDashboard />} />
               </>
             ) : (

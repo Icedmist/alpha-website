@@ -39,7 +39,6 @@ export interface Course {
   tools: string[];
   iconName: string;
   imageUrl?: string;
-  imageUrl?: string;
   modules: Module[];
 }
 

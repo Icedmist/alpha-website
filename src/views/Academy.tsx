@@ -18,27 +18,18 @@ import {
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { courses, Course } from "../data/courses";
+import { tracks } from "../data/tracks";
 import CourseCard from "../components/CourseCard";
 
 export default function Academy() {
   const [searchParams] = useSearchParams();
   const activeCourseId = searchParams.get("course");
 
-  const tracks = [
-    { name: "AI Fundamentals", image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=800", icon: BrainCircuit, desc: "Master the basics of Generative AI and prompt engineering." },
-    { name: "Data Analysis", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800", icon: BarChart3, desc: "Turning raw data into strategic insights for decision making." },
-    { name: "Programming", image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=800", icon: Code, desc: "Software development from web apps to system infrastructure." },
-    { name: "Cybersecurity Alertness", image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800", icon: ShieldCheck, desc: "Protecting digital assets in an increasingly connected world." },
-    { name: "Digital Literacy", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800", icon: Megaphone, desc: "Foundational skills for the modern digital workplace." },
-    { name: "Productivity & Automation", image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800", icon: Rocket, desc: "Optimizing workflows using modern digital tools." },
-    { name: "Career Readiness", image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=800", icon: Target, desc: "Soft skills and professional branding for global employment." },
-  ];
-
   const formats = [
     { title: "Bootcamps", duration: "12-16 Weeks", image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=600", desc: "Immersive, full-time career-changing programs.", icon: GraduationCap },
     { title: "Cohort-based", duration: "4-8 Weeks", image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=600", desc: "Structured community-driven learning models.", icon: Users },
     { title: "Institutional", duration: "Semester-Long", image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=600", desc: "Curriculum integration for schools and universities.", icon: Building },
-    { title: "Corporate", duration: "Customizable", image: "https://images.unsplash.com/photo-1556761175-5973dc0f32b7?q=80&w=600", desc: "Upskilling tracks for existing employees.", icon: Briefcase }
+    { title: "Corporate", duration: "Customizable", image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600", desc: "Upskilling tracks for existing employees.", icon: Briefcase }
   ];
 
   const containerVariants: Variants = {
@@ -191,26 +182,33 @@ export default function Academy() {
                 <motion.div 
                   key={track.name}
                   variants={itemVariants}
-                  className={`bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-orange/30 transition-colors group cursor-default flex flex-col md:flex-row ${isFeatured ? 'lg:col-span-2' : ''}`}
                 >
-                  <div className="w-full md:w-2/5 h-48 md:h-auto relative overflow-hidden shrink-0 border-b md:border-b-0 md:border-r border-white/10">
-                    <img src={track.image} alt={track.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
-                    <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-brand-navy/90 via-brand-navy/50 to-transparent" />
-                    <div className="absolute bottom-4 left-4 w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-                       <Icon className="w-5 h-5 text-white" />
+                  <Link 
+                    to={`/track/${track.slug}`}
+                    className={`bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-brand-orange/50 transition-colors group cursor-pointer flex flex-col md:flex-row h-full ${isFeatured ? 'lg:col-span-2' : ''}`}
+                  >
+                    <div className="w-full md:w-2/5 h-48 md:h-auto relative overflow-hidden shrink-0 border-b md:border-b-0 md:border-r border-white/10">
+                      <img src={track.image} alt={track.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
+                      <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-brand-navy/90 via-brand-navy/50 to-transparent" />
+                      <div className="absolute bottom-4 left-4 w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                         <Icon className="w-5 h-5 text-white" />
+                      </div>
                     </div>
-                  </div>
-                  <div className="p-6 md:p-8 flex flex-col justify-center flex-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <h3 className={`font-display font-black uppercase italic tracking-tight ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}>
-                        {track.name}
-                      </h3>
-                      <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-brand-orange group-hover:translate-x-1 transition-all shrink-0" />
+                    <div className="p-6 md:p-8 flex flex-col justify-center flex-1">
+                      <div className="flex items-start justify-between mb-4">
+                        <h3 className={`font-display font-black uppercase italic tracking-tight ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}>
+                          {track.name}
+                        </h3>
+                        <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-brand-orange group-hover:translate-x-1 transition-all shrink-0" />
+                      </div>
+                      <p className="text-white/50 leading-relaxed text-sm md:text-base max-w-md">
+                        {track.desc}
+                      </p>
+                      <div className="mt-6 text-[10px] uppercase tracking-[0.2em] font-bold text-brand-orange/0 group-hover:text-brand-orange transition-colors">
+                        View Track Details &rarr;
+                      </div>
                     </div>
-                    <p className="text-white/50 leading-relaxed text-sm md:text-base max-w-md">
-                      {track.desc}
-                    </p>
-                  </div>
+                  </Link>
                 </motion.div>
               );
             })}
