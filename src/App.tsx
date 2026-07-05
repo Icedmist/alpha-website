@@ -27,6 +27,7 @@ import Contact from "./views/Contact";
 import Apply from "./views/Apply";
 import AcademyDashboard from "./views/AcademyDashboard";
 import TrackDetail from "./views/TrackDetail";
+import CertificateVerification from "./views/CertificateVerification";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -77,10 +78,14 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
     }
   };
 
-  // Hide headers/footers for student/instructor/admin dashboards
-  const isDashboard = isAcademy
+  // Hide headers/footers for dashboards and verification pages
+  const isVerifySubdomain = typeof window !== "undefined" && (
+    window.location.hostname.startsWith('verify.alphaspark.ng') || 
+    window.location.hostname.startsWith('verify.localhost')
+  );
+  const isDashboard = isVerifySubdomain || pathname.startsWith("/verify") || (isAcademy
     ? (pathname === "/dashboard" || pathname === "/academy/dashboard") && !!currentUser
-    : pathname.startsWith("/academy/dashboard") && !!currentUser;
+    : pathname.startsWith("/academy/dashboard") && !!currentUser);
 
   const isLocal = typeof window !== "undefined" && (window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1'));
   const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.ng";
@@ -338,6 +343,7 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
 
 export default function App() {
   const [isAcademySubdomain, setIsAcademySubdomain] = useState(false);
+  const [isVerifySubdomain, setIsVerifySubdomain] = useState(false);
   
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -345,27 +351,41 @@ export default function App() {
       const pathname = window.location.pathname;
       const search = window.location.search;
       const isAcademy = 
-        window.location.hostname.startsWith('academy.alphaspark.ng') || 
-        window.location.hostname.startsWith('academy.localhost');
+        host.startsWith('academy.alphaspark.ng') || 
+        host.startsWith('academy.localhost');
+      const isVerify =
+        host.startsWith('verify.alphaspark.ng') ||
+        host.startsWith('verify.localhost');
       
       setIsAcademySubdomain(isAcademy);
+      setIsVerifySubdomain(isVerify);
       
-      if (isAcademy) {
+      if (isVerify) {
+        document.title = "Verify Certificate — Alpha Spark Academy";
+      } else if (isAcademy) {
         document.title = "Alpha Spark Academy";
       }
 
-      const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1');
+      const isLocal = host.includes('localhost') || host.startsWith('127.0.0.1');
       const mainBaseUrl = isLocal ? "http://localhost:3000" : "https://alphaspark.ng";
       const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.ng";
+      const verifyBaseUrl = isLocal ? "http://verify.localhost:3000" : "https://verify.alphaspark.ng";
 
-      if (isAcademy) {
+      if (isVerify) {
+        // Verify subdomain — no redirects needed, it serves verification pages directly
+      } else if (isAcademy) {
         // Redirect main site routes back to root domain
         const mainSiteRoutes = ["/about", "/talent-cloud", "/roadmap", "/contact", "/apply"];
         if (mainSiteRoutes.some(route => pathname.startsWith(route))) {
           window.location.href = `${mainBaseUrl}${pathname}${search}`;
         }
+        // Redirect /verify on academy to verify subdomain
+        if (pathname.startsWith("/verify")) {
+          const subPath = pathname.replace(/^\/verify/, "");
+          window.location.href = `${verifyBaseUrl}${subPath}${search}`;
+        }
       } else {
-        // Redirect academy paths to academy subdomain
+        // Main site — redirect academy paths to academy subdomain
         if (pathname === "/academy") {
           window.location.href = `${academyBaseUrl}/${search}`;
         } else if (pathname.startsWith("/academy/")) {
@@ -373,6 +393,11 @@ export default function App() {
           window.location.href = `${academyBaseUrl}${subPath}${search}`;
         } else if (pathname.startsWith("/track/")) {
           window.location.href = `${academyBaseUrl}${pathname}${search}`;
+        }
+        // Redirect /verify on main site to verify subdomain
+        if (pathname.startsWith("/verify")) {
+          const subPath = pathname.replace(/^\/verify/, "");
+          window.location.href = `${verifyBaseUrl}${subPath}${search}`;
         }
       }
     }
@@ -384,7 +409,13 @@ export default function App() {
       <AuthProvider>
         <Layout isAcademy={isAcademySubdomain}>
           <Routes>
-            {isAcademySubdomain ? (
+            {isVerifySubdomain ? (
+              <>
+                <Route path="/" element={<CertificateVerification />} />
+                <Route path="/:id" element={<CertificateVerification />} />
+                <Route path="*" element={<CertificateVerification />} />
+              </>
+            ) : isAcademySubdomain ? (
               <>
                 <Route path="/" element={<Academy />} />
                 <Route path="/dashboard" element={<AcademyDashboard />} />

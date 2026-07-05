@@ -29,6 +29,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(`${protocol}://${targetHost}${url.pathname}${url.search}`)
   }
 
+  // 3. Verify subdomain — let it serve content directly (no redirect)
+  const isProdVerify = hostname === 'verify.alphaspark.ng'
+  const isLocalVerify = hostname.startsWith('verify.localhost')
+  if (isProdVerify || isLocalVerify) {
+    return NextResponse.next()
+  }
+
+  // 4. If on main site or academy, but trying /verify/* -> Redirect to verify subdomain
+  if ((isMainContext || isAcademyContext) && url.pathname.startsWith('/verify')) {
+    const targetHost = (isLocalMain || isLocalAcademy) ? 'verify.localhost:3000' : 'verify.alphaspark.ng'
+    const protocol = request.headers.get('x-forwarded-proto') || 'http'
+    const subPath = url.pathname.replace(/^\/verify/, '') || '/'
+    return NextResponse.redirect(`${protocol}://${targetHost}${subPath}${url.search}`)
+  }
+
   return NextResponse.next()
 }
 
