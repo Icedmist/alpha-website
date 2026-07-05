@@ -1659,7 +1659,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                       {/* Logo Section */}
                       <div className="text-center">
                         <img
-                          src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/logo.png"
+                          src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/assets/logo.png"
                           width="100"
                           alt="Alpha Spark"
                           className="mx-auto"

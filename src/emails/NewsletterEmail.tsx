@@ -36,7 +36,7 @@ export const NewsletterEmail = ({
           <Container className="border border-solid border-[#ffffff1a] rounded my-[40px] mx-auto p-[20px] w-[600px] max-w-full">
             <Section className="mt-[20px] mb-[20px] text-center">
               <Img
-                src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/logo.png"
+                src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/assets/logo.png"
                 width="100"
                 alt="Alpha Spark"
                 className="my-0 mx-auto"

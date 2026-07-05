@@ -341,6 +341,25 @@ function Layout({ children, isAcademy }: { children: ReactNode; isAcademy: boole
   );
 }
 
+function AcademyRedirect() {
+  const location = useLocation();
+  useEffect(() => {
+    const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.startsWith('127.0.0.1');
+    const academyBaseUrl = isLocal ? "http://academy.localhost:3000" : "https://academy.alphaspark.ng";
+    
+    let targetPath = location.pathname;
+    if (location.pathname === '/academy' || location.pathname === '/academy/') {
+      targetPath = '/';
+    } else if (location.pathname.startsWith('/academy/')) {
+      targetPath = location.pathname.replace(/^\/academy/, '');
+    }
+    
+    window.location.href = `${academyBaseUrl}${targetPath}${location.search}`;
+  }, [location]);
+  
+  return null;
+}
+
 export default function App() {
   const [isAcademySubdomain, setIsAcademySubdomain] = useState(false);
   const [isVerifySubdomain, setIsVerifySubdomain] = useState(false);
@@ -432,6 +451,10 @@ export default function App() {
                 <Route path="/roadmap" element={<Roadmap />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/apply" element={<Apply />} />
+                <Route path="/academy" element={<AcademyRedirect />} />
+                <Route path="/academy/*" element={<AcademyRedirect />} />
+                <Route path="/track/:slug" element={<AcademyRedirect />} />
+                <Route path="/dashboard" element={<AcademyRedirect />} />
                 <Route path="*" element={<Home />} />
               </>
             )}

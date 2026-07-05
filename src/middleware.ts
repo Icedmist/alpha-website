@@ -5,26 +5,39 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone()
   const hostname = request.headers.get('host') || ''
 
+  const hostParts = hostname.split(':')
+  const hostNameOnly = hostParts[0]
+  const port = hostParts[1] ? `:${hostParts[1]}` : ''
+
   // Define your domain contexts
-  const isProdAcademy = hostname === 'academy.alphaspark.ng'
-  const isLocalAcademy = hostname.startsWith('academy.localhost')
+  const isProdAcademy = hostNameOnly === 'academy.alphaspark.ng'
+  const isLocalAcademy = hostNameOnly.startsWith('academy.localhost')
   const isAcademyContext = isProdAcademy || isLocalAcademy
 
-  const isProdMain = hostname === 'alphaspark.ng'
-  const isLocalMain = hostname === 'localhost:3000' || hostname.startsWith('127.0.0.1')
+  const isProdMain = hostNameOnly === 'alphaspark.ng'
+  const isLocalMain = hostNameOnly === 'localhost' || hostNameOnly === '127.0.0.1'
   const isMainContext = isProdMain || isLocalMain
 
   // 1. If on Main Site context, but trying to hit academy paths -> Redirect to Academy Subdomain
   if (isMainContext && (url.pathname.startsWith('/academy') || url.pathname.startsWith('/dashboard'))) {
-    const targetHost = isLocalMain ? 'academy.localhost:3000' : 'academy.alphaspark.ng'
+    const targetHost = isLocalMain ? `academy.localhost${port}` : 'academy.alphaspark.ng'
     const protocol = request.headers.get('x-forwarded-proto') || 'http'
-    return NextResponse.redirect(`${protocol}://${targetHost}${url.pathname}${url.search}`)
+    
+    // Clean up the pathname: strip /academy prefix if redirecting to academy subdomain
+    let targetPath = url.pathname
+    if (url.pathname === '/academy' || url.pathname === '/academy/') {
+      targetPath = '/'
+    } else if (url.pathname.startsWith('/academy/')) {
+      targetPath = url.pathname.replace(/^\/academy/, '')
+    }
+    
+    return NextResponse.redirect(`${protocol}://${targetHost}${targetPath}${url.search}`)
   }
 
   // 2. If on Academy context, but trying to hit public main site paths -> Redirect to Main Site
   const publicMainPaths = ['/about', '/roadmap', '/apply', '/talent-cloud', '/contact']
   if (isAcademyContext && publicMainPaths.some(path => url.pathname.startsWith(path))) {
-    const targetHost = isLocalAcademy ? 'localhost:3000' : 'alphaspark.ng'
+    const targetHost = isLocalAcademy ? `localhost${port}` : 'alphaspark.ng'
     const protocol = request.headers.get('x-forwarded-proto') || 'http'
     return NextResponse.redirect(`${protocol}://${targetHost}${url.pathname}${url.search}`)
   }
@@ -38,7 +51,7 @@ export function middleware(request: NextRequest) {
 
   // 4. If on main site or academy, but trying /verify/* -> Redirect to verify subdomain
   if ((isMainContext || isAcademyContext) && url.pathname.startsWith('/verify')) {
-    const targetHost = (isLocalMain || isLocalAcademy) ? 'verify.localhost:3000' : 'verify.alphaspark.ng'
+    const targetHost = (isLocalMain || isLocalAcademy) ? `verify.localhost${port}` : 'verify.alphaspark.ng'
     const protocol = request.headers.get('x-forwarded-proto') || 'http'
     const subPath = url.pathname.replace(/^\/verify/, '') || '/'
     return NextResponse.redirect(`${protocol}://${targetHost}${subPath}${url.search}`)

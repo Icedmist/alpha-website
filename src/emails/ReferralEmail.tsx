@@ -34,7 +34,7 @@ export const ReferralEmail = ({
           <Container className="border border-solid border-[#ffffff1a] rounded my-[40px] mx-auto p-[20px] w-[465px]">
             <Section className="mt-[32px] text-center">
               <Img
-                src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/logo.png"
+                src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/assets/logo.png"
                 width="120"
                 alt="Alpha Spark Academy"
                 className="my-0 mx-auto"
