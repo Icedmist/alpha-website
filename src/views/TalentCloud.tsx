@@ -29,55 +29,72 @@ export default function TalentCloud() {
     // Read from sandbox
     const rawUsers = localStorage.getItem("alpha_academy_users");
     const users = rawUsers ? JSON.parse(rawUsers) : [];
-    const localCoursesStr = localStorage.getItem("alpha_custom_courses");
-    const activeCourses: Course[] = localCoursesStr ? JSON.parse(localCoursesStr) : courses;
 
-    const list: Graduate[] = [];
-
-    // Seed mock graduates for visual fullness
-    const mockGraduates: Graduate[] = [
-      {
-        id: "mock-1",
-        name: "Mustapha Yusuf",
-        courseTitle: "Machine Learning & AI",
-        certId: "AS-MLAI-YUSUF9",
-        skills: ["Python", "TensorFlow", "Scikit-Learn"],
-        date: "05/12/2025"
-      },
-      {
-        id: "mock-2",
-        name: "Sani Ibrahim",
-        courseTitle: "Cloud Architecture & DevOps",
-        certId: "AS-CLDE-IBRAH2",
-        skills: ["Docker", "Kubernetes", "AWS", "Terraform"],
-        date: "06/01/2026"
-      }
-    ];
-
-    // Read real graduates from registry
-    users.forEach((user: any) => {
-      user.enrolledCourses?.forEach((courseId: string) => {
-        const course = activeCourses.find(c => c.id === courseId);
-        if (!course) return;
-
-        const courseLessons = course.modules.flatMap(m => m.lessons);
-        const completedAll = courseLessons.length > 0 && courseLessons.every(l => user.completedLessons?.includes(l.id));
-
-        if (completedAll) {
-          list.push({
-            id: `${user.id}-${course.id}`,
-            name: user.name,
-            courseTitle: course.title,
-            certId: `AS-${course.id.toUpperCase()}-${user.id.substring(2).toUpperCase()}`,
-            skills: course.tools.slice(0, 3),
-            date: new Date().toLocaleDateString()
-          });
+    const fetchCoursesAndMatch = async () => {
+      let activeCourses: Course[] = [];
+      try {
+        const res = await fetch("/api/courses");
+        if (res.ok) {
+          activeCourses = await res.json();
         }
-      });
-    });
+      } catch (err) {
+        console.error("Failed to fetch courses for TalentCloud:", err);
+      }
 
-    // Combine real + mock
-    setGraduates([...list, ...mockGraduates]);
+      if (!activeCourses || activeCourses.length === 0) {
+        const localCoursesStr = localStorage.getItem("alpha_custom_courses");
+        activeCourses = localCoursesStr ? JSON.parse(localCoursesStr) : courses;
+      }
+
+      const list: Graduate[] = [];
+
+      // Seed mock graduates for visual fullness
+      const mockGraduates: Graduate[] = [
+        {
+          id: "mock-1",
+          name: "Mustapha Yusuf",
+          courseTitle: "Machine Learning & AI",
+          certId: "AS-MLAI-YUSUF9",
+          skills: ["Python", "TensorFlow", "Scikit-Learn"],
+          date: "05/12/2025"
+        },
+        {
+          id: "mock-2",
+          name: "Sani Ibrahim",
+          courseTitle: "Cloud Architecture & DevOps",
+          certId: "AS-CLDE-IBRAH2",
+          skills: ["Docker", "Kubernetes", "AWS", "Terraform"],
+          date: "06/01/2026"
+        }
+      ];
+
+      // Read real graduates from registry
+      users.forEach((user: any) => {
+        user.enrolledCourses?.forEach((courseId: string) => {
+          const course = activeCourses.find(c => c.id === courseId);
+          if (!course) return;
+
+          const courseLessons = course.modules ? course.modules.flatMap(m => m.lessons) : [];
+          const completedAll = courseLessons.length > 0 && courseLessons.every(l => user.completedLessons?.includes(l.id));
+
+          if (completedAll) {
+            list.push({
+              id: `${user.id}-${course.id}`,
+              name: user.name,
+              courseTitle: course.title,
+              certId: `AS-${course.id.toUpperCase()}-${user.id.substring(2).toUpperCase()}`,
+              skills: course.tools ? course.tools.slice(0, 3) : [],
+              date: new Date().toLocaleDateString()
+            });
+          }
+        });
+      });
+
+      // Combine real + mock
+      setGraduates([...list, ...mockGraduates]);
+    };
+
+    fetchCoursesAndMatch();
   }, []);
 
   const features = [

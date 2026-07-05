@@ -16,14 +16,23 @@ import {
   Building,
   Briefcase
 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { courses, Course } from "../data/courses";
+import { Course } from "../data/courses";
 import { tracks } from "../data/tracks";
 import CourseCard from "../components/CourseCard";
 
 export default function Academy() {
+  const [coursesList, setCoursesList] = useState<Course[]>([]);
   const [searchParams] = useSearchParams();
   const activeCourseId = searchParams.get("course");
+
+  useEffect(() => {
+    fetch("/api/courses")
+      .then(res => res.json())
+      .then(data => setCoursesList(data))
+      .catch(console.error);
+  }, []);
 
   const formats = [
     { title: "Bootcamps", duration: "12-16 Weeks", image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=600", desc: "Immersive, full-time career-changing programs.", icon: GraduationCap },
@@ -227,7 +236,7 @@ export default function Academy() {
              </p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
-            {courses.map((course: Course) => (
+            {coursesList.map((course: Course) => (
               <div key={course.id} id={course.id}>
                 <CourseCard 
                   course={course} 

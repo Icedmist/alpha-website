@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { courses as academyCourses } from "../data/courses";
+import { Course } from "../data/courses";
 
 interface Partner {
   id: string;
@@ -31,11 +31,17 @@ interface Partner {
 
 export default function Home() {
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [academyCourses, setAcademyCourses] = useState<Course[]>([]);
 
   useEffect(() => {
     fetch("/api/partners")
       .then(res => res.json())
       .then(data => setPartners(data))
+      .catch(console.error);
+
+    fetch("/api/courses")
+      .then(res => res.json())
+      .then(data => setAcademyCourses(data))
       .catch(console.error);
   }, []);
 
