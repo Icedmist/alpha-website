@@ -26,31 +26,49 @@ export async function POST(req: Request) {
     const reqHeaders = await headers();
     const authHeader = reqHeaders.get('Authorization');
     
-    if (!authHeader?.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    let userId = '';
+    let userEmail = '';
+    let userName = '';
+    let isAuthenticated = false;
 
-    const token = authHeader.split('Bearer ')[1];
-    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
-    
-    const decodedToken = await adminAuth.verifyIdToken(token);
-    const userId = decodedToken.uid;
-    const userEmail = decodedToken.email || '';
-    const userName = decodedToken.name || userEmail.split('@')[0];
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.split('Bearer ')[1];
+      if (adminAuth) {
+        try {
+          const decodedToken = await adminAuth.verifyIdToken(token);
+          userId = decodedToken.uid;
+          userEmail = decodedToken.email || '';
+          userName = decodedToken.name || userEmail.split('@')[0];
+          isAuthenticated = true;
+        } catch (err) {
+          console.warn("Invalid auth token on application submission", err);
+        }
+      }
+    }
     
     const body = await req.json();
-
-    const { phone, location, program, background, experience, reason } = body;
+    const { firstName, lastName, email, phone, location, program, background, experience, reason } = body;
 
     if (!program) {
       return NextResponse.json({ error: 'Program is required' }, { status: 400 });
     }
 
+    if (!isAuthenticated) {
+      userName = `${firstName || ''} ${lastName || ''}`.trim() || 'Anonymous Applicant';
+      userEmail = email || '';
+    }
+
+    if (!userEmail && !isAuthenticated) {
+      return NextResponse.json({ error: 'Email is required for application' }, { status: 400 });
+    }
+
     const timestamp = new Date().toISOString();
     const courseId = mapProgramToCourseId(program);
 
+    const docRef = isAuthenticated && userId ? db.collection('applications').doc(userId) : db.collection('applications').doc();
+
     const application = {
-      userId,
+      userId: userId || docRef.id,
       name: userName,
       email: userEmail,
       phone: phone || '',
@@ -61,46 +79,53 @@ export async function POST(req: Request) {
       experience: experience || '',
       reason: reason || '',
       submittedAt: timestamp,
-      status: 'approved', // Automatically approved to grant direct course access
+      status: isAuthenticated ? 'approved' : 'pending',
     };
 
     // Save application in the 'applications' collection
-    await db.collection('applications').doc(userId).set(application);
+    await docRef.set(application);
 
-    // Enroll the student in their selected course
-    const userDoc = await db.collection('users').doc(userId).get();
-    const userData = userDoc.data() || {};
-    const enrolled = userData.enrolledCourses || [];
+    if (isAuthenticated) {
+      // Enroll the student in their selected course
+      const userDoc = await db.collection('users').doc(userId).get();
+      const userData = userDoc.data() || {};
+      const enrolled = userData.enrolledCourses || [];
 
-    if (!enrolled.includes(courseId)) {
-      enrolled.push(courseId);
+      if (!enrolled.includes(courseId)) {
+        enrolled.push(courseId);
+      }
+
+      const updatedProfile = {
+        ...userData,
+        name: userName,
+        email: userEmail,
+        phone: phone || userData.phone || '',
+        enrolledCourses: enrolled,
+        role: userData.role || 'student',
+        updatedAt: timestamp,
+      };
+
+      await db.collection('users').doc(userId).set(updatedProfile);
+
+      // Log the enrollment activity
+      await db.collection('activities').add({
+        userId,
+        userName: userName,
+        action: 'Course Enrollment',
+        details: `Enrolled in course: ${courseId} via Academy Application`,
+        timestamp,
+      });
+
+      return NextResponse.json({
+        success: true,
+        application,
+        profile: updatedProfile,
+      });
     }
-
-    const updatedProfile = {
-      ...userData,
-      name: userName,
-      email: userEmail,
-      phone: phone || userData.phone || '',
-      enrolledCourses: enrolled,
-      role: userData.role || 'student',
-      updatedAt: timestamp,
-    };
-
-    await db.collection('users').doc(userId).set(updatedProfile);
-
-    // Log the enrollment activity
-    await db.collection('activities').add({
-      userId,
-      userName: userName,
-      action: 'Course Enrollment',
-      details: `Enrolled in course: ${courseId} via Academy Application`,
-      timestamp,
-    });
 
     return NextResponse.json({
       success: true,
       application,
-      profile: updatedProfile,
     });
   } catch (error: any) {
     console.error('Error submitting application:', error);

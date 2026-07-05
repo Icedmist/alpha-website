@@ -166,6 +166,13 @@ function initMock() {
         return { uid: 'mock-admin-id', email: 'admin@alphaspark.ng' };
       }
       return { uid: 'mock-user-id', email: 'mock@example.com' };
+    },
+    createUser: async (props: any) => {
+      const uid = 'mock-' + Math.random().toString(36).substring(2, 10);
+      return { uid, email: props.email, displayName: props.displayName };
+    },
+    deleteUser: async (uid: string) => {
+      return true;
     }
   };
 }
