@@ -184,7 +184,7 @@ export async function POST(request: Request) {
     if (resend) {
       try {
         await resend.emails.send({
-          from: 'Alpha Spark Academy <onboarding@resend.dev>', // Will need verified domain in production
+          from: 'Alpha Spark Academy <no-reply@resend.dev>', // Will need verified domain in production
           to: email,
           subject: 'Welcome to Alpha Spark Academy!',
           html: `

@@ -8,10 +8,10 @@ import {
   Img,
   Preview,
   Section,
-  Text,
-  Tailwind,
   Link,
   Hr,
+  Text,
+  Tailwind,
 } from '@react-email/components';
 
 interface NewsletterEmailProps {

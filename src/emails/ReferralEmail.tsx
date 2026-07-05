@@ -6,12 +6,12 @@ import {
   Heading,
   Html,
   Img,
-  Link,
   Preview,
   Section,
+  Link,
+  Hr,
   Text,
   Tailwind,
-  Hr,
 } from '@react-email/components';
 
 interface ReferralEmailProps {

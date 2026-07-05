@@ -4,6 +4,7 @@ import { resend } from '../../../../lib/resend';
 import { render } from '@react-email/render';
 import NewsletterEmail from '../../../../emails/NewsletterEmail';
 import ReferralEmail from '../../../../emails/ReferralEmail';
+import WelcomeEmail from '../../../../emails/WelcomeEmail';
 import { headers } from 'next/headers';
 import React from 'react';
 
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { emailType = 'newsletter', subject, title, content, emails, friendName, referrerName } = body;
+    const { emailType = 'newsletter', subject, title, content, emails, friendName, referrerName, firstName } = body;
 
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
       return NextResponse.json({ error: 'Missing required emails' }, { status: 400 });
@@ -43,6 +44,8 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Missing referral fields' }, { status: 400 });
       }
       emailHtml = await render(React.createElement(ReferralEmail, { friendName, referrerName }));
+    } else if (emailType === 'welcome') {
+      emailHtml = await render(React.createElement(WelcomeEmail, { firstName: firstName || 'Future Innovator' }));
     } else {
       // Both newsletter and manual use the NewsletterEmail template
       if (!subject || !content) {
@@ -61,7 +64,11 @@ export async function POST(req: Request) {
       await resend.emails.send({
         from: 'Alpha Spark Academy <no-reply@resend.dev>', // In production, use a verified domain
         to: batch,
-        subject: emailType === 'referral' ? `${referrerName} invited you to Alpha Spark Academy!` : subject,
+        subject: emailType === 'referral' 
+          ? `${referrerName} invited you to Alpha Spark Academy!` 
+          : emailType === 'welcome' 
+            ? (subject || 'Welcome to Alpha Spark Academy!') 
+            : subject,
         html: emailHtml,
       });
     }

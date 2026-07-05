@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { 
   BarChart, Users, DollarSign, BookOpen, Award, Shield, 
   Trash2, UserPlus, RefreshCw, Layers, PlusCircle, Edit3, ShieldAlert,
-  Plus, Edit, Loader2, Download
+  Plus, Edit, Loader2, Download, Mail, Send, Sparkles, UserCheck, Share2
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -62,9 +62,10 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
   const certificateRef = React.useRef<HTMLDivElement>(null);
 
   // Communications state
-  const [commTab, setCommTab] = useState<"newsletter" | "manual" | "referral">("newsletter");
+  const [commTab, setCommTab] = useState<"newsletter" | "manual" | "welcome" | "referral">("newsletter");
   const [commForm, setCommForm] = useState({ subject: "", title: "", content: "", emails: "" });
   const [referralForm, setReferralForm] = useState({ friendName: "", referrerName: "", email: "" });
+  const [welcomeForm, setWelcomeForm] = useState({ subject: "", email: "", firstName: "" });
   const [isSendingComm, setIsSendingComm] = useState(false);
 
   const handleSendCommunications = async (e: React.FormEvent) => {
@@ -94,6 +95,13 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
           content: commForm.content.split('\n').filter(Boolean),
           emails: commForm.emails.split(',').map(e => e.trim()).filter(Boolean)
         };
+      } else if (commTab === "welcome") {
+        payload = {
+          emailType: "welcome",
+          subject: welcomeForm.subject || "Welcome to Alpha Spark Academy!",
+          firstName: welcomeForm.firstName,
+          emails: [welcomeForm.email]
+        };
       } else if (commTab === "referral") {
         payload = {
           emailType: "referral",
@@ -114,6 +122,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
         alert("Emails sent successfully!");
         setCommForm({ subject: "", title: "", content: "", emails: "" });
         setReferralForm({ friendName: "", referrerName: "", email: "" });
+        setWelcomeForm({ subject: "", email: "", firstName: "" });
       } else {
         const errorData = await res.json();
         alert(errorData.error || "Failed to send emails.");
@@ -183,15 +192,17 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
       loadAllUsers();
     }
 
-    if (activeTab === "system_activities") {
+    if (activeTab === "system_activities" || activeTab === "communications") {
       const fetchData = async () => {
         setLoadingActivities(true);
         try {
           const authHeaders = await getAuthHeaders();
-          const actRes = await fetch("/api/admin/activities", { headers: authHeaders });
-          if (actRes.ok) {
-            const actData = await actRes.json();
-            setActivities(actData);
+          if (activeTab === "system_activities") {
+            const actRes = await fetch("/api/admin/activities", { headers: authHeaders });
+            if (actRes.ok) {
+              const actData = await actRes.json();
+              setActivities(actData);
+            }
           }
           const subRes = await fetch("/api/admin/newsletter", { headers: authHeaders });
           if (subRes.ok) {
@@ -199,7 +210,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
             setSubscribers(subData);
           }
         } catch (err) {
-          console.error("Failed to fetch admin activities data:", err);
+          console.error("Failed to fetch admin activities/subscribers data:", err);
         } finally {
           setLoadingActivities(false);
         }
@@ -1376,6 +1387,367 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                       ))}
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "communications" && (
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Communications Hub</h2>
+              <p className="text-white/40 text-xs italic">Compose, preview, and broadcast newsletters, direct notifications, onboarding welcome templates, or invite links.</p>
+            </div>
+
+            {/* Sub-tab Selection */}
+            <div className="flex flex-wrap gap-2 border-b border-white/10 pb-4">
+              {[
+                { id: "newsletter", label: "Newsletter Broadcast", icon: Sparkles },
+                { id: "manual", label: "Direct Custom Email", icon: Send },
+                { id: "welcome", label: "Welcome Onboarding", icon: UserCheck },
+                { id: "referral", label: "Referral Invitation", icon: Share2 }
+              ].map(tab => {
+                const IconComponent = tab.icon;
+                const isActive = commTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setCommTab(tab.id as any)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                      isActive 
+                        ? "bg-brand-orange text-white shadow-lg shadow-brand-orange/20" 
+                        : "bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <IconComponent className="w-3.5 h-3.5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="grid lg:grid-cols-12 gap-8">
+              {/* Form Input Column */}
+              <div className="lg:col-span-7 space-y-6">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange mb-6">
+                    {commTab === "newsletter" && "Broadcast Newsletter"}
+                    {commTab === "manual" && "Send Direct Mail"}
+                    {commTab === "welcome" && "Send Onboarding Email"}
+                    {commTab === "referral" && "Send Referral Invite"}
+                  </h4>
+
+                  <form onSubmit={handleSendCommunications} className="space-y-4">
+                    {commTab === "newsletter" && (
+                      <>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Subject Line *</label>
+                          <input
+                            type="text"
+                            required
+                            value={commForm.subject}
+                            onChange={e => setCommForm({ ...commForm, subject: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. July Technical Bootcamp Update"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Header Title (Inside Email)</label>
+                          <input
+                            type="text"
+                            value={commForm.title}
+                            onChange={e => setCommForm({ ...commForm, title: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. Academy Monthly Bulletin"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Email Body Paragraphs *</label>
+                          <textarea
+                            required
+                            value={commForm.content}
+                            onChange={e => setCommForm({ ...commForm, content: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors min-h-[160px] font-sans resize-y"
+                            placeholder="Type paragraphs here. Press Enter to start a new paragraph."
+                          />
+                        </div>
+                        <div className="p-4 bg-brand-orange/5 border border-brand-orange/20 rounded-xl text-xs text-white/70">
+                          <strong>Note:</strong> This broadcast will go to all {subscribers.length} newsletter subscribers in the system database.
+                        </div>
+                      </>
+                    )}
+
+                    {commTab === "manual" && (
+                      <>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Recipient Emails * (Comma-separated)</label>
+                          <textarea
+                            required
+                            value={commForm.emails}
+                            onChange={e => setCommForm({ ...commForm, emails: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors min-h-[80px] font-sans resize-y"
+                            placeholder="e.g. user1@example.com, user2@example.com"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Subject Line *</label>
+                          <input
+                            type="text"
+                            required
+                            value={commForm.subject}
+                            onChange={e => setCommForm({ ...commForm, subject: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. Urgent Portal Update Required"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Header Title (Inside Email)</label>
+                          <input
+                            type="text"
+                            value={commForm.title}
+                            onChange={e => setCommForm({ ...commForm, title: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. Alpha Spark Academy Notification"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Email Body Paragraphs *</label>
+                          <textarea
+                            required
+                            value={commForm.content}
+                            onChange={e => setCommForm({ ...commForm, content: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors min-h-[160px] font-sans resize-y"
+                            placeholder="Type paragraphs here. Press Enter to start a new paragraph."
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {commTab === "welcome" && (
+                      <>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Recipient Email Address *</label>
+                          <input
+                            type="email"
+                            required
+                            value={welcomeForm.email}
+                            onChange={e => setWelcomeForm({ ...welcomeForm, email: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. student@gmail.com"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">First Name</label>
+                          <input
+                            type="text"
+                            value={welcomeForm.firstName}
+                            onChange={e => setWelcomeForm({ ...welcomeForm, firstName: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. David (defaults to 'Future Innovator')"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Subject Line</label>
+                          <input
+                            type="text"
+                            value={welcomeForm.subject}
+                            onChange={e => setWelcomeForm({ ...welcomeForm, subject: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. Welcome to Alpha Spark Academy!"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {commTab === "referral" && (
+                      <>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Friend's Email Address *</label>
+                          <input
+                            type="email"
+                            required
+                            value={referralForm.email}
+                            onChange={e => setReferralForm({ ...referralForm, email: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="friend@example.com"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Friend's Name *</label>
+                          <input
+                            type="text"
+                            required
+                            value={referralForm.friendName}
+                            onChange={e => setReferralForm({ ...referralForm, friendName: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. Jane"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Referrer's Name *</label>
+                          <input
+                            type="text"
+                            required
+                            value={referralForm.referrerName}
+                            onChange={e => setReferralForm({ ...referralForm, referrerName: e.target.value })}
+                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                            placeholder="e.g. Alex"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="pt-4">
+                      <button
+                        type="submit"
+                        disabled={isSendingComm}
+                        className="flex justify-center items-center gap-2 cursor-pointer bg-brand-orange hover:bg-brand-orange/90 disabled:opacity-50 text-white font-black text-xs uppercase tracking-wider px-6 py-4 rounded-xl w-full transition-colors"
+                      >
+                        {isSendingComm ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4" />
+                            Send Email
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Live Preview Column */}
+              <div className="lg:col-span-5 space-y-6">
+                <div className="bg-black/20 border border-white/10 rounded-2xl p-6 space-y-4">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-white/40">Email Live Preview</span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-orange/10 border border-brand-orange/20 text-brand-orange text-[8px] font-black uppercase">
+                      Draft Mockup
+                    </span>
+                  </div>
+
+                  {/* Mailbox Header Mockup */}
+                  <div className="text-[10px] space-y-1 bg-black/40 border border-white/5 rounded-xl p-3 text-white/60">
+                    <div><span className="font-bold text-white/40">From:</span> Alpha Spark Academy &lt;no-reply@resend.dev&gt;</div>
+                    <div>
+                      <span className="font-bold text-white/40">To:</span>{" "}
+                      {commTab === "newsletter" && (subscribers.length > 0 ? `${subscribers[0].email} (+${subscribers.length - 1} others)` : "No subscribers yet")}
+                      {commTab === "manual" && (commForm.emails ? commForm.emails : "[Enter email list]")}
+                      {commTab === "welcome" && (welcomeForm.email ? welcomeForm.email : "[Enter welcome email]")}
+                      {commTab === "referral" && (referralForm.email ? referralForm.email : "[Enter friend's email]")}
+                    </div>
+                    <div>
+                      <span className="font-bold text-white/40">Subject:</span>{" "}
+                      <span className="text-white">
+                        {commTab === "newsletter" && (commForm.subject || "[Enter subject line]")}
+                        {commTab === "manual" && (commForm.subject || "[Enter subject line]")}
+                        {commTab === "welcome" && (welcomeForm.subject || "Welcome to Alpha Spark Academy!")}
+                        {commTab === "referral" && (referralForm.referrerName ? `${referralForm.referrerName} invited you to Alpha Spark Academy!` : "[Referrer Name] invited you to Alpha Spark Academy!")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* HTML Render Mockup */}
+                  <div className="bg-[#0b0c10] border border-white/10 rounded-xl p-4 overflow-y-auto max-h-[400px] text-white">
+                    <div className="max-w-[465px] mx-auto p-2 space-y-6">
+                      {/* Logo Section */}
+                      <div className="text-center">
+                        <img
+                          src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/logo.png"
+                          width="100"
+                          alt="Alpha Spark"
+                          className="mx-auto"
+                        />
+                      </div>
+
+                      {/* Content Render based on Sub-tab */}
+                      {(commTab === "newsletter" || commTab === "manual") && (
+                        <div className="space-y-4">
+                          <h2 className="text-[#0099CC] text-sm font-black text-center uppercase tracking-widest italic">
+                            {commForm.title || commForm.subject || "Alpha Spark News"}
+                          </h2>
+                          <div className="bg-[#1f2833] p-4 rounded-xl border border-white/5 space-y-3">
+                            {commForm.content ? (
+                              commForm.content.split('\n').filter(Boolean).map((p, idx) => (
+                                <p key={idx} className="text-[#c5c6c7] text-[11px] leading-relaxed">
+                                  {p}
+                                </p>
+                              ))
+                            ) : (
+                              <p className="text-white/20 text-[11px] italic text-center py-6">Your paragraph text will render here dynamic in real-time.</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {commTab === "welcome" && (
+                        <div className="space-y-4 text-left">
+                          <h2 className="text-[#ff6b35] text-sm font-bold text-center uppercase tracking-widest italic">
+                            Welcome to the Future
+                          </h2>
+                          <div className="space-y-3 text-[11px] text-[#c5c6c7] leading-relaxed">
+                            <p>Dear {welcomeForm.firstName || "Future Innovator"},</p>
+                            <p>We have successfully received your application to Alpha Spark Academy. You have taken the first step towards transforming your tech career.</p>
+                            <p>Our admission team is reviewing your profile and will get back to you shortly. In the meantime, feel free to explore our syllabus and prepare yourself for an incredible journey.</p>
+                          </div>
+                          <div className="text-center py-2">
+                            <a
+                              href="https://wa.me/2348123456789"
+                              onClick={e => e.preventDefault()}
+                              className="inline-block bg-[#0099CC] rounded-lg text-white text-[9px] font-bold no-underline text-center px-4 py-2 uppercase tracking-wider"
+                            >
+                              Message us on WhatsApp
+                            </a>
+                          </div>
+                          <div className="text-[11px] text-[#c5c6c7] pt-2">
+                            Stay hungry,<br />
+                            The Alpha Spark Team
+                          </div>
+                        </div>
+                      )}
+
+                      {commTab === "referral" && (
+                        <div className="space-y-4 text-left">
+                          <h2 className="text-[#3bb75e] text-sm font-bold text-center uppercase tracking-widest italic">
+                            You're Invited!
+                          </h2>
+                          <div className="space-y-3 text-[11px] text-[#c5c6c7] leading-relaxed">
+                            <p>Hi {referralForm.friendName || "Friend"},</p>
+                            <p><strong>{referralForm.referrerName || "A friend"}</strong> thinks you'd be a great fit for Alpha Spark Academy and has invited you to check us out.</p>
+                            <p>Alpha Spark Academy is an elite technology training platform that builds workforce infrastructure and practical skills for the digital age.</p>
+                          </div>
+                          <div className="text-center py-2">
+                            <a
+                              href="https://alphaspark.ng"
+                              onClick={e => e.preventDefault()}
+                              className="inline-block bg-[#3bb75e] rounded-lg text-[#0b0c10] text-[9px] font-black no-underline text-center px-5 py-2 uppercase tracking-wider"
+                            >
+                              Join the Academy
+                            </a>
+                          </div>
+                          <div className="border-t border-white/10 pt-4 text-[9px] text-white/40 text-center">
+                            If you don't know {referralForm.referrerName || "this person"}, please ignore this email.
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Footer Section */}
+                      <div className="border-t border-white/10 pt-4 text-center space-y-1">
+                        <p className="text-[9px] text-white/30">
+                          You are receiving this email because you opted in to Alpha Spark Academy updates.
+                        </p>
+                        <p className="text-[8px] text-white/20">
+                          &copy; {new Date().getFullYear()} Alpha Spark Academy. All rights reserved.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
