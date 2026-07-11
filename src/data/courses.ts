@@ -1,7 +1,12 @@
+export interface QuizOption {
+  label: string; // A, B, C, D, etc.
+  text: string;
+}
+
 export interface QuizQuestion {
   id: string;
   question: string;
-  options: string[];
+  options: QuizOption[];
   correctAnswerIndex: number;
 }
 
@@ -95,10 +100,10 @@ export const courses: Course[] = [
                 id: "ai-ml-q1-1",
                 question: "What is the primary difference between supervised and unsupervised learning?",
                 options: [
-                  "Supervised learning uses labeled training data; unsupervised does not.",
-                  "Supervised learning does not require computer resources.",
-                  "Unsupervised learning always produces higher accuracy.",
-                  "Supervised learning is only used for images."
+                  { label: "A", text: "Supervised learning uses labeled training data; unsupervised does not." },
+                  { label: "B", text: "Supervised learning does not require computer resources." },
+                  { label: "C", text: "Unsupervised learning always produces higher accuracy." },
+                  { label: "D", text: "Supervised learning is only used for images." }
                 ],
                 correctAnswerIndex: 0
               },
@@ -106,10 +111,10 @@ export const courses: Course[] = [
                 id: "ai-ml-q1-2",
                 question: "Which neural network architecture is primarily used for computer vision tasks?",
                 options: [
-                  "Recurrent Neural Networks (RNN)",
-                  "Convolutional Neural Networks (CNN)",
-                  "Transformers",
-                  "Linear Regression Models"
+                  { label: "A", text: "Recurrent Neural Networks (RNN)" },
+                  { label: "B", text: "Convolutional Neural Networks (CNN)" },
+                  { label: "C", text: "Transformers" },
+                  { label: "D", text: "Linear Regression Models" }
                 ],
                 correctAnswerIndex: 1
               }
@@ -190,13 +195,23 @@ export const courses: Course[] = [
               {
                 id: "fsw-q1-1",
                 question: "Which HTML5 tag is used to define the navigation links section?",
-                options: ["<header>", "<section>", "<nav>", "<links>"],
+                options: [
+                  { label: "A", text: "<header>" },
+                  { label: "B", text: "<section>" },
+                  { label: "C", text: "<nav>" },
+                  { label: "D", text: "<links>" }
+                ],
                 correctAnswerIndex: 2
               },
               {
                 id: "fsw-q1-2",
                 question: "In CSS Flexbox, what property aligns items along the main axis?",
-                options: ["align-items", "justify-content", "flex-direction", "align-content"],
+                options: [
+                  { label: "A", text: "align-items" },
+                  { label: "B", text: "justify-content" },
+                  { label: "C", text: "flex-direction" },
+                  { label: "D", text: "align-content" }
+                ],
                 correctAnswerIndex: 1
               }
             ]
@@ -269,7 +284,12 @@ export const courses: Course[] = [
               {
                 id: "gd-q1-1",
                 question: "What color harmony uses three colors spaced equally on the color wheel?",
-                options: ["Analogous", "Complementary", "Triadic", "Monochromatic"],
+                options: [
+                  { label: "A", text: "Analogous" },
+                  { label: "B", text: "Complementary" },
+                  { label: "C", text: "Triadic" },
+                  { label: "D", text: "Monochromatic" }
+                ],
                 correctAnswerIndex: 2
               }
             ]
@@ -342,7 +362,12 @@ export const courses: Course[] = [
               {
                 id: "cyber-q1-1",
                 question: "What is an exploit that targets a vulnerability before a developer issues a patch?",
-                options: ["Zero-day exploit", "Phishing campaign", "Ransomware", "SQL injection"],
+                options: [
+                  { label: "A", text: "Zero-day exploit" },
+                  { label: "B", text: "Phishing campaign" },
+                  { label: "C", text: "Ransomware" },
+                  { label: "D", text: "SQL injection" }
+                ],
                 correctAnswerIndex: 0
               }
             ]
@@ -415,7 +440,12 @@ export const courses: Course[] = [
               {
                 id: "dm-q1-1",
                 question: "Which of the following is considered an on-page SEO factor?",
-                options: ["Keyword optimization in heading tags", "Getting links from news sites", "Social media shares", "Running PPC banner ads"],
+                options: [
+                  { label: "A", text: "Keyword optimization in heading tags" },
+                  { label: "B", text: "Getting links from news sites" },
+                  { label: "C", text: "Social media shares" },
+                  { label: "D", text: "Running PPC banner ads" }
+                ],
                 correctAnswerIndex: 0
               }
             ]
@@ -488,7 +518,12 @@ export const courses: Course[] = [
               {
                 id: "da-q1-1",
                 question: "Which SQL clause is used to filter records in a grouped query result?",
-                options: ["WHERE", "HAVING", "GROUP BY", "ORDER BY"],
+                options: [
+                  { label: "A", text: "WHERE" },
+                  { label: "B", text: "HAVING" },
+                  { label: "C", text: "GROUP BY" },
+                  { label: "D", text: "ORDER BY" }
+                ],
                 correctAnswerIndex: 1
               }
             ]
@@ -561,7 +596,12 @@ export const courses: Course[] = [
               {
                 id: "ui-ux-q1-1",
                 question: "What does UX stand for in design terminology?",
-                options: ["User Experience", "User Interface", "Utility eXtension", "Unique UX"],
+                options: [
+                  { label: "A", text: "User Experience" },
+                  { label: "B", text: "User Interface" },
+                  { label: "C", text: "Utility eXtension" },
+                  { label: "D", text: "Unique UX" }
+                ],
                 correctAnswerIndex: 0
               }
             ]
@@ -634,7 +674,12 @@ export const courses: Course[] = [
               {
                 id: "aip-q1-1",
                 question: "Which of the following data types should NEVER be fed into public LLMs?",
-                options: ["Public code libraries", "Proprietary user data and secret keys", "A general blog draft", "An email outline"],
+                options: [
+                  { label: "A", text: "Public code libraries" },
+                  { label: "B", text: "Proprietary user data and secret keys" },
+                  { label: "C", text: "A general blog draft" },
+                  { label: "D", text: "An email outline" }
+                ],
                 correctAnswerIndex: 1
               }
             ]
@@ -707,7 +752,12 @@ export const courses: Course[] = [
               {
                 id: "ent-q1-1",
                 question: "What is an MVP in the context of startup development?",
-                options: ["Minimum Viable Product", "Most Valuable Player", "Maximum Value Pricing", "Master Velocity Planner"],
+                options: [
+                  { label: "A", text: "Minimum Viable Product" },
+                  { label: "B", text: "Most Valuable Player" },
+                  { label: "C", text: "Maximum Value Pricing" },
+                  { label: "D", text: "Master Velocity Planner" }
+                ],
                 correctAnswerIndex: 0
               }
             ]
@@ -781,10 +831,10 @@ export const courses: Course[] = [
                 id: "cloud-q1-1",
                 question: "What is the primary difference between a Docker container and a Virtual Machine?",
                 options: [
-                  "Containers share the host operating system kernel; VMs require a hypervisor and full guest OS.",
-                  "VMs are faster than containers to boot.",
-                  "Containers require specialized hardware components.",
-                  "Docker only runs on Linux computers."
+                  { label: "A", text: "Containers share the host operating system kernel; VMs require a hypervisor and full guest OS." },
+                  { label: "B", text: "VMs are faster than containers to boot." },
+                  { label: "C", text: "Containers require specialized hardware components." },
+                  { label: "D", text: "Docker only runs on Linux computers." }
                 ],
                 correctAnswerIndex: 0
               }
@@ -857,7 +907,12 @@ export const courses: Course[] = [
               {
                 id: "fintech-q1-1",
                 question: "What does KYC stand for in digital finance compliance?",
-                options: ["Know Your Customer", "Keep Your Cash", "Key Yield Calculation", "Kernel Yield Controller"],
+                options: [
+                  { label: "A", text: "Know Your Customer" },
+                  { label: "B", text: "Keep Your Cash" },
+                  { label: "C", text: "Key Yield Calculation" },
+                  { label: "D", text: "Kernel Yield Controller" }
+                ],
                 correctAnswerIndex: 0
               }
             ]
@@ -930,10 +985,10 @@ export const courses: Course[] = [
                 id: "smcc-q1-1",
                 question: "What is the rule of thirds in photography/videography framing?",
                 options: [
-                  "Dividing the frame into a 3x3 grid and aligning the subject on intersections.",
-                  "Making sure only three colors are present.",
-                  "Recording in exactly three-minute segments.",
-                  "Using three different cameras at once."
+                  { label: "A", text: "Dividing the frame into a 3x3 grid and aligning the subject on intersections." },
+                  { label: "B", text: "Making sure only three colors are present." },
+                  { label: "C", text: "Recording in exactly three-minute segments." },
+                  { label: "D", text: "Using three different cameras at once." }
                 ],
                 correctAnswerIndex: 0
               }

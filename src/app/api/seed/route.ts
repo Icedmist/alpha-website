@@ -49,14 +49,16 @@ export async function GET() {
   }
 
   try {
-    // 1. Seed courses collection
+    // 1. Seed courses collection (without modules - instructors will add content)
     for (const course of courses) {
+      const { modules, ...courseWithoutModules } = course;
       await db.collection('courses').doc(course.id).set({
-        ...course,
+        ...courseWithoutModules,
+        modules: [], // Start with empty modules - instructors add content
         createdAt: new Date().toISOString(),
       });
     }
-    results.push(`Successfully seeded ${courses.length} courses in Firestore`);
+    results.push(`Successfully seeded ${courses.length} courses in Firestore (modules cleared)`);
   } catch (courseErr: any) {
     results.push(`Error seeding courses: ${courseErr?.message || courseErr}`);
   }

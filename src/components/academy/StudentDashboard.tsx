@@ -697,7 +697,8 @@ export default function StudentDashboard() {
                                         : "bg-white/2 border-white/5 text-white/50 hover:border-white/10 hover:text-white"
                                     }`}
                                   >
-                                    {opt}
+                                    <span className="font-black text-brand-orange mr-2">{opt.label}.</span>
+                                    {opt.text}
                                   </button>
                                 ))}
                               </div>

@@ -18,7 +18,7 @@ export async function GET() {
   }
 }
 
-async function verifyAdminAuth(req: Request): Promise<{ authorized: boolean; error?: string }> {
+async function verifyAuth(req: Request): Promise<{ authorized: boolean; error?: string; userId?: string; role?: string }> {
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
@@ -34,14 +34,25 @@ async function verifyAdminAuth(req: Request): Promise<{ authorized: boolean; err
     const callerDoc = await db.collection('users').doc(userId).get();
     const callerData = callerDoc.data();
 
-    if (!callerData || callerData.role !== 'admin') {
-      return { authorized: false, error: 'Forbidden: Admin privileges required' };
+    if (!callerData || (callerData.role !== 'admin' && callerData.role !== 'instructor')) {
+      return { authorized: false, error: 'Forbidden: Admin or Instructor privileges required' };
     }
 
-    return { authorized: true };
+    return { authorized: true, userId, role: callerData.role };
   } catch (error) {
     return { authorized: false, error: 'Authentication failed' };
   }
+}
+
+async function verifyAdminAuth(req: Request): Promise<{ authorized: boolean; error?: string }> {
+  const authCheck = await verifyAuth(req);
+  if (!authCheck.authorized) {
+    return { authorized: false, error: authCheck.error };
+  }
+  if (authCheck.role !== 'admin') {
+    return { authorized: false, error: 'Forbidden: Admin privileges required' };
+  }
+  return { authorized: true };
 }
 
 export async function POST(req: Request) {
@@ -109,7 +120,7 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const authCheck = await verifyAdminAuth(req);
+    const authCheck = await verifyAuth(req);
     if (!authCheck.authorized) {
       return NextResponse.json({ error: authCheck.error }, { status: 401 });
     }
@@ -124,28 +135,28 @@ export async function PUT(req: Request) {
       updatedAt: new Date().toISOString()
     };
 
-    const allowedFields = [
-      'title',
-      'subtitle',
-      'duration',
-      'hours',
-      'level',
-      'certificate',
-      'fee',
-      'learn',
-      'outcome',
-      'careerPaths',
-      'talentCloud',
-      'accentColor',
-      'tools',
-      'iconName',
-      'imageUrl',
-      'modules'
+    // Admins can update all fields, instructors can only update modules
+    const adminOnlyFields = [
+      'title', 'subtitle', 'duration', 'hours', 'level', 'certificate',
+      'fee', 'learn', 'outcome', 'careerPaths', 'talentCloud', 'accentColor',
+      'tools', 'iconName', 'imageUrl'
     ];
 
-    for (const field of allowedFields) {
-      if (body[field] !== undefined) {
-        updateData[field] = body[field];
+    const instructorAllowedFields = ['modules'];
+
+    if (authCheck.role === 'admin') {
+      // Admin can update all fields
+      for (const field of [...adminOnlyFields, ...instructorAllowedFields]) {
+        if (body[field] !== undefined) {
+          updateData[field] = body[field];
+        }
+      }
+    } else {
+      // Instructors can only update modules
+      for (const field of instructorAllowedFields) {
+        if (body[field] !== undefined) {
+          updateData[field] = body[field];
+        }
       }
     }
 

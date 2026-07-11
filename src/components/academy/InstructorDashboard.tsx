@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Users, ClipboardCheck, GraduationCap, PlusCircle, CheckCircle2, 
-  Send, AlertCircle, FileText, ExternalLink, BookOpen, Clock, Loader2
+  Send, AlertCircle, FileText, ExternalLink, BookOpen, Clock, Loader2, Trash2, Edit3
 } from "lucide-react";
-import { Course } from "../../data/courses";
+import { Course, Module, Lesson } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
 
 export default function InstructorDashboard({ 
@@ -14,7 +14,7 @@ export default function InstructorDashboard({
   activeView?: "grading" | "students" | "lessons"; 
   onTabChange?: (tab: "grading" | "students" | "lessons") => void;
 }) {
-  const { currentUser, allUsers, updateSpecificUser } = useAuth();
+  const { currentUser, allUsers, updateSpecificUser, getAuthHeaders } = useAuth();
   const [localActiveTab, setLocalActiveTab] = useState<"grading" | "students" | "lessons">("grading");
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
@@ -27,22 +27,24 @@ export default function InstructorDashboard({
     }
   };
 
-  useEffect(() => {
-    fetch("/api/courses")
-      .then(res => res.json())
-      .then(data => {
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch("/api/courses");
+      if (res.ok) {
+        const data = await res.json();
         if (data && data.length > 0) {
           setCourses(data);
-        } else {
-          import("../../data/courses").then(m => setCourses(m.courses));
         }
-      })
-      .catch(() => {
-        import("../../data/courses").then(m => setCourses(m.courses));
-      })
-      .finally(() => {
-        setIsLoadingCourses(false);
-      });
+      }
+    } catch (error) {
+      console.error("Failed to fetch courses:", error);
+    } finally {
+      setIsLoadingCourses(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
   }, []);
   
   const assignedCourseIds = currentUser?.enrolledCourses || [];
@@ -113,37 +115,15 @@ export default function InstructorDashboard({
     alert("Submission graded and feedback sent to student!");
   };
 
-  const handleCreateLesson = (e: React.FormEvent) => {
+  const handleCreateLesson = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!moduleTitle.trim() || !lessonTitle.trim()) {
       alert("Please enter both module name and lesson name.");
       return;
     }
 
-    // In a real DB we would save this to a global state/DB.
-    // For this MVP, we can simulate updating the global course list or local course state.
-    // Let's store course additions in localStorage as 'alpha_custom_courses' so they persist!
-    const localCourses = localStorage.getItem("alpha_custom_courses");
-    const coursesDb: Course[] = localCourses ? JSON.parse(localCourses) : [...courses];
-
-    const courseIndex = coursesDb.findIndex(c => c.id === selectedCourseId);
-    if (courseIndex === -1) return;
-
-    const targetCourse = coursesDb[courseIndex];
-    let moduleIndex = targetCourse.modules.findIndex(m => m.title.toLowerCase().includes(moduleTitle.toLowerCase()));
-    
-    // Create module if it doesn't exist
-    if (moduleIndex === -1) {
-      targetCourse.modules.push({
-        id: `mod-${Math.random().toString(36).substring(2, 9)}`,
-        title: moduleTitle,
-        lessons: []
-      });
-      moduleIndex = targetCourse.modules.length - 1;
-    }
-
     const newLessonId = `les-${Math.random().toString(36).substring(2, 9)}`;
-    const newLesson = {
+    const newLesson: Lesson = {
       id: newLessonId,
       title: lessonTitle,
       type: lessonType,
@@ -155,21 +135,69 @@ export default function InstructorDashboard({
         {
           id: `${newLessonId}-q1`,
           question: "Review Question: Is this course content verified?",
-          options: ["Yes, absolutely", "No, in validation", "Not sure"],
+          options: [
+            { label: "A", text: "Yes, absolutely" },
+            { label: "B", text: "No, in validation" },
+            { label: "C", text: "Not sure" }
+          ],
           correctAnswerIndex: 0
         }
       ] : undefined
     };
 
-    targetCourse.modules[moduleIndex].lessons.push(newLesson);
-    coursesDb[courseIndex] = targetCourse;
-
-    localStorage.setItem("alpha_custom_courses", JSON.stringify(coursesDb));
-    
-    // Force refresh or notify user (since courses object in memory is static, we can alert user and tell them to reload)
-    alert("New lesson added successfully! (Updates are stored in local sandbox).");
-    setLessonTitle("");
-    setLessonPromptOrUrl("");
+    try {
+      const authHeaders = await getAuthHeaders();
+      const course = courses.find(c => c.id === selectedCourseId);
+      const existingModule = course?.modules.find(m => m.title.toLowerCase().includes(moduleTitle.toLowerCase()));
+      
+      if (existingModule) {
+        const res = await fetch("/api/courses/content", {
+          method: "PUT",
+          headers: { ...authHeaders, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            courseId: selectedCourseId,
+            moduleId: existingModule.id,
+            lesson: newLesson,
+            action: "addLesson"
+          })
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          alert(errorData.error || "Failed to add lesson");
+          return;
+        }
+      } else {
+        const newModule: Module = {
+          id: `mod-${Math.random().toString(36).substring(2, 9)}`,
+          title: moduleTitle,
+          lessons: [newLesson]
+        };
+        
+        const res = await fetch("/api/courses/content", {
+          method: "POST",
+          headers: { ...authHeaders, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            courseId: selectedCourseId,
+            module: newModule
+          })
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json();
+          alert(errorData.error || "Failed to create module");
+          return;
+        }
+      }
+      
+      alert("New lesson added successfully!");
+      setLessonTitle("");
+      setLessonPromptOrUrl("");
+      await fetchCourses();
+    } catch (err) {
+      console.error("Failed to add lesson:", err);
+      alert("Error adding lesson");
+    }
   };
 
   if (isLoadingCourses) {
