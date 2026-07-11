@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { 
   Users, ClipboardCheck, GraduationCap, PlusCircle, CheckCircle2, 
   Send, AlertCircle, FileText, ExternalLink, BookOpen, Clock, Loader2, Trash2, Edit3,
-  HelpCircle, Link2, Type
+  HelpCircle, Link2, Type, X
 } from "lucide-react";
 import { Course, Module, Lesson, LessonType, QuizQuestion, QuizOption } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
@@ -60,6 +60,20 @@ export default function InstructorDashboard({
 
   // Resources tab state
   const [selectedResourceCourseId, setSelectedResourceCourseId] = useState(instructorCourses[0]?.id || "");
+  const [editingLesson, setEditingLesson] = useState<{ moduleId: string; lesson: Lesson } | null>(null);
+  const [editingModuleTitle, setEditingModuleTitle] = useState<string | null>(null);
+  const [moduleTitleValue, setModuleTitleValue] = useState("");
+  const [editLessonTitle, setEditLessonTitle] = useState("");
+  const [editLessonDuration, setEditLessonDuration] = useState("");
+  const [editLessonType, setEditLessonType] = useState<LessonType>("video");
+  const [editLessonUrl, setEditLessonUrl] = useState("");
+  const [editLessonTextContent, setEditLessonTextContent] = useState("");
+  const [editLessonLinkUrl, setEditLessonLinkUrl] = useState("");
+  const [editLessonLinkTitle, setEditLessonLinkTitle] = useState("");
+  const [editLessonDocumentUrl, setEditLessonDocumentUrl] = useState("");
+  const [editLessonDocumentName, setEditLessonDocumentName] = useState("");
+  const [editLessonAssignmentPrompt, setEditLessonAssignmentPrompt] = useState("");
+  const [editQuizQuestions, setEditQuizQuestions] = useState<QuizQuestion[]>([]);
 
   // Grading states
   const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; userName: string; submission: Submission } | null>(null);
@@ -301,6 +315,188 @@ export default function InstructorDashboard({
       text
     };
     setQuizQuestions(updated);
+  };
+
+  const startEditLesson = (moduleId: string, lesson: Lesson) => {
+    setEditingLesson({ moduleId, lesson });
+    setEditLessonTitle(lesson.title);
+    setEditLessonDuration(lesson.duration);
+    setEditLessonType(lesson.type);
+    setEditLessonUrl(lesson.videoUrl || lesson.pdfUrl || "");
+    setEditLessonTextContent(lesson.textContent || "");
+    setEditLessonLinkUrl(lesson.linkUrl || "");
+    setEditLessonLinkTitle(lesson.linkTitle || "");
+    setEditLessonDocumentUrl(lesson.documentUrl || "");
+    setEditLessonDocumentName(lesson.documentName || "");
+    setEditLessonAssignmentPrompt(lesson.assignmentPrompt || "");
+    setEditQuizQuestions(lesson.quizQuestions ? JSON.parse(JSON.stringify(lesson.quizQuestions)) : []);
+    setEditingModuleTitle(null);
+  };
+
+  const startEditModuleTitle = (moduleId: string, currentTitle: string) => {
+    setEditingModuleTitle(moduleId);
+    setModuleTitleValue(currentTitle);
+    setEditingLesson(null);
+  };
+
+  const saveModuleTitle = async (courseId: string, moduleId: string) => {
+    if (!moduleTitleValue.trim()) return;
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses/content", {
+        method: "PUT",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          moduleId,
+          title: moduleTitleValue,
+          action: "updateModule"
+        })
+      });
+      if (res.ok) {
+        setEditingModuleTitle(null);
+        await fetchCourses();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to update module title");
+      }
+    } catch (err) {
+      console.error("Failed to update module:", err);
+    }
+  };
+
+  const saveLessonEdit = async (courseId: string) => {
+    if (!editingLesson) return;
+    const { moduleId, lesson } = editingLesson;
+
+    const updatedLesson: Lesson = {
+      ...lesson,
+      title: editLessonTitle,
+      duration: editLessonDuration,
+      type: editLessonType,
+      videoUrl: editLessonType === "video" ? editLessonUrl : undefined,
+      pdfUrl: editLessonType === "pdf" ? editLessonUrl : undefined,
+      textContent: editLessonType === "text" ? editLessonTextContent : undefined,
+      linkUrl: editLessonType === "link" ? editLessonLinkUrl : undefined,
+      linkTitle: editLessonType === "link" ? editLessonLinkTitle : undefined,
+      documentUrl: editLessonType === "document" ? editLessonDocumentUrl : undefined,
+      documentName: editLessonType === "document" ? editLessonDocumentName : undefined,
+      assignmentPrompt: editLessonType === "assignment" ? editLessonAssignmentPrompt : undefined,
+      quizQuestions: editLessonType === "quiz" ? editQuizQuestions.filter(q => q.question.trim()) : undefined,
+    };
+
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses/content", {
+        method: "PUT",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          moduleId,
+          lesson: updatedLesson,
+          action: "updateLesson"
+        })
+      });
+      if (res.ok) {
+        setEditingLesson(null);
+        await fetchCourses();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to update lesson");
+      }
+    } catch (err) {
+      console.error("Failed to update lesson:", err);
+    }
+  };
+
+  const deleteLesson = async (courseId: string, moduleId: string, lessonId: string) => {
+    if (!confirm("Are you sure you want to delete this lesson?")) return;
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses/content", {
+        method: "PUT",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          moduleId,
+          lesson: { id: lessonId },
+          action: "deleteLesson"
+        })
+      });
+      if (res.ok) {
+        if (editingLesson?.lesson.id === lessonId) setEditingLesson(null);
+        await fetchCourses();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to delete lesson");
+      }
+    } catch (err) {
+      console.error("Failed to delete lesson:", err);
+    }
+  };
+
+  const deleteModule = async (courseId: string, moduleId: string) => {
+    if (!confirm("Are you sure you want to delete this entire module and all its lessons?")) return;
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses/content", {
+        method: "PUT",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          moduleId,
+          action: "deleteModule"
+        })
+      });
+      if (res.ok) {
+        setEditingLesson(null);
+        setEditingModuleTitle(null);
+        await fetchCourses();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to delete module");
+      }
+    } catch (err) {
+      console.error("Failed to delete module:", err);
+    }
+  };
+
+  const addEditQuizQuestion = () => {
+    setEditQuizQuestions([
+      ...editQuizQuestions,
+      {
+        id: `q${editQuizQuestions.length + 1}`,
+        question: "",
+        options: [
+          { label: "A", text: "" },
+          { label: "B", text: "" },
+          { label: "C", text: "" },
+          { label: "D", text: "" }
+        ],
+        correctAnswerIndex: 0
+      }
+    ]);
+  };
+
+  const removeEditQuizQuestion = (index: number) => {
+    if (editQuizQuestions.length > 1) {
+      setEditQuizQuestions(editQuizQuestions.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateEditQuizQuestion = (index: number, field: keyof QuizQuestion, value: any) => {
+    const updated = [...editQuizQuestions];
+    updated[index] = { ...updated[index], [field]: value };
+    setEditQuizQuestions(updated);
+  };
+
+  const updateEditQuizOption = (questionIndex: number, optionIndex: number, text: string) => {
+    const updated = [...editQuizQuestions];
+    updated[questionIndex].options[optionIndex] = {
+      ...updated[questionIndex].options[optionIndex],
+      text
+    };
+    setEditQuizQuestions(updated);
   };
 
   if (isLoadingCourses) {
@@ -748,41 +944,301 @@ export default function InstructorDashboard({
                       selectedCourse.modules.map((mod) => (
                         <div key={mod.id} className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-4">
                           <div className="flex items-center justify-between">
-                            <h4 className="font-bold text-sm text-white uppercase tracking-wider">{mod.title}</h4>
-                            <span className="text-[10px] text-white/40 font-mono">{mod.lessons.length} lessons</span>
+                            {editingModuleTitle === mod.id ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <input
+                                  type="text"
+                                  value={moduleTitleValue}
+                                  onChange={(e) => setModuleTitleValue(e.target.value)}
+                                  className="flex-1 bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:border-brand-orange outline-none"
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={() => saveModuleTitle(selectedCourse.id, mod.id)}
+                                  className="bg-green-500/20 text-green-400 hover:bg-green-500/30 px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => setEditingModuleTitle(null)}
+                                  className="bg-white/10 text-white/60 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold cursor-pointer"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <h4
+                                className="font-bold text-sm text-white uppercase tracking-wider cursor-pointer hover:text-brand-orange transition-colors"
+                                onClick={() => startEditModuleTitle(mod.id, mod.title)}
+                                title="Click to edit module title"
+                              >
+                                {mod.title}
+                              </h4>
+                            )}
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-white/40 font-mono">{mod.lessons.length} lessons</span>
+                              <button
+                                onClick={() => deleteModule(selectedCourse.id, mod.id)}
+                                className="text-red-400/50 hover:text-red-400 cursor-pointer"
+                                title="Delete Module"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </div>
                           
                           <div className="space-y-2">
                             {mod.lessons.map((les) => (
-                              <div key={les.id} className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-3 hover:bg-white/[0.05] transition-colors">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                  les.type === "video" ? "bg-blue-500/20 text-blue-400" :
-                                  les.type === "pdf" ? "bg-red-500/20 text-red-400" :
-                                  les.type === "quiz" ? "bg-green-500/20 text-green-400" :
-                                  les.type === "assignment" ? "bg-yellow-500/20 text-yellow-400" :
-                                  les.type === "text" ? "bg-purple-500/20 text-purple-400" :
-                                  les.type === "link" ? "bg-cyan-500/20 text-cyan-400" :
-                                  "bg-orange-500/20 text-orange-400"
-                                }`}>
-                                  {les.type === "video" ? <BookOpen className="w-4 h-4" /> :
-                                   les.type === "pdf" ? <FileText className="w-4 h-4" /> :
-                                   les.type === "quiz" ? <HelpCircle className="w-4 h-4" /> :
-                                   les.type === "assignment" ? <ClipboardCheck className="w-4 h-4" /> :
-                                   les.type === "text" ? <Type className="w-4 h-4" /> :
-                                   les.type === "link" ? <Link2 className="w-4 h-4" /> :
-                                   <FileText className="w-4 h-4" />}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-bold text-white truncate">{les.title}</p>
-                                  <p className="text-[10px] text-white/40 uppercase">{les.type} • {les.duration}</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {les.type === "quiz" && les.quizQuestions && (
-                                    <span className="text-[9px] text-green-400/70 bg-green-500/10 px-2 py-0.5 rounded">
-                                      {les.quizQuestions.length} Qs
-                                    </span>
-                                  )}
-                                </div>
+                              <div key={les.id}>
+                                {editingLesson?.lesson.id === les.id ? (
+                                  <div className="bg-white/[0.05] border border-brand-orange/30 rounded-xl p-4 space-y-4">
+                                    <div className="flex items-center justify-between">
+                                      <h5 className="text-[10px] font-black uppercase tracking-wider text-brand-orange">Editing Lesson</h5>
+                                      <button
+                                        onClick={() => setEditingLesson(null)}
+                                        className="text-white/40 hover:text-white cursor-pointer"
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-white/40 uppercase">Title</label>
+                                        <input
+                                          type="text"
+                                          value={editLessonTitle}
+                                          onChange={(e) => setEditLessonTitle(e.target.value)}
+                                          className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-white/40 uppercase">Duration</label>
+                                        <input
+                                          type="text"
+                                          value={editLessonDuration}
+                                          onChange={(e) => setEditLessonDuration(e.target.value)}
+                                          className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                      <label className="text-[9px] font-bold text-white/40 uppercase">Type</label>
+                                      <select
+                                        value={editLessonType}
+                                        onChange={(e) => setEditLessonType(e.target.value as LessonType)}
+                                        className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                      >
+                                        <option value="video">Video</option>
+                                        <option value="pdf">PDF</option>
+                                        <option value="text">Text</option>
+                                        <option value="link">Link</option>
+                                        <option value="document">Document</option>
+                                        <option value="quiz">Quiz</option>
+                                        <option value="assignment">Assignment</option>
+                                      </select>
+                                    </div>
+
+                                    {editLessonType === "video" && (
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-white/40 uppercase">Video URL</label>
+                                        <input
+                                          type="url"
+                                          value={editLessonUrl}
+                                          onChange={(e) => setEditLessonUrl(e.target.value)}
+                                          className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                        />
+                                      </div>
+                                    )}
+
+                                    {editLessonType === "pdf" && (
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-white/40 uppercase">PDF URL</label>
+                                        <input
+                                          type="url"
+                                          value={editLessonUrl}
+                                          onChange={(e) => setEditLessonUrl(e.target.value)}
+                                          className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                        />
+                                      </div>
+                                    )}
+
+                                    {editLessonType === "text" && (
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-white/40 uppercase">Text Content</label>
+                                        <textarea
+                                          rows={4}
+                                          value={editLessonTextContent}
+                                          onChange={(e) => setEditLessonTextContent(e.target.value)}
+                                          className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none resize-none"
+                                        />
+                                      </div>
+                                    )}
+
+                                    {editLessonType === "link" && (
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                          <label className="text-[9px] font-bold text-white/40 uppercase">URL</label>
+                                          <input
+                                            type="url"
+                                            value={editLessonLinkUrl}
+                                            onChange={(e) => setEditLessonLinkUrl(e.target.value)}
+                                            className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <label className="text-[9px] font-bold text-white/40 uppercase">Display Title</label>
+                                          <input
+                                            type="text"
+                                            value={editLessonLinkTitle}
+                                            onChange={(e) => setEditLessonLinkTitle(e.target.value)}
+                                            className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {editLessonType === "document" && (
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                          <label className="text-[9px] font-bold text-white/40 uppercase">Document URL</label>
+                                          <input
+                                            type="url"
+                                            value={editLessonDocumentUrl}
+                                            onChange={(e) => setEditLessonDocumentUrl(e.target.value)}
+                                            className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                          />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <label className="text-[9px] font-bold text-white/40 uppercase">Document Name</label>
+                                          <input
+                                            type="text"
+                                            value={editLessonDocumentName}
+                                            onChange={(e) => setEditLessonDocumentName(e.target.value)}
+                                            className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {editLessonType === "assignment" && (
+                                      <div className="space-y-1">
+                                        <label className="text-[9px] font-bold text-white/40 uppercase">Assignment Prompt</label>
+                                        <textarea
+                                          rows={3}
+                                          value={editLessonAssignmentPrompt}
+                                          onChange={(e) => setEditLessonAssignmentPrompt(e.target.value)}
+                                          className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none resize-none"
+                                        />
+                                      </div>
+                                    )}
+
+                                    {editLessonType === "quiz" && (
+                                      <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                          <label className="text-[9px] font-bold text-white/40 uppercase">Quiz Questions</label>
+                                          <button
+                                            type="button"
+                                            onClick={addEditQuizQuestion}
+                                            className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer"
+                                          >
+                                            <PlusCircle className="w-3 h-3" /> Add Q
+                                          </button>
+                                        </div>
+                                        {editQuizQuestions.map((q, qi) => (
+                                          <div key={qi} className="bg-white/[0.03] border border-white/5 rounded-lg p-3 space-y-2">
+                                            <div className="flex items-center gap-2">
+                                              <input
+                                                type="text"
+                                                placeholder="Question..."
+                                                value={q.question}
+                                                onChange={(e) => updateEditQuizQuestion(qi, "question", e.target.value)}
+                                                className="flex-1 bg-brand-navy border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-brand-orange outline-none"
+                                              />
+                                              {editQuizQuestions.length > 1 && (
+                                                <button onClick={() => removeEditQuizQuestion(qi)} className="text-red-400/60 hover:text-red-400 cursor-pointer">
+                                                  <Trash2 className="w-3 h-3" />
+                                                </button>
+                                              )}
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                              {q.options.map((opt, oi) => (
+                                                <input
+                                                  key={oi}
+                                                  type="text"
+                                                  placeholder={`${opt.label}`}
+                                                  value={opt.text}
+                                                  onChange={(e) => updateEditQuizOption(qi, oi, e.target.value)}
+                                                  className="bg-brand-navy border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-brand-orange outline-none"
+                                                />
+                                              ))}
+                                            </div>
+                                            <select
+                                              value={q.correctAnswerIndex}
+                                              onChange={(e) => updateEditQuizQuestion(qi, "correctAnswerIndex", parseInt(e.target.value))}
+                                              className="w-full bg-brand-navy border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-brand-orange outline-none"
+                                            >
+                                              {q.options.map((opt, oi) => (
+                                                <option key={oi} value={oi}>{opt.label} - {opt.text || "Empty"}</option>
+                                              ))}
+                                            </select>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+
+                                    <div className="flex gap-2 pt-2">
+                                      <button
+                                        onClick={() => saveLessonEdit(selectedCourse.id)}
+                                        className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                                      >
+                                        Save Changes
+                                      </button>
+                                      <button
+                                        onClick={() => editingLesson && deleteLesson(selectedCourse.id, editingLesson.moduleId, les.id)}
+                                        className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div
+                                    onClick={() => startEditLesson(mod.id, les)}
+                                    className="flex items-center gap-3 bg-white/[0.02] border border-white/5 rounded-xl p-3 hover:bg-white/[0.05] hover:border-brand-orange/30 transition-all cursor-pointer group"
+                                  >
+                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                      les.type === "video" ? "bg-blue-500/20 text-blue-400" :
+                                      les.type === "pdf" ? "bg-red-500/20 text-red-400" :
+                                      les.type === "quiz" ? "bg-green-500/20 text-green-400" :
+                                      les.type === "assignment" ? "bg-yellow-500/20 text-yellow-400" :
+                                      les.type === "text" ? "bg-purple-500/20 text-purple-400" :
+                                      les.type === "link" ? "bg-cyan-500/20 text-cyan-400" :
+                                      "bg-orange-500/20 text-orange-400"
+                                    }`}>
+                                      {les.type === "video" ? <BookOpen className="w-4 h-4" /> :
+                                       les.type === "pdf" ? <FileText className="w-4 h-4" /> :
+                                       les.type === "quiz" ? <HelpCircle className="w-4 h-4" /> :
+                                       les.type === "assignment" ? <ClipboardCheck className="w-4 h-4" /> :
+                                       les.type === "text" ? <Type className="w-4 h-4" /> :
+                                       les.type === "link" ? <Link2 className="w-4 h-4" /> :
+                                       <FileText className="w-4 h-4" />}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-bold text-white truncate group-hover:text-brand-orange transition-colors">{les.title}</p>
+                                      <p className="text-[10px] text-white/40 uppercase">{les.type} • {les.duration}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {les.type === "quiz" && les.quizQuestions && (
+                                        <span className="text-[9px] text-green-400/70 bg-green-500/10 px-2 py-0.5 rounded">
+                                          {les.quizQuestions.length} Qs
+                                        </span>
+                                      )}
+                                      <Edit3 className="w-3.5 h-3.5 text-white/20 group-hover:text-brand-orange transition-colors" />
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             ))}
                           </div>
