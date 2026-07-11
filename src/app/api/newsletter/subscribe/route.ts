@@ -1,5 +1,9 @@
 import { db } from '../../../../lib/firebase-admin';
+import { resend } from '../../../../lib/resend';
 import { NextResponse } from 'next/server';
+import { render } from '@react-email/render';
+import WelcomeEmail from '../../../../emails/WelcomeEmail';
+import React from 'react';
 
 export async function POST(req: Request) {
   try {
@@ -33,6 +37,25 @@ export async function POST(req: Request) {
       details: `Email subscribed to newsletter: ${cleanedEmail}`,
       timestamp,
     });
+
+    // Send welcome email automatically
+    if (resend) {
+      try {
+        const emailHtml = await render(
+          React.createElement(WelcomeEmail, { firstName: 'Future Innovator' })
+        );
+
+        await resend.emails.send({
+          from: 'Alpha Spark Academy <no-reply@alphaspark.ng>',
+          to: cleanedEmail,
+          subject: 'Welcome to Alpha Spark Academy!',
+          html: emailHtml,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send welcome email:', emailErr);
+        // Don't fail the subscription if email fails
+      }
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
