@@ -18,7 +18,7 @@ interface Partner {
   createdAt: string;
 }
 
-type AdminTab = "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities" | "partners" | "communications";
+type AdminTab = "analytics" | "users" | "courses" | "applications" | "certificates" | "system_activities" | "partners" | "communications" | "subscribers";
 
 interface AdminDashboardProps {
   activeView?: AdminTab;
@@ -67,6 +67,11 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
   const [referralForm, setReferralForm] = useState({ friendName: "", referrerName: "", email: "" });
   const [welcomeForm, setWelcomeForm] = useState({ subject: "", email: "", firstName: "" });
   const [isSendingComm, setIsSendingComm] = useState(false);
+
+  // Subscriber email state
+  const [selectedSubscriberEmail, setSelectedSubscriberEmail] = useState("");
+  const [subscriberEmailForm, setSubscriberEmailForm] = useState({ subject: "", content: "" });
+  const [isSendingSubscriberEmail, setIsSendingSubscriberEmail] = useState(false);
 
   const handleSendCommunications = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,6 +136,84 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
       alert("Error sending emails: " + err.message);
     } finally {
       setIsSendingComm(false);
+    }
+  };
+
+  const handleSendSubscriberEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedSubscriberEmail || !subscriberEmailForm.subject || !subscriberEmailForm.content) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    setIsSendingSubscriberEmail(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/admin/communications", {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailType: "manual",
+          subject: subscriberEmailForm.subject,
+          title: subscriberEmailForm.subject,
+          content: subscriberEmailForm.content.split('\n').filter(Boolean),
+          emails: [selectedSubscriberEmail]
+        })
+      });
+      
+      if (res.ok) {
+        alert(`Email sent to ${selectedSubscriberEmail}!`);
+        setSelectedSubscriberEmail("");
+        setSubscriberEmailForm({ subject: "", content: "" });
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to send email.");
+      }
+    } catch (err: any) {
+      alert("Error sending email: " + err.message);
+    } finally {
+      setIsSendingSubscriberEmail(false);
+    }
+  };
+
+  const handleBulkSendToSubscribers = async () => {
+    if (!subscriberEmailForm.subject || !subscriberEmailForm.content) {
+      alert("Please fill in subject and content");
+      return;
+    }
+    if (subscribers.length === 0) {
+      alert("No subscribers found");
+      return;
+    }
+
+    if (!confirm(`Send this email to all ${subscribers.length} subscribers?`)) return;
+
+    setIsSendingSubscriberEmail(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/admin/communications", {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailType: "newsletter",
+          subject: subscriberEmailForm.subject,
+          title: subscriberEmailForm.subject,
+          content: subscriberEmailForm.content.split('\n').filter(Boolean),
+          emails: subscribers.map(s => s.email)
+        })
+      });
+      
+      if (res.ok) {
+        alert(`Email sent to all ${subscribers.length} subscribers!`);
+        setSubscriberEmailForm({ subject: "", content: "" });
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to send email.");
+      }
+    } catch (err: any) {
+      alert("Error sending email: " + err.message);
+    } finally {
+      setIsSendingSubscriberEmail(false);
     }
   };
 
@@ -1855,6 +1938,126 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "subscribers" && (
+          <div className="space-y-8">
+            <div>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Newsletter Subscribers</h2>
+              <p className="text-white/40 text-xs italic">View all subscribers and send emails individually or collectively.</p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Subscribers List */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-white flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-green-400" />
+                  All Subscribers ({subscribers.length})
+                </h3>
+                <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[500px] overflow-y-auto">
+                  {subscribers.length === 0 ? (
+                    <p className="text-white/30 text-xs italic py-4">No subscribers registered yet.</p>
+                  ) : (
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
+                          <th className="pb-2">Email Address</th>
+                          <th className="pb-2">Subscribed At</th>
+                          <th className="pb-2">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 text-white/70">
+                        {subscribers.map((sub) => (
+                          <tr key={sub.id} className="hover:bg-white/[0.02]">
+                            <td className="py-2.5 font-semibold text-white">{sub.email}</td>
+                            <td className="py-2.5 font-mono text-[10px] text-white/40">
+                              {new Date(sub.subscribedAt).toLocaleDateString()}
+                            </td>
+                            <td className="py-2.5">
+                              <button
+                                onClick={() => setSelectedSubscriberEmail(sub.email)}
+                                className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                                  selectedSubscriberEmail === sub.email
+                                    ? "bg-brand-orange text-white"
+                                    : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                                }`}
+                              >
+                                {selectedSubscriberEmail === sub.email ? "Selected" : "Email"}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+
+              {/* Email Form */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-xs uppercase tracking-wider text-white flex items-center gap-2">
+                  <Send className="w-4 h-4 text-brand-orange" />
+                  {selectedSubscriberEmail ? `Email to ${selectedSubscriberEmail}` : "Compose Email"}
+                </h3>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                  <form onSubmit={handleSendSubscriberEmail} className="space-y-4">
+                    {selectedSubscriberEmail && (
+                      <div className="p-3 bg-brand-orange/10 border border-brand-orange/20 rounded-xl text-xs text-brand-orange">
+                        Sending to: <strong>{selectedSubscriberEmail}</strong>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedSubscriberEmail("")}
+                          className="ml-2 underline hover:text-white"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Subject Line *</label>
+                      <input
+                        type="text"
+                        required
+                        value={subscriberEmailForm.subject}
+                        onChange={e => setSubscriberEmailForm({ ...subscriberEmailForm, subject: e.target.value })}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors"
+                        placeholder="e.g. Important Update"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-bold text-white/50 uppercase mb-2">Email Body *</label>
+                      <textarea
+                        required
+                        value={subscriberEmailForm.content}
+                        onChange={e => setSubscriberEmailForm({ ...subscriberEmailForm, content: e.target.value })}
+                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:border-brand-orange outline-none transition-colors min-h-[160px] font-sans resize-y"
+                        placeholder="Type your email content here..."
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSendingSubscriberEmail || !selectedSubscriberEmail}
+                        className="flex-1 bg-brand-orange hover:bg-brand-orange/90 disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors flex justify-center items-center gap-2 cursor-pointer"
+                      >
+                        {isSendingSubscriberEmail && <Loader2 className="w-4 h-4 animate-spin" />}
+                        Send Individual
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleBulkSendToSubscribers}
+                        disabled={isSendingSubscriberEmail || subscribers.length === 0}
+                        className="flex-1 bg-brand-blue hover:bg-brand-blue/90 disabled:opacity-50 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-colors flex justify-center items-center gap-2 cursor-pointer"
+                      >
+                        {isSendingSubscriberEmail && <Loader2 className="w-4 h-4 animate-spin" />}
+                        Send to All ({subscribers.length})
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>

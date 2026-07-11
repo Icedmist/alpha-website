@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   BookOpen, Play, CheckCircle2, Circle, HelpCircle, FileText, 
-  Upload, Link2, Calendar, Award, Check, UserCheck, AlertCircle, Bell
+  Upload, Link2, Calendar, Award, Check, UserCheck, AlertCircle, Bell, Lock
 } from "lucide-react";
 import { courses, Course, Lesson, QuizQuestion } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
@@ -171,50 +171,60 @@ export default function StudentDashboard() {
     }
   };
 
-  const handleAssignmentSubmit = (e: React.FormEvent, lesson: Lesson, courseId: string) => {
+  const handleAssignmentSubmit = async (e: React.FormEvent, lesson: Lesson, courseId: string) => {
     e.preventDefault();
     if (!assignmentContent.trim()) return;
 
     setUploadProgress(10);
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev === null) return 10;
-        if (prev >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            const submission: Submission = {
-              courseId,
-              lessonId: lesson.id,
-              assignmentTitle: lesson.title,
-              content: assignmentContent,
-              portfolioLink: assignmentLink,
-              submittedAt: new Date().toISOString(),
-              status: "pending"
-            };
-
-            const updatedSubmissions = [
-              ...currentUser.submissions.filter(s => s.lessonId !== lesson.id),
-              submission
-            ];
-
-            const updatedCompleted = currentUser.completedLessons.includes(lesson.id)
-              ? currentUser.completedLessons
-              : [...currentUser.completedLessons, lesson.id];
-
-            updateUser({
-              ...currentUser,
-              submissions: updatedSubmissions,
-              completedLessons: updatedCompleted
-            });
-
-            setUploadSuccess(true);
-            setUploadProgress(null);
-          }, 500);
-          return 100;
-        }
-        return prev + 30;
+    
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          courseId,
+          lessonId: lesson.id,
+          assignmentTitle: lesson.title,
+          content: assignmentContent,
+          portfolioLink: assignmentLink
+        })
       });
-    }, 300);
+
+      if (res.ok) {
+        const interval = setInterval(() => {
+          setUploadProgress((prev) => {
+            if (prev === null) return 10;
+            if (prev >= 100) {
+              clearInterval(interval);
+              setTimeout(() => {
+                const updatedCompleted = currentUser.completedLessons.includes(lesson.id)
+                  ? currentUser.completedLessons
+                  : [...currentUser.completedLessons, lesson.id];
+
+                updateUser({
+                  ...currentUser,
+                  completedLessons: updatedCompleted
+                });
+
+                setUploadSuccess(true);
+                setUploadProgress(null);
+              }, 500);
+              return 100;
+            }
+            return prev + 30;
+          });
+        }, 300);
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || 'Failed to submit assignment');
+        setUploadProgress(null);
+      }
+    } catch (err) {
+      console.error('Error submitting assignment:', err);
+      alert('Failed to submit assignment');
+      setUploadProgress(null);
+    }
   };
 
   const handlePaymentSuccess = (gateway: "Paystack" | "Flutterwave", reference: string) => {
@@ -546,45 +556,75 @@ export default function StudentDashboard() {
             <div className="bg-white/5 border border-white/10 rounded-2xl md:rounded-3xl p-4 md:p-6 space-y-4 md:space-y-6">
               <h4 className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange">Syllabus Outline</h4>
               <div className="space-y-6">
-                {activeCourse?.modules.map((mod) => (
-                  <div key={mod.id} className="space-y-3">
-                    <h5 className="text-xs font-black uppercase tracking-tight text-white/80">{mod.title}</h5>
-                    <div className="space-y-2">
-                      {mod.lessons.map((les) => {
-                        const isCompleted = currentUser.completedLessons.includes(les.id);
-                        const isActive = activeLessonId === les.id;
+                {activeCourse?.modules.map((mod, modIndex) => {
+                  // Check if all lessons in previous modules are completed
+                  const isPreviousModuleCompleted = modIndex === 0 || 
+                    activeCourse.modules.slice(0, modIndex).every(prevMod => 
+                      prevMod.lessons.every(les => currentUser.completedLessons.includes(les.id))
+                    );
+                  
+                  const isCurrentModuleCompleted = mod.lessons.every(les => currentUser.completedLessons.includes(les.id));
+                  const isModuleLocked = !isPreviousModuleCompleted && !isCurrentModuleCompleted;
 
-                        return (
-                          <button
-                            key={les.id}
-                            onClick={() => handleLessonSelect(les.id)}
-                            className={`w-full p-3.5 rounded-xl border text-left flex items-start justify-between gap-3 transition-all ${
-                              isActive
-                                ? "bg-brand-orange/20 border-brand-orange text-white"
-                                : "bg-white/2 border-white/5 text-white/60 hover:bg-white/5 hover:text-white"
-                            }`}
-                          >
-                            <div className="flex gap-2.5 items-start">
-                              {les.type === "video" && <Play className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                              {les.type === "pdf" && <FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                              {les.type === "quiz" && <HelpCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                              {les.type === "assignment" && <Upload className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
-                              <div className="space-y-0.5">
-                                <p className="text-xs font-bold leading-tight uppercase tracking-tight">{les.title}</p>
-                                <p className="text-[9px] text-white/30 font-mono">{les.duration}</p>
+                  return (
+                    <div key={mod.id} className={`space-y-3 ${isModuleLocked ? 'opacity-50' : ''}`}>
+                      <div className="flex items-center gap-2">
+                        {isModuleLocked ? (
+                          <div className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center">
+                            <Lock className="w-2.5 h-2.5 text-white/30" />
+                          </div>
+                        ) : isCurrentModuleCompleted ? (
+                          <CheckCircle2 className="w-4 h-4 text-green-400" />
+                        ) : (
+                          <div className="w-4 h-4 rounded-full border-2 border-brand-orange" />
+                        )}
+                        <h5 className={`text-xs font-black uppercase tracking-tight ${isModuleLocked ? 'text-white/40' : 'text-white/80'}`}>
+                          {mod.title}
+                        </h5>
+                        {isModuleLocked && (
+                          <span className="text-[8px] text-white/30 font-mono">LOCKED</span>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        {mod.lessons.map((les) => {
+                          const isCompleted = currentUser.completedLessons.includes(les.id);
+                          const isActive = activeLessonId === les.id;
+
+                          return (
+                            <button
+                              key={les.id}
+                              onClick={() => !isModuleLocked && handleLessonSelect(les.id)}
+                              disabled={isModuleLocked}
+                              className={`w-full p-3.5 rounded-xl border text-left flex items-start justify-between gap-3 transition-all ${
+                                isModuleLocked
+                                  ? "bg-white/2 border-white/5 text-white/20 cursor-not-allowed"
+                                  : isActive
+                                    ? "bg-brand-orange/20 border-brand-orange text-white"
+                                    : "bg-white/2 border-white/5 text-white/60 hover:bg-white/5 hover:text-white"
+                              }`}
+                            >
+                              <div className="flex gap-2.5 items-start">
+                                {les.type === "video" && <Play className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                                {les.type === "pdf" && <FileText className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                                {les.type === "quiz" && <HelpCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                                {les.type === "assignment" && <Upload className="w-3.5 h-3.5 mt-0.5 shrink-0" />}
+                                <div className="space-y-0.5">
+                                  <p className="text-xs font-bold leading-tight uppercase tracking-tight">{les.title}</p>
+                                  <p className="text-[9px] text-white/30 font-mono">{les.duration}</p>
+                                </div>
                               </div>
-                            </div>
-                            {isCompleted ? (
-                              <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
-                            ) : (
-                              <Circle className="w-4 h-4 text-white/10 shrink-0" />
-                            )}
-                          </button>
-                        );
-                      })}
+                              {isCompleted ? (
+                                <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-white/10 shrink-0" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

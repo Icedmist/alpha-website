@@ -6,6 +6,8 @@ import { render } from '@react-email/render';
 import WelcomeEmail from '../../../emails/WelcomeEmail';
 import React from 'react';
 
+const ADMIN_EMAILS = ['talk2icedmist@gmail.com', 'ishaqsultan7541@gmail.com'];
+
 const mapProgramToCourseId = (program: string): string => {
   const p = program.toLowerCase();
   if (p.includes('fintech') || p.includes('financial')) return 'fintech';
@@ -102,25 +104,29 @@ export async function POST(req: Request) {
           html: emailHtml
         });
 
-        // Email to admin
-        await resend.emails.send({
-          from: 'Alpha Spark Notifications <no-reply@alphaspark.ng>',
-          to: process.env.ADMIN_EMAIL || 'ibrahimimamnasir@gmail.com',
-          subject: `New Academy Application: ${program}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2>New Application Received</h2>
-              <p><strong>Applicant:</strong> ${userName}</p>
-              <p><strong>Email:</strong> ${userEmail}</p>
-              <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
-              <p><strong>Location:</strong> ${location || 'N/A'}</p>
-              <p><strong>Track:</strong> ${program}</p>
-              <p><strong>Background:</strong> ${background || 'N/A'}</p>
-              <p><strong>Experience:</strong> ${experience || 'N/A'}</p>
-              <p><strong>Reason for joining:</strong> ${reason || 'N/A'}</p>
-            </div>
-          `
-        });
+        // Email to both admins
+        const adminEmailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2>New Application Received</h2>
+            <p><strong>Applicant:</strong> ${userName}</p>
+            <p><strong>Email:</strong> ${userEmail}</p>
+            <p><strong>Phone:</strong> ${phone || 'N/A'}</p>
+            <p><strong>Location:</strong> ${location || 'N/A'}</p>
+            <p><strong>Track:</strong> ${program}</p>
+            <p><strong>Background:</strong> ${background || 'N/A'}</p>
+            <p><strong>Experience:</strong> ${experience || 'N/A'}</p>
+            <p><strong>Reason for joining:</strong> ${reason || 'N/A'}</p>
+          </div>
+        `;
+
+        for (const adminEmail of ADMIN_EMAILS) {
+          await resend.emails.send({
+            from: 'Alpha Spark Notifications <no-reply@alphaspark.ng>',
+            to: adminEmail,
+            subject: `New Academy Application: ${program}`,
+            html: adminEmailHtml
+          });
+        }
       } catch (err) {
         console.error('Error sending application emails via Resend:', err);
       }
