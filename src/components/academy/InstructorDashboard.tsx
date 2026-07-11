@@ -12,16 +12,16 @@ export default function InstructorDashboard({
   activeView, 
   onTabChange 
 }: { 
-  activeView?: "grading" | "students" | "lessons" | "resources"; 
-  onTabChange?: (tab: "grading" | "students" | "lessons" | "resources") => void;
+  activeView?: "grading" | "students" | "lessons" | "resources" | "broadcast"; 
+  onTabChange?: (tab: "grading" | "students" | "lessons" | "resources" | "broadcast") => void;
 }) {
   const { currentUser, allUsers, updateSpecificUser, getAuthHeaders } = useAuth();
-  const [localActiveTab, setLocalActiveTab] = useState<"grading" | "students" | "lessons" | "resources">("grading");
+  const [localActiveTab, setLocalActiveTab] = useState<"grading" | "students" | "lessons" | "resources" | "broadcast">("grading");
   const [courses, setCourses] = useState<Course[]>([]);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   
   const activeTab = activeView || localActiveTab;
-  const setActiveTab = (tab: "grading" | "students" | "lessons" | "resources") => {
+  const setActiveTab = (tab: "grading" | "students" | "lessons" | "resources" | "broadcast") => {
     setLocalActiveTab(tab);
     if (onTabChange) {
       onTabChange(tab);
@@ -669,6 +669,82 @@ export default function InstructorDashboard({
       text
     };
     setNewQuizQuestions(updated);
+  };
+
+  // Broadcast assignment state
+  const [broadcastCourseId, setBroadcastCourseId] = useState(instructorCourses[0]?.id || "");
+  const [broadcastTitle, setBroadcastTitle] = useState("");
+  const [broadcastDescription, setBroadcastDescription] = useState("");
+  const [broadcastDueDate, setBroadcastDueDate] = useState("");
+  const [broadcastSending, setBroadcastSending] = useState(false);
+  const [broadcastSent, setBroadcastSent] = useState(false);
+  const [broadcastAssignments, setBroadcastAssignments] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (instructorCourses.length > 0 && !broadcastCourseId) {
+      setBroadcastCourseId(instructorCourses[0].id);
+    }
+  }, [instructorCourses]);
+
+  useEffect(() => {
+    if (activeTab === "broadcast" && broadcastCourseId) {
+      fetchBroadcastAssignments();
+    }
+  }, [activeTab, broadcastCourseId]);
+
+  const fetchBroadcastAssignments = async () => {
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/assignments/list", { headers: authHeaders });
+      if (res.ok) {
+        const data = await res.json();
+        setBroadcastAssignments(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch assignments:", err);
+    }
+  };
+
+  const handleBroadcastAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastCourseId || !broadcastTitle.trim() || !broadcastDescription.trim()) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    setBroadcastSending(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/assignments/broadcast", {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId: broadcastCourseId,
+          title: broadcastTitle,
+          description: broadcastDescription,
+          dueDate: broadcastDueDate || null,
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setBroadcastSent(true);
+        setBroadcastTitle("");
+        setBroadcastDescription("");
+        setBroadcastDueDate("");
+        alert(data.message || "Assignment broadcast successfully!");
+        await fetchBroadcastAssignments();
+        setTimeout(() => setBroadcastSent(false), 3000);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to broadcast assignment");
+      }
+    } catch (err) {
+      console.error("Failed to broadcast assignment:", err);
+      alert("Error broadcasting assignment");
+    } finally {
+      setBroadcastSending(false);
+    }
   };
 
   if (isLoadingCourses) {
@@ -1616,6 +1692,142 @@ export default function InstructorDashboard({
             </div>
           </div>
         )}
+        {/* Broadcast Assignment Tab */}
+        {activeTab === "broadcast" && (
+          <div className="space-y-6">
+            <h3 className="font-display font-black text-xl uppercase italic tracking-tight text-white mb-4">
+              Broadcast Assignment
+            </h3>
+            <p className="text-white/40 text-xs">Send assignments to all students enrolled in a course. They'll receive an email and see it on their dashboard.</p>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Broadcast Form */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Create & Send Assignment
+                </h4>
+                
+                <form onSubmit={handleBroadcastAssignment} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-white/40">Target Course *</label>
+                    <select
+                      value={broadcastCourseId}
+                      onChange={(e) => setBroadcastCourseId(e.target.value)}
+                      className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none"
+                      required
+                    >
+                      {instructorCourses.map((c) => (
+                        <option key={c.id} value={c.id}>{c.title}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-white/40">Assignment Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Build a REST API"
+                      value={broadcastTitle}
+                      onChange={(e) => setBroadcastTitle(e.target.value)}
+                      className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-white/40">Description & Instructions *</label>
+                    <textarea
+                      rows={5}
+                      required
+                      placeholder="Describe the assignment, requirements, and submission guidelines..."
+                      value={broadcastDescription}
+                      onChange={(e) => setBroadcastDescription(e.target.value)}
+                      className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-white/40">Due Date (Optional)</label>
+                    <input
+                      type="datetime-local"
+                      value={broadcastDueDate}
+                      onChange={(e) => setBroadcastDueDate(e.target.value)}
+                      className="w-full bg-brand-navy border border-white/10 rounded-2xl px-4 py-3 text-sm text-white focus:border-brand-orange outline-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={broadcastSending}
+                    className="w-full bg-brand-orange hover:bg-brand-orange/90 disabled:opacity-50 text-white py-3 rounded-2xl font-black uppercase tracking-wider text-xs transition-colors flex justify-center items-center gap-2 cursor-pointer"
+                  >
+                    {broadcastSending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Broadcasting...
+                      </>
+                    ) : broadcastSent ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        Sent Successfully!
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Broadcast Assignment
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+
+              {/* Sent Assignments History */}
+              <div className="space-y-4">
+                <h4 className="font-bold text-xs uppercase tracking-wider text-white flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-brand-blue" />
+                  Sent Assignments ({broadcastAssignments.length})
+                </h4>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                  {broadcastAssignments.length === 0 ? (
+                    <div className="bg-white/[0.02] border border-white/5 p-6 text-center rounded-2xl">
+                      <ClipboardCheck className="w-10 h-10 text-white/20 mx-auto mb-3" />
+                      <p className="text-white/30 text-xs italic">No assignments broadcast yet.</p>
+                    </div>
+                  ) : (
+                    broadcastAssignments.map((assignment, idx) => (
+                      <div key={assignment.id || idx} className="bg-white/[0.03] border border-white/5 rounded-xl p-4 space-y-2 hover:bg-white/[0.05] transition-colors">
+                        <div className="flex items-center justify-between">
+                          <h5 className="text-xs font-bold text-white">{assignment.title}</h5>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${
+                            assignment.status === 'active' 
+                              ? "bg-green-500/10 text-green-400" 
+                              : "bg-white/10 text-white/40"
+                          }`}>
+                            {assignment.status}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-white/40">{assignment.courseName}</p>
+                        <p className="text-[10px] text-white/30 line-clamp-2">{assignment.description}</p>
+                        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                          <span className="text-[9px] text-white/30 font-mono">
+                            {new Date(assignment.createdAt).toLocaleDateString()}
+                          </span>
+                          {assignment.dueDate && (
+                            <span className="text-[9px] text-yellow-400/70">
+                              Due: {new Date(assignment.dueDate).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {/* Grading Review Modal */}
