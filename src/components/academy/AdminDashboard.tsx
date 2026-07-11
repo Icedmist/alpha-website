@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { 
   BarChart, Users, DollarSign, BookOpen, Award, Shield, 
   Trash2, UserPlus, RefreshCw, Layers, PlusCircle, Edit3, ShieldAlert,
-  Plus, Edit, Loader2, Download, Mail, Send, Sparkles, UserCheck, Share2
+  Plus, Edit, Loader2, Download, Mail, Send, Sparkles, UserCheck, Share2,
+  FileText, GraduationCap
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
@@ -275,7 +276,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
       loadAllUsers();
     }
 
-    if (activeTab === "system_activities" || activeTab === "communications") {
+    if (activeTab === "system_activities" || activeTab === "communications" || activeTab === "subscribers") {
       const fetchData = async () => {
         setLoadingActivities(true);
         try {
@@ -1430,35 +1431,6 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                     </div>
                   </div>
                 </div>
-
-                {/* Right Column: Newsletter Roster */}
-                <div className="space-y-4">
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-white">Newsletter Roster</h3>
-                  <div className="overflow-x-auto bg-white/[0.01] border border-white/5 rounded-2xl p-4 max-h-[750px] overflow-y-auto">
-                    {subscribers.length === 0 ? (
-                      <p className="text-white/30 text-xs italic py-4">No subscribers registered yet.</p>
-                    ) : (
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="text-white/40 font-bold border-b border-white/10 pb-2">
-                            <th className="pb-2">Email Address</th>
-                            <th className="pb-2">Subscribed At</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5 text-white/70">
-                          {subscribers.map((sub) => (
-                            <tr key={sub.id}>
-                              <td className="py-2.5 font-semibold text-white">{sub.email}</td>
-                              <td className="py-2.5 font-mono text-[10px] text-white/40">
-                                {new Date(sub.subscribedAt).toLocaleDateString()}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    )}
-                  </div>
-                </div>
               </div>
             )}
           </div>
@@ -1947,8 +1919,69 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
         {activeTab === "subscribers" && (
           <div className="space-y-8">
             <div>
-              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Newsletter Subscribers</h2>
-              <p className="text-white/40 text-xs italic">View all subscribers and send emails individually or collectively.</p>
+              <h2 className="font-display font-black text-2xl md:text-3xl uppercase italic text-white">Newsletter & Subscribers</h2>
+              <p className="text-white/40 text-xs italic">Manage subscribers, use predefined templates, and send emails individually or collectively.</p>
+            </div>
+
+            {/* Template Selection */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-xs uppercase tracking-wider text-white flex items-center gap-2">
+                <FileText className="w-4 h-4 text-brand-orange" />
+                Predefined Email Templates
+              </h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  {
+                    id: "welcome",
+                    name: "Welcome New Subscriber",
+                    subject: "Welcome to Alpha Spark Academy!",
+                    content: "Hi there,\n\nThank you for subscribing to Alpha Spark Academy's newsletter! You'll now receive the latest updates on our programs, success stories, and exclusive opportunities.\n\nStay tuned for exciting content coming your way.\n\nBest regards,\nAlpha Spark Academy Team",
+                    icon: UserCheck,
+                    color: "text-green-400"
+                  },
+                  {
+                    id: "bootcamp",
+                    name: "Bootcamp Announcement",
+                    subject: "New Bootcamp Cohort Starting Soon!",
+                    content: "Hi there,\n\nWe're excited to announce that a new bootcamp cohort is starting soon! This is your chance to learn in-demand digital skills from industry experts.\n\nPrograms available:\n- Full Stack Web Development\n- UI/UX Design\n- Data Analytics\n- And more!\n\nLimited spots available. Apply now!\n\nBest regards,\nAlpha Spark Academy Team",
+                    icon: GraduationCap,
+                    color: "text-brand-orange"
+                  },
+                  {
+                    id: "newsletter",
+                    name: "Monthly Newsletter",
+                    subject: "Alpha Spark Academy Monthly Update",
+                    content: "Hi there,\n\nHere's your monthly update from Alpha Spark Academy!\n\nHighlights this month:\n- New course launches\n- Student success stories\n- Industry insights\n- Upcoming events\n\nThank you for being part of our community.\n\nBest regards,\nAlpha Spark Academy Team",
+                    icon: Mail,
+                    color: "text-brand-blue"
+                  },
+                  {
+                    id: "promotion",
+                    name: "Special Promotion",
+                    subject: "Exclusive Offer for Our Subscribers!",
+                    content: "Hi there,\n\nAs a valued subscriber, we're offering you an exclusive discount on our upcoming programs!\n\nLimited time offer:\n- 20% off on all courses\n- Early access to new programs\n- Free consultation session\n\nDon't miss out! Offer ends soon.\n\nBest regards,\nAlpha Spark Academy Team",
+                    icon: Sparkles,
+                    color: "text-purple-400"
+                  }
+                ].map((template) => {
+                  const IconComponent = template.icon;
+                  return (
+                    <button
+                      key={template.id}
+                      onClick={() => setSubscriberEmailForm({ subject: template.subject, content: template.content })}
+                      className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left hover:bg-white/10 hover:border-brand-orange/50 transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange/20 transition-colors`}>
+                          <IconComponent className={`w-5 h-5 ${template.color}`} />
+                        </div>
+                        <h4 className="font-bold text-xs text-white uppercase tracking-wider">{template.name}</h4>
+                      </div>
+                      <p className="text-[10px] text-white/40 line-clamp-2">{template.subject}</p>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-8">
@@ -2059,6 +2092,29 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                     </div>
                   </form>
                 </div>
+
+                {/* Email Preview */}
+                {(subscriberEmailForm.subject || subscriberEmailForm.content) && (
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange mb-4">Email Preview</h4>
+                    <div className="bg-[#1f2833] p-4 rounded-xl border border-white/5 space-y-3">
+                      {subscriberEmailForm.subject && (
+                        <h2 className="text-[#0099CC] text-sm font-black uppercase tracking-widest italic">
+                          {subscriberEmailForm.subject}
+                        </h2>
+                      )}
+                      {subscriberEmailForm.content ? (
+                        subscriberEmailForm.content.split('\n').filter(Boolean).map((p, idx) => (
+                          <p key={idx} className="text-[#c5c6c7] text-[11px] leading-relaxed">
+                            {p}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="text-white/20 text-[11px] italic text-center py-6">Your email content will appear here...</p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
