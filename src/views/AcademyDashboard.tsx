@@ -233,17 +233,6 @@ export default function AcademyDashboard() {
                     Student Roster
                   </button>
                   <button 
-                    onClick={() => handleTabClick("instructor_lessons")}
-                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
-                      activeTab === "instructor_lessons" 
-                        ? "text-white bg-white/10" 
-                        : "text-white/60 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-[#3bb75e]" />
-                    Syllabus Builder
-                  </button>
-                  <button 
                     onClick={() => handleTabClick("instructor_resources")}
                     className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
                       activeTab === "instructor_resources" 
@@ -251,7 +240,7 @@ export default function AcademyDashboard() {
                         : "text-white/60 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <FileText className="w-3.5 h-3.5 text-purple-400" />
+                    <BookOpen className="w-3.5 h-3.5 text-[#3bb75e]" />
                     Course Resources
                   </button>
                   <button 
