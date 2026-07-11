@@ -16,7 +16,8 @@ import {
   Monitor,
   Code,
   BrainCircuit,
-  BarChart3
+  BarChart3,
+  Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -32,6 +33,7 @@ interface Partner {
 export default function Home() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [academyCourses, setAcademyCourses] = useState<Course[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
 
   useEffect(() => {
     fetch("/api/partners")
@@ -57,9 +59,11 @@ export default function Home() {
         if (localCourses) {
           setAcademyCourses(JSON.parse(localCourses));
         } else {
-          // Fallback to imported courses if we import them
           import('../data/courses').then(m => setAcademyCourses(m.courses));
         }
+      })
+      .finally(() => {
+        setIsLoadingCourses(false);
       });
   }, []);
 
@@ -364,34 +368,40 @@ export default function Home() {
                 </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
-              {academyCourses.slice(0, 4).map((course, i) => {
-                const Icon = getCourseIcon(course.iconName);
-                return (
-                  <Link 
-                    key={i} 
-                    to={`/academy?course=${course.id}`}
-                    className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
-                  >
-                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity z-0">
-                      <Icon className="w-12 h-12 text-white" />
-                    </div>
-                    {course.imageUrl ? (
-                      <div className="w-full h-32 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden relative z-10 border border-white/10">
-                        <div className="absolute inset-0 bg-brand-navy/50 group-hover:bg-brand-navy/20 transition-colors duration-500 z-10 pointer-events-none" />
-                        <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
-                        <div className="absolute top-3 right-3 w-10 h-10 rounded-xl bg-brand-navy/90 backdrop-blur-md flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500 border border-white/10 shadow-lg z-20">
-                          <Icon className="w-5 h-5 text-brand-orange group-hover:text-white" />
+              {isLoadingCourses ? (
+                <div className="col-span-2 flex justify-center items-center py-12">
+                  <Loader2 className="w-8 h-8 text-brand-orange animate-spin" />
+                </div>
+              ) : (
+                academyCourses.slice(0, 4).map((course, i) => {
+                  const Icon = getCourseIcon(course.iconName);
+                  return (
+                    <Link 
+                      key={i} 
+                      to={`/academy?course=${course.id}`}
+                      className="flex flex-col gap-5 md:gap-6 p-6 md:p-8 bg-white/5 rounded-[32px] md:rounded-[48px] border border-white/10 hover:border-brand-orange transition-all group relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity z-0">
+                        <Icon className="w-12 h-12 text-white" />
+                      </div>
+                      {course.imageUrl ? (
+                        <div className="w-full h-32 md:h-40 rounded-2xl md:rounded-3xl overflow-hidden relative z-10 border border-white/10">
+                          <div className="absolute inset-0 bg-brand-navy/50 group-hover:bg-brand-navy/20 transition-colors duration-500 z-10 pointer-events-none" />
+                          <img src={course.imageUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" />
+                          <div className="absolute top-3 right-3 w-10 h-10 rounded-xl bg-brand-navy/90 backdrop-blur-md flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500 border border-white/10 shadow-lg z-20">
+                            <Icon className="w-5 h-5 text-brand-orange group-hover:text-white" />
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500 relative z-10">
-                        <Icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
-                      </div>
-                    )}
-                    <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight relative z-10">{course.title}</span>
-                  </Link>
-                );
-              })}
+                      ) : (
+                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-orange transition-colors duration-500 relative z-10">
+                          <Icon className="w-8 h-8 text-brand-orange group-hover:text-white" />
+                        </div>
+                      )}
+                      <span className="font-display font-black text-lg text-white uppercase italic tracking-tight leading-tight relative z-10">{course.title}</span>
+                    </Link>
+                  );
+                })
+              )}
             </div>
             <Link to="/academy" className="flex items-center gap-3 group text-brand-orange font-black text-sm uppercase tracking-widest">
               Explore all programs

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../lib/firebase-admin';
+import { db, adminAuth } from '../../../lib/firebase-admin';
 
 export async function GET() {
   try {
@@ -11,7 +11,6 @@ export async function GET() {
         ...doc.data()
       });
     });
-    // Sort courses if needed, or return them directly
     return NextResponse.json(courses);
   } catch (error) {
     console.error('Failed to fetch courses:', error);
@@ -19,8 +18,39 @@ export async function GET() {
   }
 }
 
+async function verifyAdminAuth(req: Request): Promise<{ authorized: boolean; error?: string }> {
+  try {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return { authorized: false, error: 'Unauthorized' };
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    if (!adminAuth) throw new Error('Firebase adminAuth not initialized');
+
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const userId = decodedToken.uid;
+
+    const callerDoc = await db.collection('users').doc(userId).get();
+    const callerData = callerDoc.data();
+
+    if (!callerData || callerData.role !== 'admin') {
+      return { authorized: false, error: 'Forbidden: Admin privileges required' };
+    }
+
+    return { authorized: true };
+  } catch (error) {
+    return { authorized: false, error: 'Authentication failed' };
+  }
+}
+
 export async function POST(req: Request) {
   try {
+    const authCheck = await verifyAdminAuth(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+
     const body = await req.json();
     const {
       id,
@@ -79,6 +109,11 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
+    const authCheck = await verifyAdminAuth(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+
     const body = await req.json();
     const { id } = body;
     if (!id) {
@@ -125,6 +160,11 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    const authCheck = await verifyAdminAuth(req);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
     if (!id) {

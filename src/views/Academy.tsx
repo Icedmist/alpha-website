@@ -14,7 +14,8 @@ import {
   GraduationCap,
   Users,
   Building,
-  Briefcase
+  Briefcase,
+  Loader2
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -24,6 +25,7 @@ import CourseCard from "../components/CourseCard";
 
 export default function Academy() {
   const [coursesList, setCoursesList] = useState<Course[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [searchParams] = useSearchParams();
   const activeCourseId = searchParams.get("course");
 
@@ -46,9 +48,11 @@ export default function Academy() {
         if (localCourses) {
           setCoursesList(JSON.parse(localCourses));
         } else {
-          // Fallback to imported courses
           import('../data/courses').then(m => setCoursesList(m.courses));
         }
+      })
+      .finally(() => {
+        setIsLoadingCourses(false);
       });
   }, []);
 
@@ -253,16 +257,22 @@ export default function Academy() {
                Join our industry-led programs designed to give you practical, verifiable skills in weeks.
              </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
-            {coursesList.map((course: Course) => (
-              <div key={course.id} id={course.id}>
-                <CourseCard 
-                  course={course} 
-                  initialExpanded={activeCourseId === course.id} 
-                />
-              </div>
-            ))}
-          </div>
+          {isLoadingCourses ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-12 h-12 text-brand-orange animate-spin" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+              {coursesList.map((course: Course) => (
+                <div key={course.id} id={course.id}>
+                  <CourseCard 
+                    course={course} 
+                    initialExpanded={activeCourseId === course.id} 
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

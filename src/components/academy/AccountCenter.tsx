@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { courses } from "../../data/courses";
+import { Course } from "../../data/courses";
 import { auth } from "../../lib/firebase";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { 
   User, Lock, CreditCard, Gift, Github, Linkedin, 
-  Check, Save, Eye, EyeOff, AlertCircle, Calendar, Receipt, FileText
+  Check, Save, Eye, EyeOff, AlertCircle, Calendar, Receipt, FileText, Loader2
 } from "lucide-react";
 
 const AVATAR_GRADIENTS = [
@@ -20,6 +20,26 @@ const AVATAR_GRADIENTS = [
 export default function AccountCenter() {
   const { currentUser, updateUser } = useAuth();
   const [activeSubTab, setActiveSubTab] = useState<"profile" | "security" | "billing" | "referrals">("profile");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/courses")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setCourses(data);
+        } else {
+          import("../../data/courses").then(m => setCourses(m.courses));
+        }
+      })
+      .catch(() => {
+        import("../../data/courses").then(m => setCourses(m.courses));
+      })
+      .finally(() => {
+        setIsLoadingCourses(false);
+      });
+  }, []);
 
   // Profile Form State
   const [name, setName] = useState(currentUser?.name || "");
@@ -128,6 +148,14 @@ export default function AccountCenter() {
 
   // Mock Referrals Info
   const mockReferralList: any[] = [];
+
+  if (isLoadingCourses) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-12 h-12 text-brand-orange animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 md:space-y-10">

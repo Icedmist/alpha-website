@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Users, ClipboardCheck, GraduationCap, PlusCircle, CheckCircle2, 
-  Send, AlertCircle, FileText, ExternalLink, BookOpen, Clock
+  Send, AlertCircle, FileText, ExternalLink, BookOpen, Clock, Loader2
 } from "lucide-react";
-import { courses, Course } from "../../data/courses";
+import { Course } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
 
 export default function InstructorDashboard({ 
@@ -16,6 +16,8 @@ export default function InstructorDashboard({
 }) {
   const { currentUser, allUsers, updateSpecificUser } = useAuth();
   const [localActiveTab, setLocalActiveTab] = useState<"grading" | "students" | "lessons">("grading");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   
   const activeTab = activeView || localActiveTab;
   const setActiveTab = (tab: "grading" | "students" | "lessons") => {
@@ -24,6 +26,24 @@ export default function InstructorDashboard({
       onTabChange(tab);
     }
   };
+
+  useEffect(() => {
+    fetch("/api/courses")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setCourses(data);
+        } else {
+          import("../../data/courses").then(m => setCourses(m.courses));
+        }
+      })
+      .catch(() => {
+        import("../../data/courses").then(m => setCourses(m.courses));
+      })
+      .finally(() => {
+        setIsLoadingCourses(false);
+      });
+  }, []);
   
   const assignedCourseIds = currentUser?.enrolledCourses || [];
   const instructorCourses = courses.filter((c) => assignedCourseIds.includes(c.id));
@@ -151,6 +171,14 @@ export default function InstructorDashboard({
     setLessonTitle("");
     setLessonPromptOrUrl("");
   };
+
+  if (isLoadingCourses) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="w-12 h-12 text-brand-orange animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 md:space-y-8">

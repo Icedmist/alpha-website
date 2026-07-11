@@ -362,9 +362,10 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
     };
 
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/courses", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...authHeaders, "Content-Type": "application/json" },
         body: JSON.stringify(newCourse)
       });
       if (res.ok) {
@@ -378,7 +379,8 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
         setCourseImageUrl("");
         await fetchCourses();
       } else {
-        alert("Failed to create course.");
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to create course.");
       }
     } catch (err) {
       console.error(err);
@@ -390,17 +392,101 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
     if (!window.confirm("Are you sure you want to delete this course?")) return;
 
     try {
-      const res = await fetch(`/api/courses?id=${courseId}`, { method: "DELETE" });
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/courses?id=${courseId}`, {
+        method: "DELETE",
+        headers: authHeaders
+      });
       if (res.ok) {
         alert("Course deleted from database.");
         await fetchCourses();
       } else {
-        alert("Failed to delete course.");
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to delete course.");
       }
     } catch (err) {
       console.error(err);
       alert("Error deleting course.");
     }
+  };
+
+  const handleEditCourse = (course: Course) => {
+    setEditingCourse(course);
+    setShowAddCourse(true);
+    setCourseTitle(course.title);
+    setCourseSubtitle(course.subtitle);
+    setCourseFee(course.fee);
+    setCourseDuration(course.duration);
+    setCourseHours(course.hours);
+    setCourseLevel(course.level);
+    setCourseOutcome(course.outcome);
+    setCourseLearnText(course.learn.join("\n"));
+    setCourseToolsText(course.tools.join(", "));
+    setCourseIcon(course.iconName);
+    setCourseImageUrl(course.imageUrl || "");
+  };
+
+  const handleUpdateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseTitle || !courseSubtitle || !editingCourse) return;
+
+    const updatedCourse = {
+      id: editingCourse.id,
+      title: courseTitle,
+      subtitle: courseSubtitle,
+      duration: courseDuration,
+      hours: courseHours,
+      level: courseLevel,
+      certificate: editingCourse.certificate,
+      fee: courseFee,
+      learn: courseLearnText.split("\n").filter(Boolean),
+      outcome: courseOutcome || `Earn competency in ${courseTitle}`,
+      careerPaths: editingCourse.careerPaths,
+      talentCloud: editingCourse.talentCloud,
+      accentColor: editingCourse.accentColor,
+      tools: courseToolsText.split(",").map(t => t.trim()).filter(Boolean),
+      iconName: courseIcon,
+      imageUrl: courseImageUrl,
+      modules: editingCourse.modules
+    };
+
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses", {
+        method: "PUT",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCourse)
+      });
+      if (res.ok) {
+        alert(`Course "${courseTitle}" updated successfully!`);
+        setShowAddCourse(false);
+        setEditingCourse(null);
+        setCourseTitle("");
+        setCourseSubtitle("");
+        setCourseOutcome("");
+        setCourseLearnText("");
+        setCourseToolsText("");
+        setCourseImageUrl("");
+        await fetchCourses();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to update course.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating course.");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCourse(null);
+    setShowAddCourse(false);
+    setCourseTitle("");
+    setCourseSubtitle("");
+    setCourseOutcome("");
+    setCourseLearnText("");
+    setCourseToolsText("");
+    setCourseImageUrl("");
   };
 
   const handleIssueCertificate = (e: React.FormEvent) => {
@@ -783,8 +869,19 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
             </div>
 
             {showAddCourse && (
-              <form onSubmit={handleCreateCourse} className="bg-white/5 p-6 rounded-2xl border border-white/10 space-y-6 max-w-2xl">
-                <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange">New Course Blueprint</h4>
+              <form onSubmit={editingCourse ? handleUpdateCourse : handleCreateCourse} className="bg-white/5 p-6 rounded-2xl border border-white/10 space-y-6 max-w-2xl">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange">{editingCourse ? "Edit Course" : "New Course Blueprint"}</h4>
+                  {editingCourse && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="text-white/40 hover:text-white text-xs font-bold uppercase tracking-wider"
+                    >
+                      Cancel Edit
+                    </button>
+                  )}
+                </div>
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-1">
@@ -894,7 +991,7 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                   type="submit"
                   className="bg-brand-orange text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest cursor-pointer"
                 >
-                  Publish to Landing Page
+                  {editingCourse ? "Update Course" : "Publish to Landing Page"}
                 </button>
               </form>
             )}
@@ -910,12 +1007,22 @@ export default function AdminDashboard({ activeView, onTabChange }: AdminDashboa
                       <span>{c.fee}</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteCourse(c.id)}
-                    className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditCourse(c)}
+                      className="p-2 rounded-lg bg-brand-blue/10 text-brand-blue hover:bg-brand-blue hover:text-white transition-colors cursor-pointer"
+                      title="Edit Course"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCourse(c.id)}
+                      className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors cursor-pointer"
+                      title="Delete Course"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
