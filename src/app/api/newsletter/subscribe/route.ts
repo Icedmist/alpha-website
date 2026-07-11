@@ -2,7 +2,7 @@ import { db } from '../../../../lib/firebase-admin';
 import { resend } from '../../../../lib/resend';
 import { NextResponse } from 'next/server';
 import { render } from '@react-email/render';
-import WelcomeEmail from '../../../../emails/WelcomeEmail';
+import NewsletterEmail from '../../../../emails/NewsletterEmail';
 import React from 'react';
 
 export async function POST(req: Request) {
@@ -38,21 +38,30 @@ export async function POST(req: Request) {
       timestamp,
     });
 
-    // Send welcome email automatically
+    // Send newsletter subscription confirmation email
     if (resend) {
       try {
         const emailHtml = await render(
-          React.createElement(WelcomeEmail, { firstName: 'Future Innovator' })
+          React.createElement(NewsletterEmail, {
+            subject: 'Thanks for Subscribing to Alpha Spark Academy!',
+            title: 'You\'re In!',
+            content: [
+              'Thank you for subscribing to the Alpha Spark Academy newsletter!',
+              'You\'ll now receive the latest updates on our programs, success stories, bootcamp announcements, and exclusive opportunities.',
+              'Stay tuned for exciting content coming your way.',
+              '— The Alpha Spark Academy Team',
+            ],
+          })
         );
 
         await resend.emails.send({
           from: 'Alpha Spark Academy <no-reply@alphaspark.ng>',
           to: cleanedEmail,
-          subject: 'Welcome to Alpha Spark Academy!',
+          subject: 'Thanks for Subscribing to Alpha Spark Academy!',
           html: emailHtml,
         });
       } catch (emailErr) {
-        console.error('Failed to send welcome email:', emailErr);
+        console.error('Failed to send newsletter subscription email:', emailErr);
         // Don't fail the subscription if email fails
       }
     }
