@@ -75,6 +75,34 @@ export default function InstructorDashboard({
   const [editLessonAssignmentPrompt, setEditLessonAssignmentPrompt] = useState("");
   const [editQuizQuestions, setEditQuizQuestions] = useState<QuizQuestion[]>([]);
 
+  // Add new module/lesson state for resources tab
+  const [showAddModuleForm, setShowAddModuleForm] = useState(false);
+  const [newModuleTitle, setNewModuleTitle] = useState("");
+  const [addingLessonToModule, setAddingLessonToModule] = useState<string | null>(null);
+  const [newLessonTitle, setNewLessonTitle] = useState("");
+  const [newLessonType, setNewLessonType] = useState<LessonType>("video");
+  const [newLessonDuration, setNewLessonDuration] = useState("15 mins");
+  const [newLessonUrl, setNewLessonUrl] = useState("");
+  const [newLessonTextContent, setNewLessonTextContent] = useState("");
+  const [newLessonLinkUrl, setNewLessonLinkUrl] = useState("");
+  const [newLessonLinkTitle, setNewLessonLinkTitle] = useState("");
+  const [newLessonDocumentUrl, setNewLessonDocumentUrl] = useState("");
+  const [newLessonDocumentName, setNewLessonDocumentName] = useState("");
+  const [newLessonAssignmentPrompt, setNewLessonAssignmentPrompt] = useState("");
+  const [newQuizQuestions, setNewQuizQuestions] = useState<QuizQuestion[]>([
+    {
+      id: "q1",
+      question: "",
+      options: [
+        { label: "A", text: "" },
+        { label: "B", text: "" },
+        { label: "C", text: "" },
+        { label: "D", text: "" }
+      ],
+      correctAnswerIndex: 0
+    }
+  ]);
+
   // Grading states
   const [gradingSubmission, setGradingSubmission] = useState<{ userId: string; userName: string; submission: Submission } | null>(null);
   const [score, setScore] = useState<number>(85);
@@ -497,6 +525,150 @@ export default function InstructorDashboard({
       text
     };
     setEditQuizQuestions(updated);
+  };
+
+  const resetNewLessonForm = () => {
+    setNewLessonTitle("");
+    setNewLessonDuration("15 mins");
+    setNewLessonType("video");
+    setNewLessonUrl("");
+    setNewLessonTextContent("");
+    setNewLessonLinkUrl("");
+    setNewLessonLinkTitle("");
+    setNewLessonDocumentUrl("");
+    setNewLessonDocumentName("");
+    setNewLessonAssignmentPrompt("");
+    setNewQuizQuestions([{
+      id: "q1",
+      question: "",
+      options: [
+        { label: "A", text: "" },
+        { label: "B", text: "" },
+        { label: "C", text: "" },
+        { label: "D", text: "" }
+      ],
+      correctAnswerIndex: 0
+    }]);
+  };
+
+  const addNewModule = async (courseId: string) => {
+    if (!newModuleTitle.trim()) {
+      alert("Please enter a module title.");
+      return;
+    }
+
+    const newModule: Module = {
+      id: `mod-${Math.random().toString(36).substring(2, 9)}`,
+      title: newModuleTitle,
+      lessons: []
+    };
+
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses/content", {
+        method: "POST",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId, module: newModule })
+      });
+      if (res.ok) {
+        setNewModuleTitle("");
+        setShowAddModuleForm(false);
+        await fetchCourses();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to create module");
+      }
+    } catch (err) {
+      console.error("Failed to create module:", err);
+    }
+  };
+
+  const addLessonToModule = async (courseId: string, moduleId: string) => {
+    if (!newLessonTitle.trim()) {
+      alert("Please enter a lesson title.");
+      return;
+    }
+
+    const newLessonId = `les-${Math.random().toString(36).substring(2, 9)}`;
+    const newLesson: Lesson = {
+      id: newLessonId,
+      title: newLessonTitle,
+      type: newLessonType,
+      duration: newLessonDuration,
+      videoUrl: newLessonType === "video" ? newLessonUrl : undefined,
+      pdfUrl: newLessonType === "pdf" ? newLessonUrl : undefined,
+      textContent: newLessonType === "text" ? newLessonTextContent : undefined,
+      linkUrl: newLessonType === "link" ? newLessonLinkUrl : undefined,
+      linkTitle: newLessonType === "link" ? newLessonLinkTitle : undefined,
+      documentUrl: newLessonType === "document" ? newLessonDocumentUrl : undefined,
+      documentName: newLessonType === "document" ? newLessonDocumentName : undefined,
+      assignmentPrompt: newLessonType === "assignment" ? newLessonAssignmentPrompt : undefined,
+      quizQuestions: newLessonType === "quiz"
+        ? newQuizQuestions.filter(q => q.question.trim()).map((q, i) => ({ ...q, id: `${newLessonId}-q${i + 1}` }))
+        : undefined,
+    };
+
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/courses/content", {
+        method: "PUT",
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId,
+          moduleId,
+          lesson: newLesson,
+          action: "addLesson"
+        })
+      });
+      if (res.ok) {
+        setAddingLessonToModule(null);
+        resetNewLessonForm();
+        await fetchCourses();
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to add lesson");
+      }
+    } catch (err) {
+      console.error("Failed to add lesson:", err);
+    }
+  };
+
+  const addNewQuizQuestion = () => {
+    setNewQuizQuestions([
+      ...newQuizQuestions,
+      {
+        id: `q${newQuizQuestions.length + 1}`,
+        question: "",
+        options: [
+          { label: "A", text: "" },
+          { label: "B", text: "" },
+          { label: "C", text: "" },
+          { label: "D", text: "" }
+        ],
+        correctAnswerIndex: 0
+      }
+    ]);
+  };
+
+  const removeNewQuizQuestion = (index: number) => {
+    if (newQuizQuestions.length > 1) {
+      setNewQuizQuestions(newQuizQuestions.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateNewQuizQuestion = (index: number, field: keyof QuizQuestion, value: any) => {
+    const updated = [...newQuizQuestions];
+    updated[index] = { ...updated[index], [field]: value };
+    setNewQuizQuestions(updated);
+  };
+
+  const updateNewQuizOption = (questionIndex: number, optionIndex: number, text: string) => {
+    const updated = [...newQuizQuestions];
+    updated[questionIndex].options[optionIndex] = {
+      ...updated[questionIndex].options[optionIndex],
+      text
+    };
+    setNewQuizQuestions(updated);
   };
 
   if (isLoadingCourses) {
@@ -935,7 +1107,44 @@ export default function InstructorDashboard({
 
                 return (
                   <div className="space-y-6">
-                    {selectedCourse.modules.length === 0 ? (
+                    {/* Add Module Button */}
+                    {!showAddModuleForm ? (
+                      <button
+                        onClick={() => setShowAddModuleForm(true)}
+                        className="w-full bg-white/[0.03] border border-dashed border-white/10 hover:border-brand-orange/50 hover:bg-white/[0.05] rounded-2xl p-4 text-center transition-all cursor-pointer"
+                      >
+                        <PlusCircle className="w-5 h-5 mx-auto text-brand-orange mb-2" />
+                        <span className="text-xs font-bold text-white/60 uppercase tracking-wider">Add New Module</span>
+                      </button>
+                    ) : (
+                      <div className="bg-white/[0.05] border border-brand-orange/30 rounded-2xl p-5 space-y-4">
+                        <h5 className="text-[10px] font-black uppercase tracking-wider text-brand-orange">New Module</h5>
+                        <input
+                          type="text"
+                          placeholder="e.g. Module 1: Introduction"
+                          value={newModuleTitle}
+                          onChange={(e) => setNewModuleTitle(e.target.value)}
+                          className="w-full bg-brand-navy border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-brand-orange outline-none"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => addNewModule(selectedCourse.id)}
+                            className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                          >
+                            Create Module
+                          </button>
+                          <button
+                            onClick={() => { setShowAddModuleForm(false); setNewModuleTitle(""); }}
+                            className="bg-white/10 text-white/60 hover:text-white px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedCourse.modules.length === 0 && !showAddModuleForm ? (
                       <div className="bg-white/[0.02] border border-white/5 p-8 text-center rounded-2xl">
                         <FileText className="w-12 h-12 text-white/20 mx-auto mb-3" />
                         <p className="text-white/40 text-xs">No modules created yet for this course.</p>
@@ -1242,6 +1451,162 @@ export default function InstructorDashboard({
                               </div>
                             ))}
                           </div>
+
+                          {/* Add Lesson to this Module */}
+                          {addingLessonToModule === mod.id ? (
+                            <div className="bg-white/[0.05] border border-brand-orange/30 rounded-xl p-4 space-y-3 mt-3">
+                              <div className="flex items-center justify-between">
+                                <h5 className="text-[10px] font-black uppercase tracking-wider text-brand-orange">New Lesson</h5>
+                                <button
+                                  onClick={() => { setAddingLessonToModule(null); resetNewLessonForm(); }}
+                                  className="text-white/40 hover:text-white cursor-pointer"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-white/40 uppercase">Title</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Lesson title..."
+                                    value={newLessonTitle}
+                                    onChange={(e) => setNewLessonTitle(e.target.value)}
+                                    className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-white/40 uppercase">Duration</label>
+                                  <input
+                                    type="text"
+                                    value={newLessonDuration}
+                                    onChange={(e) => setNewLessonDuration(e.target.value)}
+                                    className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-bold text-white/40 uppercase">Type</label>
+                                <select
+                                  value={newLessonType}
+                                  onChange={(e) => setNewLessonType(e.target.value as LessonType)}
+                                  className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none"
+                                >
+                                  <option value="video">Video</option>
+                                  <option value="pdf">PDF</option>
+                                  <option value="text">Text</option>
+                                  <option value="link">Link</option>
+                                  <option value="document">Document</option>
+                                  <option value="quiz">Quiz</option>
+                                  <option value="assignment">Assignment</option>
+                                </select>
+                              </div>
+
+                              {newLessonType === "video" && (
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-white/40 uppercase">Video URL</label>
+                                  <input type="url" placeholder="https://www.youtube.com/embed/..." value={newLessonUrl} onChange={(e) => setNewLessonUrl(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none" />
+                                </div>
+                              )}
+                              {newLessonType === "pdf" && (
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-white/40 uppercase">PDF URL</label>
+                                  <input type="url" placeholder="https://example.com/file.pdf" value={newLessonUrl} onChange={(e) => setNewLessonUrl(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none" />
+                                </div>
+                              )}
+                              {newLessonType === "text" && (
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-white/40 uppercase">Text Content</label>
+                                  <textarea rows={3} value={newLessonTextContent} onChange={(e) => setNewLessonTextContent(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none resize-none" />
+                                </div>
+                              )}
+                              {newLessonType === "link" && (
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase">URL</label>
+                                    <input type="url" value={newLessonLinkUrl} onChange={(e) => setNewLessonLinkUrl(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none" />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase">Display Title</label>
+                                    <input type="text" value={newLessonLinkTitle} onChange={(e) => setNewLessonLinkTitle(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none" />
+                                  </div>
+                                </div>
+                              )}
+                              {newLessonType === "document" && (
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase">Document URL</label>
+                                    <input type="url" value={newLessonDocumentUrl} onChange={(e) => setNewLessonDocumentUrl(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none" />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase">Document Name</label>
+                                    <input type="text" value={newLessonDocumentName} onChange={(e) => setNewLessonDocumentName(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none" />
+                                  </div>
+                                </div>
+                              )}
+                              {newLessonType === "assignment" && (
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-white/40 uppercase">Assignment Prompt</label>
+                                  <textarea rows={2} value={newLessonAssignmentPrompt} onChange={(e) => setNewLessonAssignmentPrompt(e.target.value)} className="w-full bg-brand-navy border border-white/10 rounded-lg px-3 py-1.5 text-[11px] text-white focus:border-brand-orange outline-none resize-none" />
+                                </div>
+                              )}
+                              {newLessonType === "quiz" && (
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <label className="text-[9px] font-bold text-white/40 uppercase">Quiz Questions</label>
+                                    <button type="button" onClick={addNewQuizQuestion} className="flex items-center gap-1 bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded-lg text-[9px] font-bold cursor-pointer">
+                                      <PlusCircle className="w-3 h-3" /> Add Q
+                                    </button>
+                                  </div>
+                                  {newQuizQuestions.map((q, qi) => (
+                                    <div key={qi} className="bg-white/[0.03] border border-white/5 rounded-lg p-3 space-y-2">
+                                      <div className="flex items-center gap-2">
+                                        <input type="text" placeholder="Question..." value={q.question} onChange={(e) => updateNewQuizQuestion(qi, "question", e.target.value)} className="flex-1 bg-brand-navy border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-brand-orange outline-none" />
+                                        {newQuizQuestions.length > 1 && (
+                                          <button onClick={() => removeNewQuizQuestion(qi)} className="text-red-400/60 hover:text-red-400 cursor-pointer"><Trash2 className="w-3 h-3" /></button>
+                                        )}
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        {q.options.map((opt, oi) => (
+                                          <input key={oi} type="text" placeholder={opt.label} value={opt.text} onChange={(e) => updateNewQuizOption(qi, oi, e.target.value)} className="bg-brand-navy border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-brand-orange outline-none" />
+                                        ))}
+                                      </div>
+                                      <select value={q.correctAnswerIndex} onChange={(e) => updateNewQuizQuestion(qi, "correctAnswerIndex", parseInt(e.target.value))} className="w-full bg-brand-navy border border-white/10 rounded px-2 py-1 text-[10px] text-white focus:border-brand-orange outline-none">
+                                        {q.options.map((opt, oi) => (
+                                          <option key={oi} value={oi}>{opt.label} - {opt.text || "Empty"}</option>
+                                        ))}
+                                      </select>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex gap-2 pt-2">
+                                <button
+                                  onClick={() => addLessonToModule(selectedCourse.id, mod.id)}
+                                  className="flex-1 bg-brand-orange hover:bg-brand-orange/90 text-white py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                                >
+                                  Add Lesson
+                                </button>
+                                <button
+                                  onClick={() => { setAddingLessonToModule(null); resetNewLessonForm(); }}
+                                  className="bg-white/10 text-white/60 hover:text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setAddingLessonToModule(mod.id)}
+                              className="w-full bg-white/[0.02] border border-dashed border-white/10 hover:border-brand-orange/50 hover:bg-white/[0.04] rounded-xl p-3 text-center transition-all cursor-pointer mt-3"
+                            >
+                              <PlusCircle className="w-4 h-4 mx-auto text-brand-orange/60 mb-1" />
+                              <span className="text-[10px] font-bold text-white/40 uppercase tracking-wider">Add Lesson</span>
+                            </button>
+                          )}
                         </div>
                       ))
                     )}
