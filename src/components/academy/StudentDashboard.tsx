@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   BookOpen, Play, CheckCircle2, Circle, HelpCircle, FileText, 
-  Upload, Link2, Calendar, Award, Check, UserCheck, AlertCircle, Bell, Lock
+  Upload, Link2, Calendar, Award, Check, UserCheck, AlertCircle, Bell, Lock,
+  ExternalLink, Download
 } from "lucide-react";
-import { courses, Course, Lesson, QuizQuestion } from "../../data/courses";
+import { courses, Course, Lesson, LessonType, QuizQuestion } from "../../data/courses";
 import { useAuth, User, Submission } from "../../context/AuthContext";
 import PaymentSimulator from "./PaymentSimulator";
 import CertificateGenerator from "./CertificateGenerator";
@@ -857,14 +858,113 @@ export default function StudentDashboard() {
                             </div>
                           )}
 
+                      <button
+                        type="submit"
+                        className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white py-4 rounded-2xl font-black uppercase tracking-wider text-xs transition-colors cursor-pointer"
+                      >
+                        Submit Project
+                      </button>
+                    </form>
+                  )}
+                    </div>
+                  )}
+
+                  {activeLesson.type === "text" && (
+                    <div className="space-y-6">
+                      <div className="bg-white/2 border border-white/5 p-6 rounded-2xl space-y-4">
+                        <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange">Reading Material</h4>
+                        <div className="text-xs text-white/80 leading-relaxed whitespace-pre-wrap">
+                          {activeLesson.textContent || "No content available."}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center bg-white/2 border border-white/5 p-4 rounded-xl">
+                        <span className="text-xs text-white/50">Click below to mark this reading as complete.</span>
+                        {currentUser.completedLessons.includes(activeLesson.id) ? (
+                          <span className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                            <Check className="w-4 h-4" /> Completed
+                          </span>
+                        ) : (
                           <button
-                            type="submit"
-                            className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white py-4 rounded-2xl font-black uppercase tracking-wider text-xs transition-colors cursor-pointer"
+                            onClick={() => markLessonComplete(activeLesson.id)}
+                            className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
                           >
-                            Submit Project
+                            Mark as Completed
                           </button>
-                        </form>
-                      )}
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeLesson.type === "link" && (
+                    <div className="space-y-6">
+                      <div className="bg-white/2 border border-white/5 p-6 rounded-2xl space-y-4">
+                        <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange">External Resource</h4>
+                        <p className="text-xs text-white/80 leading-relaxed">
+                          Access the external resource for this lesson. Click the link below to open it in a new tab.
+                        </p>
+                        <a
+                          href={activeLesson.linkUrl || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          {activeLesson.linkTitle || "Open Resource"}
+                        </a>
+                      </div>
+
+                      <div className="flex justify-between items-center bg-white/2 border border-white/5 p-4 rounded-xl">
+                        <span className="text-xs text-white/50">Click below after reviewing the resource.</span>
+                        {currentUser.completedLessons.includes(activeLesson.id) ? (
+                          <span className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                            <Check className="w-4 h-4" /> Completed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => markLessonComplete(activeLesson.id)}
+                            className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+                          >
+                            Mark as Completed
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {activeLesson.type === "document" && (
+                    <div className="space-y-6">
+                      <div className="bg-white/2 border border-white/5 p-6 rounded-2xl space-y-4">
+                        <h4 className="font-bold text-xs uppercase tracking-wider text-brand-orange">Document Resource</h4>
+                        <p className="text-xs text-white/80 leading-relaxed">
+                          Download or access the document for this lesson: <span className="font-bold text-white">{activeLesson.documentName}</span>
+                        </p>
+                        <a
+                          href={activeLesson.documentUrl || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-brand-blue hover:bg-brand-blue/90 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download Document
+                        </a>
+                      </div>
+
+                      <div className="flex justify-between items-center bg-white/2 border border-white/5 p-4 rounded-xl">
+                        <span className="text-xs text-white/50">Click below after reviewing the document.</span>
+                        {currentUser.completedLessons.includes(activeLesson.id) ? (
+                          <span className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+                            <Check className="w-4 h-4" /> Completed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => markLessonComplete(activeLesson.id)}
+                            className="bg-brand-orange hover:bg-brand-orange/90 text-white px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+                          >
+                            Mark as Completed
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

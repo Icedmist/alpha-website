@@ -10,15 +10,22 @@ export interface QuizQuestion {
   correctAnswerIndex: number;
 }
 
+export type LessonType = "video" | "pdf" | "quiz" | "assignment" | "text" | "link" | "document";
+
 export interface Lesson {
   id: string;
   title: string;
-  type: "video" | "pdf" | "quiz" | "assignment";
+  type: LessonType;
   duration: string;
   videoUrl?: string;
   pdfUrl?: string;
   quizQuestions?: QuizQuestion[];
   assignmentPrompt?: string;
+  textContent?: string;      // For "text" type lessons
+  linkUrl?: string;          // For "link" type lessons (external resources)
+  linkTitle?: string;        // Display title for link
+  documentUrl?: string;      // For "document" type (generic doc resource)
+  documentName?: string;     // Name of the document file
 }
 
 export interface Module {

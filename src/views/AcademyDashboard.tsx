@@ -6,7 +6,7 @@ import InstructorDashboard from "../components/academy/InstructorDashboard";
 import AdminDashboard from "../components/academy/AdminDashboard";
 import AccountCenter from "../components/academy/AccountCenter";
 import ReferralModal from "../components/academy/ReferralModal";
-import { LogOut, User, Lock, Mail, Phone, BookOpen, ShieldCheck, Zap, LayoutDashboard, Gift, BarChart, Users, ClipboardCheck, Award, Menu, X } from "lucide-react";
+import { LogOut, User, Lock, Mail, Phone, BookOpen, ShieldCheck, Zap, LayoutDashboard, Gift, BarChart, Users, ClipboardCheck, Award, Menu, X, FileText } from "lucide-react";
 
 export default function AcademyDashboard() {
   const { currentUser, login, register, logout, resetPassword } = useAuth();
@@ -242,6 +242,17 @@ export default function AcademyDashboard() {
                   >
                     <BookOpen className="w-3.5 h-3.5 text-[#3bb75e]" />
                     Syllabus Builder
+                  </button>
+                  <button 
+                    onClick={() => handleTabClick("instructor_resources")}
+                    className={`w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all text-left cursor-pointer ${
+                      activeTab === "instructor_resources" 
+                        ? "text-white bg-white/10" 
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5 text-purple-400" />
+                    Course Resources
                   </button>
                 </>
               ) : (
