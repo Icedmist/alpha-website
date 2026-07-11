@@ -188,19 +188,24 @@ export async function POST(request: Request) {
           to: email,
           subject: 'Welcome to Alpha Spark Academy!',
           html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h2>Welcome to Alpha Spark Academy!</h2>
-              <p>Hi ${name},</p>
-              <p>An administrator has created an account for you at Alpha Spark Academy.</p>
-              <p><strong>Your Role:</strong> ${role.charAt(0).toUpperCase() + role.slice(1)}</p>
-              <p><strong>Your Login Email:</strong> ${email}</p>
-              <br/>
-              <p>Please log in using the credentials provided to you by your administrator, or use the "Forgot Password" link on the login page if you need to set a new password.</p>
-              <p><a href="https://alpha-spark-academy.vercel.app/academy" style="display:inline-block; padding:10px 20px; background-color:#F4A261; color:#fff; text-decoration:none; border-radius:5px;">Go to Dashboard</a></p>
-              <br/>
-              <p>We are thrilled to have you onboard!</p>
-              <p>Best regards,</p>
-              <p><strong>Alpha Spark Academy Team</strong></p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #0b0c10; color: #c5c6c7;">
+              <div style="text-align: center; margin-bottom: 20px;">
+                <img src="https://raw.githubusercontent.com/Icedmist/alpha-website/main/public/assets/logo.png" width="80" alt="Alpha Spark" style="margin: 0 auto;" />
+              </div>
+              <h2 style="color: #0099CC; text-align: center; text-transform: uppercase; letter-spacing: 2px; font-size: 18px;">Welcome to Alpha Spark Academy!</h2>
+              <div style="background: #1f2833; padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.05);">
+                <p style="margin: 0 0 10px 0;">Hi ${name},</p>
+                <p style="margin: 0 0 15px 0;">An administrator has created an account for you at Alpha Spark Academy.</p>
+                <p style="margin: 0 0 8px 0;"><strong style="color: #0099CC;">Your Role:</strong> ${role.charAt(0).toUpperCase() + role.slice(1)}</p>
+                <p style="margin: 0 0 8px 0;"><strong style="color: #0099CC;">Login Email:</strong> ${email}</p>
+                <p style="margin: 0 0 15px 0;"><strong style="color: #0099CC;">Password:</strong> <span style="background: #0b0c10; padding: 4px 10px; border-radius: 6px; font-family: monospace; letter-spacing: 1px; border: 1px solid rgba(255,255,255,0.1);">${password}</span></p>
+                <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 15px 0;" />
+                <p style="margin: 0; color: #666; font-size: 12px;">Please log in with the credentials above. For security, we recommend changing your password after your first login.</p>
+              </div>
+              <div style="text-align: center; margin: 20px 0;">
+                <a href="https://alpha-spark-academy.vercel.app/academy" style="display:inline-block; padding:12px 24px; background-color:#F4A261; color:#fff; text-decoration:none; border-radius:8px; font-weight:bold; text-transform:uppercase; font-size:12px; letter-spacing:1px;">Go to Dashboard</a>
+              </div>
+              <p style="text-align: center; color: #666; font-size: 11px; margin-top: 20px;">&copy; ${new Date().getFullYear()} Alpha Spark Academy. All rights reserved.</p>
             </div>
           `
         });
