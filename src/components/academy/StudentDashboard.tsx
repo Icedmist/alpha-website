@@ -38,6 +38,7 @@ export default function StudentDashboard() {
 
   // Fetch broadcast assignments
   useEffect(() => {
+    if (!currentUser) return;
     const fetchBroadcastAssignments = async () => {
       try {
         const headers = await getAuthHeaders();
@@ -51,7 +52,7 @@ export default function StudentDashboard() {
       }
     };
     fetchBroadcastAssignments();
-  }, []);
+  }, [currentUser]);
 
   const handleSubmitBroadcastAssignment = async (assignmentId: string, courseId: string, title: string) => {
     if (!submitContent.trim()) {
@@ -104,6 +105,17 @@ export default function StudentDashboard() {
   const [friendEmail, setFriendEmail] = useState("");
   const [isReferring, setIsReferring] = useState(false);
   const [referralSuccess, setReferralSuccess] = useState(false);
+
+  const getYouTubeEmbedUrl = (url: string): string => {
+    if (!url) return "";
+    // Convert youtube.com/watch?v=ID to youtube.com/embed/ID
+    const watchMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (watchMatch) {
+      return `https://www.youtube.com/embed/${watchMatch[1]}`;
+    }
+    // Already an embed URL or other format
+    return url;
+  };
 
   const handleReferralSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -863,7 +875,7 @@ export default function StudentDashboard() {
                         {activeLesson.videoUrl ? (
                           <iframe
                             className="absolute inset-0 w-full h-full"
-                            src={activeLesson.videoUrl}
+                            src={getYouTubeEmbedUrl(activeLesson.videoUrl)}
                             title={activeLesson.title}
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
