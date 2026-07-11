@@ -1,22 +1,32 @@
 import { NextResponse } from 'next/server';
 import { db, adminAuth } from '../../../../lib/firebase-admin';
 
+interface QuizOption {
+  label: string;
+  text: string;
+}
+
 interface QuizQuestion {
   id: string;
   question: string;
-  options: string[];
+  options: QuizOption[];
   correctAnswerIndex: number;
 }
 
 interface Lesson {
   id: string;
   title: string;
-  type: 'video' | 'pdf' | 'quiz' | 'assignment';
+  type: 'video' | 'pdf' | 'quiz' | 'assignment' | 'text' | 'link' | 'document';
   duration: string;
   videoUrl?: string;
   pdfUrl?: string;
   quizQuestions?: QuizQuestion[];
   assignmentPrompt?: string;
+  textContent?: string;
+  linkUrl?: string;
+  linkTitle?: string;
+  documentUrl?: string;
+  documentName?: string;
 }
 
 interface Module {
