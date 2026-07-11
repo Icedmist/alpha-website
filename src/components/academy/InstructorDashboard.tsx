@@ -51,6 +51,13 @@ export default function InstructorDashboard({
   const assignedCourseIds = currentUser?.enrolledCourses || [];
   const instructorCourses = courses.filter((c) => assignedCourseIds.includes(c.id));
 
+  useEffect(() => {
+    if (instructorCourses.length > 0 && !selectedCourseId) {
+      setSelectedCourseId(instructorCourses[0].id);
+      setSelectedResourceCourseId(instructorCourses[0].id);
+    }
+  }, [instructorCourses]);
+
   // Resources tab state
   const [selectedResourceCourseId, setSelectedResourceCourseId] = useState(instructorCourses[0]?.id || "");
 
